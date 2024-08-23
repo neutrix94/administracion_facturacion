@@ -1,0 +1,33 @@
+[27-Oct-2018 02:24:35 UTC] PHP Deprecated:  mysql_query(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead in /home/cdelasluces/public_html/Facturacion/include/catSist.php on line 4
+[27-Oct-2018 02:24:35 UTC] PHP Warning:  mysql_query(): Access denied for user ''@'localhost' (using password: NO) in /home/cdelasluces/public_html/Facturacion/include/catSist.php on line 4
+[27-Oct-2018 02:24:35 UTC] PHP Warning:  mysql_query(): A link to the server could not be established in /home/cdelasluces/public_html/Facturacion/include/catSist.php on line 4
+[09-May-2023 21:14:41 UTC] PHP Deprecated:  mysql_set_charset(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:14:41 UTC] PHP Warning:  mysql_set_charset(): Access denied for user ''@'localhost' (using password: NO) in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:14:41 UTC] PHP Warning:  mysql_set_charset(): A link to the server could not be established in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:14:41 UTC] PHP Deprecated:  mysql_query(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:14:41 UTC] PHP Warning:  mysql_query(): Access denied for user ''@'localhost' (using password: NO) in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:14:41 UTC] PHP Warning:  mysql_query(): A link to the server could not be established in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:18:32 UTC] PHP Deprecated:  mysql_set_charset(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:18:32 UTC] PHP Warning:  mysql_set_charset(): Access denied for user ''@'localhost' (using password: NO) in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:18:32 UTC] PHP Warning:  mysql_set_charset(): A link to the server could not be established in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:18:32 UTC] PHP Deprecated:  mysql_query(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:18:32 UTC] PHP Warning:  mysql_query(): Access denied for user ''@'localhost' (using password: NO) in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:18:32 UTC] PHP Warning:  mysql_query(): A link to the server could not be established in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:18:35 UTC] PHP Deprecated:  mysql_set_charset(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:18:35 UTC] PHP Warning:  mysql_set_charset(): Access denied for user ''@'localhost' (using password: NO) in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:18:35 UTC] PHP Warning:  mysql_set_charset(): A link to the server could not be established in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:18:35 UTC] PHP Deprecated:  mysql_query(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:18:35 UTC] PHP Warning:  mysql_query(): Access denied for user ''@'localhost' (using password: NO) in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:18:35 UTC] PHP Warning:  mysql_query(): A link to the server could not be established in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:19:21 UTC] PHP Deprecated:  mysql_set_charset(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:19:21 UTC] PHP Warning:  mysql_set_charset(): Access denied for user ''@'localhost' (using password: NO) in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:19:21 UTC] PHP Warning:  mysql_set_charset(): A link to the server could not be established in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:19:21 UTC] PHP Deprecated:  mysql_query(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:19:21 UTC] PHP Warning:  mysql_query(): Access denied for user ''@'localhost' (using password: NO) in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:19:21 UTC] PHP Warning:  mysql_query(): A link to the server could not be established in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:19:24 UTC] PHP Deprecated:  mysql_set_charset(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:19:24 UTC] PHP Warning:  mysql_set_charset(): Access denied for user ''@'localhost' (using password: NO) in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:19:24 UTC] PHP Warning:  mysql_set_charset(): A link to the server could not be established in /home/wwsist/public_html/clucesFact2023/include/conexion.php on line 21
+[09-May-2023 21:19:24 UTC] PHP Deprecated:  mysql_query(): The mysql extension is deprecated and will be removed in the future: use mysqli or PDO instead in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:19:24 UTC] PHP Warning:  mysql_query(): Access denied for user ''@'localhost' (using password: NO) in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
+[09-May-2023 21:19:24 UTC] PHP Warning:  mysql_query(): A link to the server could not be established in /home/wwsist/public_html/clucesFact2023/include/catSist.php on line 6
