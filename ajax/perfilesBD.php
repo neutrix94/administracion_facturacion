@@ -1,5 +1,7 @@
 <?php
-	include('../include/conexion.php');
+	include('../include/db.php');
+	$db = new db();
+	$link = $db->conectDB();
 //recibimos las variables
 	$fl=$_POST['flag'];
 	$perfil_id=$_POST['id_registro_perfil'];
@@ -46,10 +48,10 @@
 
 	}
 //ejecutamos la consulta
-	$eje=mysql_query($sql)or die("Error al ejecutar consulta!!!\n\n".$sql."\n\n".mysql_error());
+	$eje = $link->query( $sql )or die( "Error al ejecutar consulta : {$sql}" );
 //regresamos datos
 	if($fl==4){
-		$r=mysql_fetch_row($eje);
+		$r = $eje->fetch();
 		echo 'ok|'.$r[0].'|'.$r[1].'|'.$r[2].'|'.$r[3].'|'.$r[4].'|'.$r[5].'|'.$r[6];
 	}else{
 		echo 'ok|Se '.$accion.' el perfil exitosamente!!!';

@@ -1,9 +1,12 @@
 <?php
 	session_start();
 	$_SESSION['current_view'] = $_POST['action'];
-	include('conexion.php');
+	//include('conexion.php');
+	include('./db.php');
+	$db = new db();
+	$link = $db->conectDB();
 	$sql="SELECT id_perfil,nombre FROM perfiles WHERE 1 ORDER BY id_perfil ASC";
-	$eje=mysql_query($sql)or die("Error al listar las razones sociales!!!\n\n".mysql_error());
+	$eje = $link->query( $sql )or die("Error al listar las razones sociales!!!\n\n".mysql_error());
 ?>
 	<style type="text/css">
 		#listaRS{background: white;color:black;}
@@ -24,7 +27,7 @@
 				</tr>
 		<?php
 			$c=0;//inicaimos el contador en cero
-			while($r=mysql_fetch_row($eje)){
+			while( $r = $eje->fetch() ){
 				$c++;//incrementamos contador
 				$estado="";$es_admin="";
 				if($r[4]==1){

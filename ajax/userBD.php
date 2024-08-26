@@ -1,5 +1,7 @@
 <?php
-	include('../include/conexion.php');
+	include('../include/db.php');
+	$db = new db();
+	$link = $db->conectDB();
 //recibimos las variables
 	$fl=$_POST['flag'];
 	$usuario_id=$_POST['id_registro_user'];//id de usuario
@@ -14,9 +16,9 @@
 //si es obtener datos del combo
 	if($fl==5){
 		$sql="SELECT id_perfil,nombre FROM perfiles WHERE activo=1";
-		$eje=mysql_query($sql)or die("Error al consultar los perfiles");
+		$eje = $link->query($sql)or die("Error al consultar los perfiles");
 		echo '<select class="entrada_txt" id="tipo_perfil">';
-		while($r=mysql_fetch_row($eje)){
+		while($r = $eje->fetch() ){
 			echo '<option value="'.$r[0].'">'.$r[1].'</option>';
 		}//fin de while
 		die('</select>');
@@ -55,20 +57,20 @@
 
 	}
 //ejecutamos la consulta
-	$eje=mysql_query($sql)or die("Error al ejecutar consulta!!!\n\n".$sql."\n\n".mysql_error());
+	$eje = $link->query( $sql )or die("Error al ejecutar consulta : {$sql}");
 //regresamos datos
 	if($fl==4){
-		$r=mysql_fetch_row($eje);
+		$r = $eje->fetch();
 		echo 'ok|'.$r[0].'|'.$r[1].'|'.$r[2].'|'.$r[3].'|';
 	//armamos el combo
 		$sql="SELECT id_perfil,nombre FROM perfiles WHERE id_perfil=$r[4]";
-		$eje_combo=mysql_query($sql)or die("Error al consultar perfil actual");
-		$re=mysql_fetch_row($eje_combo);
+		$eje_combo = $link->query($sql)or die("Error al consultar perfil actual");
+		$re = $eje_combo->fetch();
 		echo '<select class="entrada_txt" id="tipo_perfil">';
 			echo '<option value="'.$re[0].'">'.$re[1].'</option>';
 		$sql="SELECT id_perfil,nombre FROM perfiles WHERE id_perfil!=$r[4] AND activo=1";
-		$eje_combo=mysql_query($sql)or die("Error al consultar perfil actual");
-		while($re=mysql_fetch_row($eje_combo)){
+		$eje_combo = $link->query( $sql )or die( "Error al consultar perfil actual" );
+		while( $re = $eje_combo->fetch() ){
 			echo '<option value="'.$re[0].'">'.$re[1].'</option>';
 		}
 		echo '</select>';

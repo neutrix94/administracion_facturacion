@@ -1,34 +1,39 @@
 <?php
 	session_start();
 	$_SESSION['current_view'] = $_POST['action'];
-	include('conexion.php');
+	//include('conexion.php');
+	include('./db.php');
+	$db = new db();
+	$link = $db->conectDB();
 	$sql="SELECT id_perfil,nombre,es_admin,observaciones,activo FROM perfiles WHERE 1 ORDER BY id_perfil ASC";
-	$eje=mysql_query($sql)or die("Error al listar las razones sociales!!!\n\n".mysql_error());
+	$eje = $link->query( $sql )or die( "Error al listar las razones sociales : {$sql}" );
 ?>
 	<style type="text/css">
-		#listaRS{background: white;color:black;}
-		#listaRS th{background: rgba(225,0,0,.5);height: 35px;}
+		/*#listaRS{background: white;color:black;}
+		#listaRS th{background: rgba(225,0,0,.5);height: 35px;}*/
 	</style>
 	<div style="width:90%;heigth:450px;">
-		<br><b><p class="subtitulo" align="left"><img src="img/usuarios_icono.png" height="50px" style="position:absolute;left:10px;top:8%;">
-		Listado de Perfiles</p></b>
-		<button class="bot_nvo" onclick="muestra_datos_perfil(0,1);">
-			<img src="img/nuevo.png" width="40px"><br>Nuevo
-		</button>		
-		<center>
-			<table width="100%" id="listaRS">
-				<tr>
-					<th width="30%">Nombre</th>
-					<th width="15%">Es<br>Administrador</th>
-					<th width="25%">observaciones</th>
-					<th width="15%">Activo</th>
-					<th width="10%">Ver</th>
-					<th width="10%">Editar</th>
-					<th width="10%">Eliminar</th>
-				</tr>
+		<br><b><p class="subtitulo" align="left">Listado de Perfiles<button class="btn btn-info" onclick="muestra_datos_perfil(0,1);">
+			<i class="icon-plus">Nuevo</i>
+		</button></p></b>
+				
+		<div>
+			<table width="100%" id="listaRS" class="table table-striped table-bordered">
+				<thead class="bg-primary text-light">
+					<tr>
+						<th width="30%" class="text-center">Nombre</th>
+						<th width="15%" class="text-center">Es Admin</th>
+						<th width="25%" class="text-center">observaciones</th>
+						<th width="15%" class="text-center">Activo</th>
+						<th width="10%" class="text-center">Ver</th>
+						<th width="10%" class="text-center">Editar</th>
+						<th width="10%" class="text-center">Eliminar</th>
+					</tr>
+				</thead>
+				<tbody>
 			<?php
 			$c=0;//inicaimos el contador en cero
-			while($r=mysql_fetch_row($eje)){
+			while( $r = $eje->fetch() ){
 				$c++;//incrementamos contador
 				$estado="";$es_admin="";
 				if($r[4]==1){
@@ -42,14 +47,39 @@
 					echo '<td align="center"><input type="checkbox" '.$es_admin.' disabled></td>';
 					echo '<td>'.$r[3].'</td>';
 					echo '<td align="center"><input type="checkbox" '.$estado.' disabled></td>';
-					echo '<td align="center"><a href="javascript:muestra_datos_perfil('.$r[0].',0);"><img src="img/ver.png" width="30px"></a></td>';
-					echo '<td align="center"><a href="javascript:muestra_datos_perfil('.$r[0].',2);"><img src="img/editar.png" width="30px"></a></td>';
-					echo '<td align="center"><a href="javascript:muestra_datos_perfil('.$r[0].',3);"><img src="img/eliminar.png" width="30px"></a></td>';
-				echo '<tr>'; 
+					echo "<td class=\"text-center\">
+					<button
+						type=\"button\"
+						class=\"btn\"
+						onclick=\"muestra_datos_perfil( {$r[0]} , 0 );\"
+					>
+						<i class=\"icon-eye\"></i>
+					</button>
+				</td>
+				<td class=\"text-center\">
+					<button
+						type=\"button\"
+						class=\"btn\"
+						onclick=\"muestra_datos_perfil( {$r[0]} , 2 );\"
+					>
+						<i class=\"icon-pencil\"></i>
+					</button>
+				</td>
+				<td class=\"text-center\">
+					<button
+						type=\"button\"
+						class=\"btn\"
+						onclick=\"muestra_datos_perfil( {$r[0]} , 3 );\"
+					>
+						<i class=\"icon-cancel\"></i>
+					</button>
+				</td>";
+				echo '</tr>'; 
 			}//fin de while
 			?>
+				</tbody>
 			</table>
-		</center>
+		</div>
 	</div>
 
 	<div class="form_emergente" id="emergente_perfiles" style="display:none;">

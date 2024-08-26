@@ -1,5 +1,7 @@
 <?php
-	include('../include/conexion.php');
+	include('../include/db.php');
+	$db = new db();
+	$link = $db->conectDB();
 //recibimos las variables
 	$fl = $_POST['flag'];
 	$perfil_id = $_POST['id_registro_perfil'];
@@ -8,7 +10,7 @@
 //actualizar
 	if ( $fl == 2 ){
 		$sql = "DELETE FROM permisos_perfil WHERE id_perfil = '{$perfil_id}'";
-		$eje = mysql_query( $sql ) or die( "Error al eliminar los permisos actuales para sobreescribirlos : " . mysql_error() );
+		$eje = $link->query( $sql ) or die( "Error al eliminar los permisos actuales para sobreescribirlos : {$sql}" );
 		$permisos = explode( '|', $_POST['values'] );
 		foreach ( $permisos as $key => $permiso ) {
 			$perm = explode( '~', $permiso );
@@ -16,7 +18,7 @@
 				$sql = "INSERT INTO permisos_perfil ( id_menu, id_perfil, ver, modificar, eliminar, activo )
 						VALUES ( '{$perm[0]}', '{$perfil_id}', '{$perm[1]}', '{$perm[2]}', '{$perm[3]}', 1)";
 		//die('here : ' . $sql);
-				$eje_perm = mysql_query( $sql ) or die( "Error al insertar permisos : " . mysql_error() );
+				$eje_perm = $link->query( $sql ) or die( "Error al insertar permisos : {$sql}" );
 				//echo $sql . ' - ';
 			}
 		}
@@ -38,12 +40,12 @@
 //die($sql);
 	}
 //ejecutamos la consulta
-	$eje=mysql_query($sql)or die("Error al ejecutar consulta!!!\n\n".$sql."\n\n".mysql_error());
+	$eje = $link->query( $sql )or die( "Error al ejecutar consulta : {$sql}" );
 //regresamos datos
 	if($fl==4){
 		echo 'ok|<table width="98%" border="1" style="color:black;" id="listPermisos">';
 		$c = 0;//declaramos el contador en ceros
-		while($r=mysql_fetch_row($eje)){
+		while( $r = $eje->fetch() ){
 		$c++;//incrementamos el contador
 		//creamos permisos
 			$ver="";

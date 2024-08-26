@@ -1,11 +1,13 @@
 <?php
-	session_start();
+	//session_start();
 	$_SESSION['current_view'] = $_POST['action'];
-	include("conexion.php");
+	include("db.php");
+	$db = new db();
+	$link = $db->conectDB();
 	$sql="SELECT id_razon_social,nombre,link,color FROM razones_sociales WHERE activo=1 ORDER BY orden ASC";
-	$eje=mysql_query($sql)or die("Error al consultar sistemas de facturación!!!\n\n".mysql_error());
+	$eje=$link->query($sql)or die("Error al consultar sistemas de facturación : {$sql}");
 	echo '<br><br><br><table style="border:1px solid;" width="80%"><tr>';
-	$ancho=(100/mysql_num_rows($eje));
+	$ancho=(100/($eje->rowCount()));
 	/*$color=array(
 				'0' =>'#1E90FF',
 				'1'=>'#DAA520',
@@ -13,15 +15,24 @@
 				'3'=>'#6B8E23'
 				);*/
 	$c=0;//declaramos contador en cero
-	while($r=mysql_fetch_row($eje)){
-		echo '<td id="opc_mnu_rs_'.$c.'" align="center" width="'.$ancho.'" height="450px" style="background:'.$r[3].';" class="sld"';
-		echo 'onclick="carga_link(\''.$r[2].'\');" onmouseover="resalta('.$c.');" onmouseout="regresa_col('.$c.',\''.$r[3].'\');">';
-			echo '<img src="img/usr.png" width="150px"><br>';
-			echo '<b class="opc_rs">'.$r[1].'</b>';
-		echo '</td>'; 
+	echo "<div class=\"row\">";
+	while($r=$eje->fetch()){
+		//echo '<td id="opc_mnu_rs_'.$c.'" align="center" width="'.$ancho.'" height="450px" style="background:'.$r[3].';" class="sld"';
+		//echo 'onclick="carga_link(\''.$r[2].'\');" onmouseover="resalta('.$c.');" onmouseout="regresa_col('.$c.',\''.$r[3].'\');">';
+		//	echo '<img src="img/usr.png" width="150px"><br>';
+		//	echo '<b class="opc_rs">'.$r[1].'</b>';
+		//echo '</td>'; 
+		echo "<div class=\"col-lg-3\" style=\"padding : 5px;\"  onclick=\"carga_link('{$r[2]}');\">
+			<div  style=\"background:{$r[3]};\" height=\"450px\">
+				<img src=\"img/usr.png\" width=\"150px\">
+				<br>
+				<b class=\"\">{$r[1]}</b>
+			</div>
+		</div>";
 		$c++;//incrementamos contador
 	}
-	echo '</tr></table>';
+	//echo '</tr></table>';
+	echo '</div>'
 ?>
 <style type="text/css">
 	.opc_rs{font-size: 30px;}

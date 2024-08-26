@@ -1,20 +1,34 @@
-<?php
-	session_start();
-	$_SESSION['current_view'] = $_POST['action'];
+<i?php
+	//session_start();
+	//$_SESSION['current_view'] = $_POST['action'];
 ?>
 <style type="text/css">
-	#form_log{width:30%;left:0;position:relative;top:70%;border:3px;border-radius:15px;background:#556B2F;font-size: 20px;border:3px solid gray;}
+	#form_log{width:30%;left:0;position:relative;top:70%;border:3px;border-radius:15px;padding: 10px;font-size: 20px;border:3px solid gray;}
 </style>
 <br><br><br><br><br><br>
-<div id="form_log"><br><br>
-	Casa de las Luces<br><br>
-	<input type="text" id="user" class="entrada_txt" placeholder="Usuario" tabindex="1"><br><br><br>
-	<input type="password" id="pss"  class="entrada_txt" style="width: 180px;" placeholder="** Password **" tabindex="2"><button type="button" 
-	onclick="show_password(this);" class="btn btn-primary" style="padding:12px;top : 0;" tabindex="-1"><!--  -->
-	<i class="icon-eye-1" id="icon_pass"></i></button><br><br>
-	<button onclick="valida_log();" tabindex="3">
-		Acceder
-	</button><br><br>
+<div id="form_log" class="bg-primary"><br><br>
+	<b class="text-light">Inicio de sesión</b><br><br>
+	<div>
+		<input type="text" id="user" class="form-control" placeholder="Usuario" tabindex="1">
+	</div>
+	<br>
+	<div class="input-group">
+		<input type="password" id="pss"  class="form-control" placeholder="** Password **" tabindex="2">
+		<button 
+			type="button"
+			class="btn btn-warning"
+			onclick="show_password(this);" 
+		>
+			<i class="icon-eye-1" id="icon_pass"></i>
+		</button>
+	</div>
+	<br>
+	<div class="text-center">
+		<button onclick="valida_log();" tabindex="3" class="btn btn-success">
+			Acceder
+		</button>
+	</div>
+	<br>
 </div>
 
 <script type="text/javascript">

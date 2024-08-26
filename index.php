@@ -1,6 +1,13 @@
 <?php
 	session_start();
-	include('include/conexion.php');
+	if( !isset($_SESSION['current_view']) ){
+		$_SESSION['current_view'] = '';
+	}
+	//include('include/conexion.php');
+	include( 'include/db.php' );
+	$db = new db();
+	$link = $db->conectDB();
+	//var_dump($link);
 	if ( isset($_GET['usrlg']) && $_GET['usrlg'] != null ){
 		$_SESSION['log'] = base64_decode($_GET['usrlg']);
 		echo "<script>location.href=\"./#{$_SESSION['current_view']}\";</script>";
@@ -11,7 +18,7 @@
 		echo "<script>location.href=\"./#{$_SESSION['current_view']}\";</script>";
 		//die('here_2');
 	}	
-	$log = $_SESSION['log'];
+	$log = ( isset($_SESSION['log']) ? $_SESSION['log'] : '' );
 	//die( $_SESSION['current_view'] );	
 ?>
 <!DOCTYPE html>
@@ -21,16 +28,21 @@
 	<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script><!--JQuery-->
 	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
 	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+	<script type="text/javascript" charset="utf8" src="./js/utils.js"></script>
 	<title>Facturación</title>
 
-	<link rel="stylesheet" type="text/css" href="css/bootstrap/css/bootstrap.css">
-	<script type="text/javascript" src="css/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<!--link rel="stylesheet" type="text/css" href="css/bootstrap/css/bootstrap.css"-->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+	<!--script type="text/javascript" src="css/bootstrap/js/bootstrap.bundle.min.js"></script-->
+	<!--script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script-->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+	
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 	<link rel="preconnect" href="https://fonts.googleapis.com">	
 	<link href="css/icons/css/fontello.css" rel="stylesheet" type="text/css"  media="all" />
 	
 	<style type="text/css">
-		#global{position: absolute;padding: 0;top:0;left:0;width: 100%;height: 100%;background-image: url('img/bg8.jpg');}
+		#global{position: absolute;padding: 0;top:0;left:0;width: 100%;height: 100%;}/*background-image: url('img/bg8.jpg');*/
 		.titulo{font-size: 30px;top:10%;position: absolute;color: black;}
 		#mnu{background:#556B2F; width: 97%;left:1%;position: relative;padding: 0px;color: white;height: 38px;}
 		.opc{text-decoration: none;padding: 0;height:35px;text-align: center;font-size: 20px;}
@@ -53,9 +65,9 @@
 			-o-transform: scale(2); /* Opera */
 			padding: 10px;
 		}
-		.table td{
+		/*.table td{
 			background-color: white;
-		}
+		}*/
 		.emergente{
 			width: 100%;
 			height: 100%;
@@ -70,22 +82,30 @@
 	</style>
 </head>
 <body>
+    <div id="alert">
+        <div id="alert_content"></div>
+    </div>
 
 	<div id="global">
 <?php
 	
 			//include( 'include/menu.php' );
 ?>
-		<a href="./"><img src="img/logocasadelasluces-easy.png" width="10%"><span class="titulo">Facturación</span></a>
+		<!--a href="./"><img src="img/logocasadelasluces-easy.png" width="10%"><span class="titulo">Facturación</span></a-->
 		
-		<a href="javascript:carga_pantalla('catSist');" class="fct">
+		<!--a href="javascript:carga_pantalla('catSist');" class="fct">
 			<img src="img/catalogo.png" width="95%" height="35%"><br><span style="text-decoration:none;color:black;">Facturación</span>
-		</a><br>
-
-		<div id="mnu">
+		</a><br-->
+		<div>
+			<?php
+				include( './views/menu.php' );
+			?>
+		</div>
+		<!--div id="mnu" class="bg-primary"-->
 		<center>
 	<?php
-		if($log>0){//menú
+		/*if($log>0){//menú
+		//$log = 1;
 		$sql="SELECT 
 					mnu.id_menu,
 					mnu.display 
@@ -96,31 +116,32 @@
 				AND mnu.activo=1 
 				AND u.id_usuario=$log
 				ORDER BY orden";
-		$eje_mnu=mysql_query($sql)or die("Error al consultar las cabeceras de menus!!!\n\n".mysql_error());
+		$eje_mnu = $link->query($sql) or die( "Error : " );
+		//$eje_mnu=mysql_query($sql)or die("Error al consultar las cabeceras de menus!!!\n\n".mysql_error());
 	//tabla
 		echo '<table><tr>'; 
-		while($mnu_princ=mysql_fetch_row($eje_mnu)){
-			$sq_sub="SELECT display,enlace FROM menus WHERE menu_principal='$mnu_princ[0]' AND es_principal=0";
-			$eje_sbnu=mysql_query($sq_sub)or die("Error al consultar submenus!!!\n\n".mysql_error());
+		while($mnu_princ = $eje_mnu->fetch()){//var_dump( $mnu_princ );
+			$sq_sub="SELECT display,enlace FROM menus WHERE menu_principal='{$mnu_princ['id_menu']}' AND es_principal=0";
+			$eje_sbnu = $link->query($sq_sub)or die("Error al consultar submenus : {$sql}");
 
-			echo '<td class="opc" width="20%" onmouseover="muestra('.$mnu_princ[0].');" onmouseout="oculta('.$mnu_princ[0].');">'. $mnu_princ[1];
-				echo '<br><div class="subemnu" id="sbmnu_'.$mnu_princ[0].'">';
-				while($reg_sbnu=mysql_fetch_row($eje_sbnu)){
-					echo '<br><a href="javascript:carga_pantalla(\''.$reg_sbnu[1].'\');" class="opc_submnu">'.$reg_sbnu[0].'</a>';
+			echo '<td class="opc" width="20%" onmouseover="muestra('.$mnu_princ['id_menu'].');" onmouseout="oculta('.$mnu_princ['id_menu'].');">'. $mnu_princ['display'];
+				echo '<br><div class="subemnu bg-primary" id="sbmnu_'.$mnu_princ['id_menu'].'">';
+				while($reg_sbnu = $eje_sbnu->fetch() ){
+					echo '<br><a href="javascript:carga_pantalla(\''.$reg_sbnu['enlace'].'\');" class="opc_submnu">'.$reg_sbnu['display'].'</a>';
 				}
 				echo '<br>';
 				echo '</div>';
 			echo '</td>';
-		}//fin de while
+		}//fin de while*/
 	?>
-			<td align = "right">
+			<!--td align = "right">
 				<button type="button" class="btn btn-danger" style="position : absolute; right : 0; top : 0px;" onclick="logout();">Cerrar Sesión</button>
 			</td>
 		</tr>	
-	</table>
+	</table-->
 
 		<?php
-			}
+			//}
 			echo '<div id="cont_carga">';
 			if($log==''){//login
 				include('include/login.php');
@@ -161,7 +182,30 @@
 	</div>
 </body>
 </html>
+<style>
 
+#alert{
+        position : fixed;
+        top : 0;
+        height: 100%;
+        left : 0;
+        width: 100%;
+        background : rgba( 0, 0, 0, .5 );
+        z-index: 100;
+        display : none;
+    }
+    #alert_content{
+        position: relative;
+        width : 80%;
+        left : 10%;
+        min-height: 30%;
+        max-height: 80%;
+        top : 10%;
+        background : white;
+        box-shadow: 3px 3px 15px rgba( 0, 0, 0, .5 );
+        padding: 20px;
+    }
+</style>
 <script type="text/javascript">
 
 	function carga_pantalla ( flag = null ) {
@@ -181,22 +225,6 @@
 			}
 		});
 		//
-	}
-	function muestra ( num ) {
-		$("#sbmnu_"+num).css("display", "block");
-	}
-
-	function oculta ( num ) {
-		$("#sbmnu_"+num).css("display", "none");
-	}
-	function cierra_emergente ( obj ) {
-		if(!confirm("Desea salir sin guardar cambios???")){
-			return true;
-		}
-		$("#"+obj).css("display", "none");
-	}
-	function logout(){
-		location.href= "index.php?logout=1";
 	}
 </script>
 

@@ -1,55 +1,93 @@
 <?php
 	session_start();
+	include('./db.php');
+	$db = new db();
+	$link = $db->conectDB();
 	$_SESSION['current_view'] = $_POST['action'];
-	include('conexion.php');
 	$sql="SELECT id_razon_social,nombre,link,rfc,observaciones,activo FROM razones_sociales WHERE 1 ORDER BY orden ASC";
-	$eje=mysql_query($sql)or die("Error al listar las razones sociales!!!\n\n".mysql_error());
+	$eje = $link->query( $sql )or die("Error al listar las razones sociales : {$sql}");
 ?>
-	<style type="text/css">
-		#listaRS{background: white;color:black;}
-		#listaRS th{background: rgba(225,0,0,.5);height: 35px;}
-	</style>
-	<div style="width:90%;heigth:450px;">
-		<br><b><p class="subtitulo" align="left">Administración de Razones Sociales</p></b>
-		<button class="bot_nvo" onclick="muestra_datos_RS(0,1);">
-			<img src="img/nuevo.png" width="40px"><br>Nuevo
-		</button>		
-		<center>
-			<table width="100%" id="listaRS">
-				<tr>
-					<th width="20%">Nombre</th>
-					<th width="20%">Link acceso</th>
-					<th width="10%">RFC</th>
-					<th width="15%">observaciones</th>
-					<th width="10%">Activo</th>
-					<th width="5%">Ver</th>
-					<th width="10%">Editar</th>
-					<th width="10%">Eliminar</th>
-				</tr>
+	<div style="width:90%;height:500px;">
+		<br>
+		<b>
+			<p class="subtitulo" align="left">Administración de Razones Sociales
+				<button 
+					class="btn btn-info" 
+					onclick="muestra_datos_RS(0,1);"
+
+				>
+					<i class="icon-plus">Nuevo</i>
+				</button>
+			</p>
+					
+		</b>
+		<div class="row" style="max-height : 100%; overflow: auto; position : relative;">
+			<table width="100%" id="listaRS" class="table table-striped table-bordered">
+				<thead class="bg-primary text-light" style="position : sticky; top :0;">
+					<tr>
+						<th class="text-center" width="20%">Nombre</th>
+						<!--th width="20%">Link acceso</th-->
+						<th class="text-center" width="10%">RFC</th>
+						<th class="text-center" width="15%">observaciones</th>
+						<th class="text-center" width="10%">Activo</th>
+						<th class="text-center" width="5%">Ver</th>
+						<th class="text-center" width="10%">Editar</th>
+						<th class="text-center" width="10%">Eliminar</th>
+					</tr>
+				</thead>
+				<tbody>
 			<?php
-			$c=0;//inicaimos el contador en cero
-			while($r=mysql_fetch_row($eje)){
+			$c=0;//iniciamos el contador en cero
+			while($r = $eje->fetch() ){
 				$c++;//incrementamos contador
 				echo '<tr tabindex="'.$c.'">';
 					echo '<td>'.$r[1].'</td>';
-					echo '<td>'.$r[2].'</td>';
+					//echo '<td>'.$r[2].'</td>';
 					echo '<td>'.$r[3].'</td>';
 					echo '<td>'.$r[4].'</td>';
 					echo '<td>'.$r[5].'</td>';
-					echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',1);"><img src="img/ver.png" width="30px"></a></td>';
-					echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',2);"><img src="img/editar.png" width="30px"></a></td>';
-					echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',3);"><img src="img/eliminar.png" width="30px"></a></td>';
-				echo '<tr>'; 
+					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',1);"><img src="img/ver.png" width="30px"></a></td>';
+					echo "<td align=\"center\">
+							<button 
+								type=\"button\"
+								class=\"btn\"
+								onclick=\"muestra_datos_RS( {$r[0]}, 1 );\"
+							>
+								<i class=\"icon-eye\"></i>
+							</button>
+						</td>";
+					echo "<td align=\"center\">
+							<button 
+								type=\"button\"
+								class=\"btn\"
+								onclick=\"muestra_datos_RS( {$r[0]}, 2 );\"
+							>
+								<i class=\"icon-pencil\"></i>
+							</button>
+						</td>";
+					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',2);"><img src="img/editar.png" width="30px"></a></td>';
+					echo "<td align=\"center\">
+							<button 
+								type=\"button\"
+								class=\"btn\"
+								onclick=\"muestra_datos_RS( {$r[0]}, 3 );\"
+							>
+								<i class=\"icon-cancel\"></i>
+							</button>
+						</td>";
+					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',3);"><img src="img/eliminar.png" width="30px"></a></td>';
+				echo '</tr>'; 
 			}
 			?>
+				</tbody>
 			</table>
-		</center>
+		</div>
 	</div>
 
-	<div class="form_emergente" id="emergente_RS" style="display:none;overflow:auto;">
+	<div class="" id="emergente_RS" style="display:none;overflow:auto;">
 		<div style="position:absolute;top:2%;width:80%;left:10%;">
 			<button class="cierra_emergente" onclick="cierra_emergente('emergente_RS');">X</button>
-				<table width="100%" border="0" cellspacing="10px" cellpadding="10px;" style="background:#B0C4DE;border-radius:15px;">
+				<table width="100%" border="0" cellspacing="10px" cellpadding="10px;" style="border-radius:15px;">
 					<tr>
 						<td align="right" width="25%"><b class="desc_campo">ID:</b></td>
 						<td align="center" width="25%"><input type="text" id="id_razon_social" class="entrada_txt" disabled></td>
@@ -186,16 +224,20 @@ var id_rs,nombre_rs,link,user_db,pass_db,nombre_db,host_db,rfc,observaciones,sta
 	} 
 
 	function muestra_datos_RS(id,flag){
+		url = ( id <= 0 ? './include/forms/formularioRazonSocial.php' : 'ajax/razonesSocialesBD.php' );
 		if(flag==0){
 			$("#guardar_rs").attr('onclick','guarda_RS(0,'+flag+')');
 		}else{
 		//enviamos datos por ajax
 			$.ajax({
 				type:'post',
-				url:'ajax/razonesSocialesBD.php',
+				url: `${url}`,
 				cache:false,
 				data:{fl:4,id_reg:id},
 				success:function(dat){
+					$( '#alert_content' ).html( dat );
+					$( '#alert' ).css( 'display', 'block' );
+					return false;
 					//alert('dat:'+dat);
 					var aux=dat.split("|");
 					if(aux[0]!='ok'){
@@ -229,7 +271,7 @@ var id_rs,nombre_rs,link,user_db,pass_db,nombre_db,host_db,rfc,observaciones,sta
 				}
 			});//fin de ajax
 
-			$("#emergente_RS").css("display","block");
+	//		$("#emergente_RS").css("display","block");
 		}//fin de else
 	}//fin de funcion que carga datos
 

@@ -1,11 +1,35 @@
 <?php
+    class db{
+        //Variables
+        private $dbHost;// = 'localhost'
+        private $dbUser;// = 'root'
+        private $dbPass;// = ''
+        private $dbName;// = 'base_cdll_mis_pruebas'
+  
+        function __construct(){
+          //error_reporting(0);
+         // include( '../../config.inc.php' );
+          $this->dbHost = 'localhost:8889';//$dbHost;
+          $this->dbUser = 'root';//$dbUser;
+          $this->dbPass = 'root';//$dbPassword;
+          $this->dbName = 'administracion_facturacion';//$dbName;
+        }
+        //Conexión
+        public function conectDB(){
+          $mysqlConnect = "mysql:host=$this->dbHost;dbname=$this->dbName";
+          $dbConnection = new PDO($mysqlConnect, $this->dbUser, $this->dbPass);
+          $dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+          return $dbConnection;
+        }
+    }
+  
 //valida si la peticion es sobre este mismo archivo
-    if (basename($_SERVER['PHP_SELF']) == 'db.php') {
+    /*if (basename($_SERVER['PHP_SELF']) == 'db.php') {
        echo "<center><br><br><br><br><br><br><br><br><br><h2>Error 404 : La peticion no puede ser respondida...</h2></center>";
         exit;
     }
     
-    $conexion = new Db( 'www.sistemageneralcasa.com','wwsist_oscar23','wwsist_oscar23_23','wwsist_administracion_facturacion' );
+    $conexion = new Db( 'localhost:8889','root','root','administracion_facturacion' );
     class Db{
         private $connection;
         private $stm;
@@ -48,5 +72,5 @@
             }
             return ( $resp == null ? null : $resp);//array('Sin datos')
         }
-    }
+    }*/
 ?>

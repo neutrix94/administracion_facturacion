@@ -1,5 +1,5 @@
 <?php
-	session_start();
+	//session_start();
 	$hostLocal="www.sistemageneralcasa.com";
 	$userLocal="wwsist_oscar23";
 	$passLocal="wwsist_oscar23_23";

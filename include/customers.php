@@ -12,7 +12,7 @@
 		margin-top : 5px;
 	}
 	.required{
-		color  :red;
+		color : red;
 	}
 	.table_header{
 		position : sticky;
@@ -23,7 +23,10 @@
 	}
 </style>
 <?php
-	include( 'db.php' );
+	//include( 'db.php' );
+	include('./db.php');
+	$db = new db();
+	$link = $db->conectDB();
 	$sql = "SELECT
 				c.id_cliente,
 				c.nombre,
@@ -40,7 +43,7 @@
             left join cat_Tipo_Persona tp on tp.idTipoPersona = c.idTipoPersona
 			WHERE c.id_cliente > 0";
 	//var_dump( $conexion->execQuery( $sql, "", "SELECT" ) );
-	echo '<br><div class="container_list">' . build_list( $conexion->execQuery( $sql, "", "SELECT" ) ) . '</div>';
+	echo '<br><div class="container_list">' . build_list( $link->query( $sql ) ) . '</div>';
 	echo '<br><div class="row">'
 			. '<div class="col-8"></div>'
 			. '<div class="col-2"><button type="button" class="btn btn-info" onclick="save_customer(5,null)">Centralizar Clientes</button></div>'
@@ -53,17 +56,17 @@
 				} );</script>';*/
 	function build_list( $data ){
 		$resp = '<table class="table table-striped" id="rows_list">';
-			$resp .= '<thead class="table_header">';
-				$resp .= '<tr>';
-					$resp .= '<th>RFC</th>';
-					$resp .= '<th>TELÉFONO</th>';
-					$resp .= '<th>CELULAR</th>';
-					$resp .= '<th>CORREO</th>';
-					$resp .= '<th>TIPO PERSONA</th>';
-					$resp .= '<th>ENTREGÓ CSF</th>';
-					$resp .= '<th>ACTUALIZADO</th>';
-					$resp .= '<th>ACCIONES</th>';
-				$resp .= '</tr>';
+			$resp .= '<thead class="bg-primary text-light">';
+				$resp .= "<tr>
+					<th class=\"text-center\">RFC</th>
+					<th class=\"text-center\">TELÉFONO</th>
+					<th class=\"text-center\">CELULAR</th>
+					<th class=\"text-center\">CORREO</th>
+					<th class=\"text-center\">TIPO PERSONA</th>
+					<th class=\"text-center\">ENTREGÓ CSF</th>
+					<th class=\"text-center\">ACTUALIZADO</th>
+					<th colspan=\"3\" class=\"text-center\">ACCIONES</th>
+				</tr>";
 			$resp .= '</thead>';
 		$resp .= '<tbody>';
 			$resp .= content_table( $data );
@@ -75,22 +78,36 @@
 	function content_table( $data ){
 		$resp = '';
 		$primary = 0;
-		foreach ($data as $key => $row) {
+		//foreach ($data as $key => $row) {
+		while( $row = $data->fetch() ){
 			$resp .= '<tr>';
 			$c = 0;
-			foreach ($row as $key2 => $value) {
+			$primary = $row['id_cliente'];
+			$resp .= "<td style=\"display : none;\">{$row['id_cliente']}</td>";
+			$resp .= "<td>{$row['nombre']}</td>";
+			$resp .= "<td>{$row['telefono']}</td>";
+			$resp .= "<td>{$row['movil']}</td>";
+			$resp .= "<td>{$row['email']}</td>";
+			$resp .= "<td>{$row['idTipoPersona']}</td>";
+			$resp .= "<td>{$row['EntregaConsSitFiscal']}</td>";
+			$resp .= "<td>{$row['UltimaActualizacion']}</td>";
+			/*foreach ($row as $key2 => $value) {
 				if( $c == 0 ){
 					$primary = $value;
 				}
 				$resp .= '<td' . ( $c == 0 ? ' style="display : none;" ' : '' ) . '>' . $value . '</td>';
 				$c ++;
-			}
-			$resp .= '<td align="center">';
-				$resp .= '<button type="button" class="btn btn-info" onclick="show_form(1, ' . $primary . ')"><i class="icon-eye-1"></i></button>';
-				$resp .= '<button type="button" class="btn btn-warning" onclick="show_form(2, ' . $primary . ')"><i class="icon-pencil-neg"></i></button>';
-				$resp .= '<button type="button" class="btn btn-danger" onclick="show_form(3, ' . $primary . ')"><i class="icon-trash"></i></button>';
-			$resp .= '</td>';
-			$resp .= '</tr>';
+			}*/
+			$resp .= "<td align=\"center\">
+					<button type=\"button\" class=\"btn btn-info\" onclick=\"show_form(1, {$primary} );\"><i class=\"icon-eye-1\"></i></button>
+				</td>
+				<td align=\"center\">
+					<button type=\"button\" class=\"btn btn-warning\" onclick=\"show_form(2, {$primary} )\"><i class=\"icon-pencil-neg\"></i></button>
+				</td>
+				<td align=\"center\">
+					<button type=\"button\" class=\"btn btn-danger\" onclick=\"show_form(3, {$primary} )\"><i class=\"icon-trash\"></i></button>
+				</td>
+			</tr>";
 		}
 		return $resp;
 	}

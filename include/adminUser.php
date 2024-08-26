@@ -1,13 +1,16 @@
 <?php
 	session_start();
 	$_SESSION['current_view'] = $_POST['action'];
-	include('conexion.php');
+	//include('conexion.php');
+	include('./db.php');
+	$db = new db();
+	$link = $db->conectDB();
 	$sql="SELECT id_usuario,nombre,login,observaciones,activo FROM usuarios WHERE 1 ORDER BY id_usuario ASC";
-	$eje=mysql_query($sql)or die("Error al listar las razones sociales!!!\n\n".mysql_error());
+	$eje = $link->query( $sql )or die( "Error al listar las razones sociales : {$sql}" );
 ?>
 	<style type="text/css">
-		#listaRS{background: white;color:black;}
-		#listaRS th{background: rgba(225,0,0,.5);height: 35px; color : white;}
+		/*#listaRS{background: white;color:black;}
+		#listaRS th{background: rgba(225,0,0,.5);height: 35px; color : white;}*/
 		.row.content{
 			background-color : white;
 			padding : 40px;
@@ -31,25 +34,28 @@
 		}
 	</style>
 	<div style="width:90%;heigth:450px;">
-		<br><b><p class="subtitulo" align="left"><img src="img/usuarios_icono.png" height="50px" style="position:absolute;left:10px;top:8%;">
-		Administración de Usuarios</p></b>
-		<button class="bot_nvo" onclick="muestra_datos_user(0,1);">
-			<img src="img/nuevo.png" width="40px"><br>Nuevo
-		</button>		
-		<center>
+		<br><b><p class="subtitulo" align="left">Administración de Usuarios
+		<button class="btn btn-info" onclick="muestra_datos_user(0,1);">
+			<i class="icon-plus">Nuevo</i>
+		</button></p></b>
+				
+		<div>
 			<table class="table table-striped" width="100%" id="listaRS">
-				<tr>
-					<th width="20%">Nombre</th>
-					<th width="20%">Login</th>
-					<th width="15%">observaciones</th>
-					<th width="15%">Activo</th>
-					<th width="10%">Ver</th>
-					<th width="10%">Editar</th>
-					<th width="10%">Eliminar</th>
-				</tr>
+				<thead class="bg-primary text-light">
+					<tr>
+						<th width="20%" class="text-center">Nombre</th>
+						<th width="20%" class="text-center">Login</th>
+						<th width="15%" class="text-center">Observaciones</th>
+						<th width="15%" class="text-center">Activo</th>
+						<th width="10%" class="text-center">Ver</th>
+						<th width="10%" class="text-center">Editar</th>
+						<th width="10%" class="text-center">Eliminar</th>
+					</tr>
+				</thead>
+				<tbody>
 			<?php
 			$c=0;//inicaimos el contador en cero
-			while($r=mysql_fetch_row($eje)){
+			while( $r = $eje->fetch() ){
 				$c++;//incrementamos contador
 				$estado="";
 				if($r[4]==1){
@@ -60,14 +66,39 @@
 					echo '<td>'.$r[2].'</td>';
 					echo '<td>'.$r[3].'</td>';
 					echo '<td align="center"><input type="checkbox" '.$estado.' disabled></td>';
-					echo '<td align="center"><a href="javascript:muestra_datos_user('.$r[0].',0);"><img src="img/ver.png" width="30px"></a></td>';
-					echo '<td align="center"><a href="javascript:muestra_datos_user('.$r[0].',2);"><img src="img/editar.png" width="30px"></a></td>';
-					echo '<td align="center"><a href="javascript:muestra_datos_user('.$r[0].',3);"><img src="img/eliminar.png" width="30px"></a></td>';
-				echo '<tr>'; 
+					echo "<td class=\"text-center\">
+						<button
+							type=\"button\"
+							class=\"btn\"
+							onclick=\"muestra_datos_user( {$r[0]} , 0 );\"
+						>
+							<i class=\"icon-eye\"></i>
+						</button>
+					</td>
+					<td class=\"text-center\">
+						<button
+							type=\"button\"
+							class=\"btn\"
+							onclick=\"muestra_datos_user( {$r[0]} , 2 );\"
+						>
+							<i class=\"icon-pencil\"></i>
+						</button>
+					</td>
+					<td class=\"text-center\">
+						<button
+							type=\"button\"
+							class=\"btn\"
+							onclick=\"muestra_datos_user( {$r[0]} , 3 );\"
+						>
+							<i class=\"icon-cancel\"></i>
+						</button>
+					</td>";
+				echo '</tr>'; 
 			}//fin de while
 			?>
+				</tbody>
 			</table>
-		</center>
+		</div>
 	</div>
 
 	<div class="form_emergente" id="emergente_users" style="display:none;">

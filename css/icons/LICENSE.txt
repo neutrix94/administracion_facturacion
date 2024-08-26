@@ -1,13 +1,22 @@
 Font license info
 
 
-## Iconic
+## Fontelico
 
-   Copyright (C) 2012 by P.J. Onori
+   Copyright (C) 2012 by Fontello project
 
-   Author:    P.J. Onori
+   Author:    Crowdsourced, for Fontello project
    License:   SIL (http://scripts.sil.org/OFL)
-   Homepage:  http://somerandomdude.com/work/iconic/
+   Homepage:  http://fontello.com
+
+
+## Font Awesome
+
+   Copyright (C) 2016 by Dave Gandy
+
+   Author:    Dave Gandy
+   License:   SIL ()
+   Homepage:  http://fortawesome.github.com/Font-Awesome/
 
 
 ## Entypo
@@ -28,40 +37,13 @@ Font license info
    Homepage:  http://typicons.com/
 
 
-## Font Awesome
+## Iconic
 
-   Copyright (C) 2016 by Dave Gandy
+   Copyright (C) 2012 by P.J. Onori
 
-   Author:    Dave Gandy
-   License:   SIL ()
-   Homepage:  http://fortawesome.github.com/Font-Awesome/
-
-
-## Elusive
-
-   Copyright (C) 2013 by Aristeides Stathopoulos
-
-   Author:    Aristeides Stathopoulos
+   Author:    P.J. Onori
    License:   SIL (http://scripts.sil.org/OFL)
-   Homepage:  http://aristeides.com/
-
-
-## Web Symbols
-
-   Copyright (c) 2011 by Just Be Nice studio. All rights reserved.
-
-   Author:    Just Be Nice studio
-   License:   SIL (http://scripts.sil.org/OFL)
-   Homepage:  http://www.justbenicestudio.com/
-
-
-## Fontelico
-
-   Copyright (C) 2012 by Fontello project
-
-   Author:    Crowdsourced, for Fontello project
-   License:   SIL (http://scripts.sil.org/OFL)
-   Homepage:  http://fontello.com
+   Homepage:  http://somerandomdude.com/work/iconic/
 
 
 ## Modern Pictograms
@@ -73,13 +55,13 @@ Font license info
    Homepage:  http://thedesignoffice.org/project/modern-pictograms/
 
 
-## Linecons
+## Meteocons
 
-   Copyright (C) 2013 by Designmodo
+   Copyright (C) 2012 by Alessio Atzeni
 
-   Author:    Designmodo for Smashing Magazine
-   License:   CC BY ()
-   Homepage:  http://designmodo.com/linecons-free/
+   Author:    Alessio Atzeni
+   License:   SIL (http://scripts.sil.org/OFL)
+   Homepage:  http://www.alessioatzeni.com
 
 
 ## MFG Labs
@@ -89,5 +71,59 @@ Font license info
    Author:    MFG Labs
    License:   SIL (http://scripts.sil.org/OFL)
    Homepage:  http://www.mfglabs.com/
+
+
+## Maki
+
+   Copyright (C) Mapbox, LCC
+
+   Author:    Mapbox
+   License:   BSD (https://github.com/mapbox/maki/blob/gh-pages/LICENSE.txt)
+   Homepage:  http://mapbox.com/maki/
+
+
+## Zocial
+
+   Copyright (C) 2012 by Sam Collins
+
+   Author:    Sam Collins
+   License:   MIT (http://opensource.org/licenses/mit-license.php)
+   Homepage:  http://zocial.smcllns.com/
+
+
+## Brandico
+
+   (C) 2012 by Vitaly Puzrin
+
+   Author:    Crowdsourced, for Fontello project
+   License:   SIL (http://scripts.sil.org/OFL)
+   Homepage:  
+
+
+## Elusive
+
+   Copyright (C) 2013 by Aristeides Stathopoulos
+
+   Author:    Aristeides Stathopoulos
+   License:   SIL (http://scripts.sil.org/OFL)
+   Homepage:  http://aristeides.com/
+
+
+## Linecons
+
+   Copyright (C) 2013 by Designmodo
+
+   Author:    Designmodo for Smashing Magazine
+   License:   CC BY ()
+   Homepage:  http://designmodo.com/linecons-free/
+
+
+## Web Symbols
+
+   Copyright (c) 2011 by Just Be Nice studio. All rights reserved.
+
+   Author:    Just Be Nice studio
+   License:   SIL (http://scripts.sil.org/OFL)
+   Homepage:  http://www.justbenicestudio.com/
 
 
