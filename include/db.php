@@ -16,7 +16,7 @@
         }
         //Conexión
         public function conectDB(){
-          $mysqlConnect = "mysql:host=$this->dbHost;dbname=$this->dbName";
+          $mysqlConnect = "mysql:host=$this->dbHost;dbname=$this->dbName;charset=utf8mb4";
           $dbConnection = new PDO($mysqlConnect, $this->dbUser, $this->dbPass);
           $dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
           return $dbConnection;

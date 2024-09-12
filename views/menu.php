@@ -21,10 +21,10 @@ if( $log > 0  ){// &&isset($log)
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <!--li class="nav-item active">
-        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      <li class="nav-item active">
+        <a class="nav-link" href="javascript:carga_pantalla('catSist');">Sistemas Facturación <span class="sr-only">(RS's)</span></a>
       </li>
-      <li class="nav-item">
+      <!--li class="nav-item">
         <a class="nav-link" href="#">Link</a>
       </li-->
 <?php

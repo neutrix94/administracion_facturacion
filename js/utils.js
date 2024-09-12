@@ -15,3 +15,8 @@
 	function logout(){
 		location.href= "index.php?logout=1";
 	}
+
+	function close_alert(){
+		$( '#alert_content' ).html( '' );
+		$( '#alert' ).css( 'display', 'none' );
+	}

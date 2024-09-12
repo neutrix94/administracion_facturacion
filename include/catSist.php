@@ -8,12 +8,7 @@
 	$eje=$link->query($sql)or die("Error al consultar sistemas de facturación : {$sql}");
 	echo '<br><br><br><table style="border:1px solid;" width="80%"><tr>';
 	$ancho=(100/($eje->rowCount()));
-	/*$color=array(
-				'0' =>'#1E90FF',
-				'1'=>'#DAA520',
-				'2'=>'#B22222',
-				'3'=>'#6B8E23'
-				);*/
+	
 	$c=0;//declaramos contador en cero
 	echo "<div class=\"row\">";
 	while($r=$eje->fetch()){
@@ -23,7 +18,7 @@
 		//	echo '<b class="opc_rs">'.$r[1].'</b>';
 		//echo '</td>'; 
 		echo "<div class=\"col-lg-3\" style=\"padding : 5px;\"  onclick=\"carga_link('{$r[2]}');\">
-			<div  style=\"background:{$r[3]};\" height=\"450px\">
+			<div style=\"background:{$r[3]};\" class=\"text-center text-light\" height=\"450px\">
 				<img src=\"img/usr.png\" width=\"150px\">
 				<br>
 				<b class=\"\">{$r[1]}</b>

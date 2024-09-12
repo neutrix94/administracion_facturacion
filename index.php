@@ -53,7 +53,7 @@
 		.subemnu{width:15%;border:1px solid: white;background:#556B2F;position: fixed;top:150;z-index: 3;display: none;}
 		.opc_submnu{text-decoration: none;color:white;font-size: 18px;width: 100%;width: 100%;}
 		.opc_submnu:hover{background: green;}
-		#cont_carga{position: absolute;z-index:2;width:100%;}
+		#cont_carga{position: absolute;z-index:2;width:100%;left : 5%;}
 		.subtitulo{font-size: 25px;color: black;padding: 0;}
 		.form_emergente{position: fixed;z-index:4;width: 100%;height: 100%;background: rgba(0,0,0,.8);top:0;left: 0;}
 		.cierra_emergente{position: absolute;top:0px;right:-10%;color: white;background: rgba(225,0,0,0.7);padding: 15px;font-size: 20px;}
@@ -87,79 +87,27 @@
     </div>
 
 	<div id="global">
-<?php
-	
-			//include( 'include/menu.php' );
-?>
-		<!--a href="./"><img src="img/logocasadelasluces-easy.png" width="10%"><span class="titulo">Facturación</span></a-->
-		
-		<!--a href="javascript:carga_pantalla('catSist');" class="fct">
-			<img src="img/catalogo.png" width="95%" height="35%"><br><span style="text-decoration:none;color:black;">Facturación</span>
-		</a><br-->
+	<!--Menu-->
 		<div>
 			<?php
 				include( './views/menu.php' );
 			?>
 		</div>
-		<!--div id="mnu" class="bg-primary"-->
-		<center>
-	<?php
-		/*if($log>0){//menú
-		//$log = 1;
-		$sql="SELECT 
-					mnu.id_menu,
-					mnu.display 
-				FROM menus mnu 
-				LEFT JOIN permisos_perfil pp ON mnu.id_menu=pp.id_menu
-				LEFT JOIN usuarios u ON pp.id_perfil=u.id_perfil
-				WHERE mnu.es_principal=1 
-				AND mnu.activo=1 
-				AND u.id_usuario=$log
-				ORDER BY orden";
-		$eje_mnu = $link->query($sql) or die( "Error : " );
-		//$eje_mnu=mysql_query($sql)or die("Error al consultar las cabeceras de menus!!!\n\n".mysql_error());
-	//tabla
-		echo '<table><tr>'; 
-		while($mnu_princ = $eje_mnu->fetch()){//var_dump( $mnu_princ );
-			$sq_sub="SELECT display,enlace FROM menus WHERE menu_principal='{$mnu_princ['id_menu']}' AND es_principal=0";
-			$eje_sbnu = $link->query($sq_sub)or die("Error al consultar submenus : {$sql}");
-
-			echo '<td class="opc" width="20%" onmouseover="muestra('.$mnu_princ['id_menu'].');" onmouseout="oculta('.$mnu_princ['id_menu'].');">'. $mnu_princ['display'];
-				echo '<br><div class="subemnu bg-primary" id="sbmnu_'.$mnu_princ['id_menu'].'">';
-				while($reg_sbnu = $eje_sbnu->fetch() ){
-					echo '<br><a href="javascript:carga_pantalla(\''.$reg_sbnu['enlace'].'\');" class="opc_submnu">'.$reg_sbnu['display'].'</a>';
-				}
-				echo '<br>';
-				echo '</div>';
-			echo '</td>';
-		}//fin de while*/
-	?>
-			<!--td align = "right">
-				<button type="button" class="btn btn-danger" style="position : absolute; right : 0; top : 0px;" onclick="logout();">Cerrar Sesión</button>
-			</td>
-		</tr>	
-	</table-->
-
 		<?php
 			//}
 			echo '<div id="cont_carga">';
-			if($log==''){//login
+			if($log == ''){//login
 				include('include/login.php');
 			}
+			echo '</div>';
 		?>
-			
-		</div>
-	<!---->
-		</center>
-		</div>
 	</div>
 
-<!-- Button trigger modal -->
+<!-- Button trigger modal 
 	<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" style="display : none;"
 	id="btn_trigger_modal" id="btn_modal_trigger" >
 	  Launch demo modal
 	</button>
-<!-- Modal -->
 	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	  	<div class="modal-dialog">
 	    	<div class="modal-content">
@@ -179,7 +127,7 @@
 	</div>
 	<div class="emergente">
 		<div class="contenido_emergente"></div>
-	</div>
+	</div>-->
 </body>
 </html>
 <style>
@@ -200,6 +148,7 @@
         left : 10%;
         min-height: 30%;
         max-height: 80%;
+		overflow: auto;
         top : 10%;
         background : white;
         box-shadow: 3px 3px 15px rgba( 0, 0, 0, .5 );

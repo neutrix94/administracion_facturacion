@@ -12,14 +12,14 @@ $app->get('/example', function (Request $request, Response $response, $args) {
     return $response;
 });
 
-$app->get('/example_2', function (Request $request, Response $response, $args) {
-    //$response->getBody()->write("Hello world 2!");
-   // return $response;
-    $data = array( "test"=>"1" );
-    $response->getBody()->write(json_encode($data));
-    //$response = $response->withJson($data);
-    return $response;
-    return json_encode( array( "test"=>"1" ) );
-});
+require __DIR__  . '/endpoints/insertarClienteFacturacion.php';
+require __DIR__  . '/endpoints/insertaVentaFacturacion.php';
+
+require __DIR__  . '/endpoints/buscaVentasPorFolio.php';
+require __DIR__  . '/endpoints/buscaClientesPorRfc.php';
+
+require __DIR__  . '/endpoints/actualizaSubtipoPago.php';
+require __DIR__  . '/endpoints/insertaVentaSistemaFacturacion.php';
+require __DIR__  . '/endpoints/enviaFacturaCorreo.php';
 
 $app->run();
