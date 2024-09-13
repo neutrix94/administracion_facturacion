@@ -111,7 +111,6 @@
             "sale_payments"=>$sale_payments,
             "costumer_rfc"=>$sale_costumer
         ) );
-
         //public function sendPetition( $url, $post_data ){
 			$resp = "";
 			$crl = curl_init( "{$api_path}/inserta_venta" );
