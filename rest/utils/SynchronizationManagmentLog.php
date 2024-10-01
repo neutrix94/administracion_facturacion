@@ -102,15 +102,15 @@
 		}
 //inserta respuesta ( destino )
 		public function insertResponse( $log, $request_initial_time ){//, $tmp_ok, $tmp_no
-			die( $log );
+			//die( $log );
 			//$tmp_ok = str_replace("'", "\'", $tmp_ok );
 			//$tmp_no = str_replace("'", "\'", $tmp_no );
 			//$this->link->autocommit( false );
 			$this->link->beginTransaction();
 			$sql = "INSERT INTO sys_sincronizacion_peticion ( id_peticion, id_sucursal_origen, id_sucursal_destino, tipo, hora_comienzo, 
-			hora_envio, folio_unico, hora_llegada_destino, hora_respuesta ) VALUES( NULL, '{$log['origin_store']}', 
+			hora_envio, folio_unico, hora_llegada_destino, hora_respuesta, tabla ) VALUES( NULL, '{$log['origin_store']}', 
 			'{$log['destinity_store']}', '{$log['type']}', '{$log['intial_time']}', 
-			'{$log['shipping_time']}', '{$log['unique_folio']}', '{$request_initial_time}', NOW() )";//, contenido_respuesta, '{$tmp_ok} | {$tmp_no}'
+			'{$log['shipping_time']}', '{$log['unique_folio']}', '{$request_initial_time}', NOW(), '' )";//, contenido_respuesta, '{$tmp_ok} | {$tmp_no}'
 			$stm = $this->link->query( $sql ) or die( "Error al insertar registro de peticion : {$sql}" );
 			$this->link->commit();
 			return $this->getPetitionLog( $log['unique_folio'] );
@@ -141,10 +141,10 @@
 			      FROM sys_sincronizacion_peticion";//OR id_peticion = '{$unique_folio}'
 			$sql = $sql_base . " WHERE folio_unico = '{$unique_folio}'";
 			$stm = $this->link->query( $sql ) or die( "Error al recuperar datos de Peticion por folio : {$sql}" );
-			if( $stm->num_rows <= 0 ){
+			if( $stm->rowCount() <= 0 ){
 				$sql = $sql_base . " WHERE id_peticion = '{$unique_folio}'";
 				$stm = $this->link->query( $sql ) or die( "Error al recuperar datos de Peticion por id : {$sql}" );
-				if( $stm->num_rows <= 0 ){
+				if( $stm->rowCount() <= 0 ){
 					die( "La peticion no fue encontrada con la clave : {$unique_folio}" );
 				}
 			}

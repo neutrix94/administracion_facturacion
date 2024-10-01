@@ -156,7 +156,7 @@
 				//consulta si el cliente ya existe
 				$sql = "SELECT id_cliente_facturacion, folio_unico FROM vf_clientes_razones_sociales WHERE rfc = '{$costumer->rfc}'";
 				$stm_check = $this->link->query( $sql ) or die( "Error al consultar si el cliente existe : {$sql}" );
-				if( $stm_check->num_rows > 0 ){
+				if( $stm_check->rowCount() > 0 ){
 					$costumer_row = $stm_check->fetch();
 				//actualiza cabecera
 					$sql = "UPDATE vf_clientes_razones_sociales SET 
@@ -204,7 +204,7 @@
 				//consulta si el cliente ya existe
 				$sql = "SELECT id_cliente_contacto FROM vf_clientes_contacto WHERE folio_unico = '{$contact->folio_unico}'";
 				$stm_check = $this->link->query( $sql ) or die( "Error al consultar si el contacto existe : {$sql}" );
-				if( $stm_check->num_rows > 0 ){
+				if( $stm_check->rowCount() > 0 ){
 					$costumer_row = $stm_check->fetch();
 				//actualiza contacto
 					$sql = "UPDATE vf_clientes_contacto SET 
@@ -237,8 +237,8 @@
 		//verifica si el cliente existe en relacion al RFC
 			$sql = "SELECT id_cliente_facturacion FROM vf_clientes_razones_sociales WHERE rfc = '{$costumer['rfc']}'";
 			$check_stm = $this->link->query( $sql ) or die( "Error al consultar si el cliente existe en linea por RFC : {$sql}" );
-			if( $check_stm->num_rows > 0 ){
-				$aux_row = $check_stm->fetch();
+			if( $check_stm->rowCount() > 0 ){
+				$aux_row = $check_stm->fetch( PDO::FETCH_ASSOC );
 				$costumer['id_cliente_facturacion'] = "{$aux_row['id_cliente_facturacion']}";
 			}
 			//$costumer_id = "";
@@ -260,16 +260,23 @@
 						regimen_fiscal = '{$costumer['regimen_fiscal']}', 
 						productos_especificos = '{$costumer['productos_especificos']}', 
 						fecha_alta = NOW(), 
+						localidad = '',
+						referencia = '',
+						fecha_ultima_actualizacion = NOW(),
 						sincronizar = 1";
 			if ( $costumer['id_cliente_facturacion'] == "" || $costumer['id_cliente_facturacion'] == 0 ){
 				$action = "INSERTAR";
 				$stm = $this->link->query( $sql ) or die( "Error al insertar el nuevo cliente : {$sql}" );
-				$costumer['id_cliente_facturacion'] = "{$this->link->insert_id}";
+			//consulta el id insertado
+				$sql = "SELECT LAST_INSERT_ID() AS last_id";
+				$stm2 = $this->link->query( $sql ) or die( "Error al consultar id de nuevo cliente : {$sql}" );
+				$row_insert = $stm2->fetch( PDO::FETCH_ASSOC );//die( "{$row_insert['last_id']}" );
+				$costumer['id_cliente_facturacion'] = $row_insert['last_id'];
 				$costumer['folio_unico'] = "CLIENTE_{$costumer['id_cliente_facturacion']}";
 			//actualiza el folio unico
 				$sql = "UPDATE vf_clientes_razones_sociales 
 							SET folio_unico = '{$costumer['folio_unico']}' 
-						WHERE id_cliente_facturacion = {$costumer['id_cliente_facturacion']}";
+						WHERE id_cliente_facturacion = {$costumer['id_cliente_facturacion']}";//die($sql);
 				$stm = $this->link->query( $sql ) or die( "Error al actualizar el folio unico del nuevo cliente : {$sql}" );
 			}else{
 				$action = "ACTUALIZAR";
@@ -293,12 +300,15 @@
 				if( $costumer['detail'][$key]['id_cliente_contacto'] == "" || $costumer['detail'][$key]['id_cliente_contacto'] == "0" ){
 						
 						$stm = $this->link->query( $sql ) or die( "Error al insertar el nuevo contacto : {$sql}" );
-						$costumer['detail'][$key]['id_cliente_contacto'] = $this->link->insert_id;
+						$sql = "SELECT LAST_INSERT_ID() AS last_id";
+						$stm2 = $this->link->query( $sql ) or die( "Error al consultar id de nuevo cliente : {$sql}" );
+						$row_insert = $stm2->fetch( PDO::FETCH_ASSOC );//die( "{$row_insert['last_id']}" );
+						$costumer['detail'][$key]['id_cliente_contacto'] = $row_insert['last_id'];
 						$costumer['detail'][$key]['folio_unico'] = "CONTACTO_{$costumer['detail'][$key]['id_cliente_contacto']}";
 					//actualiza el folio unico
 						$sql = "UPDATE vf_clientes_contacto 
 									SET folio_unico = '{$costumer['detail'][$key]['folio_unico']}' 
-								WHERE id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}";
+								WHERE id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}";//die($sql);
 						$stm = $this->link->query( $sql ) or die( "Error al actualizar el folio unico del nuevo cliente : {$sql}" );
 				}else{
 					$costumer['detail'][$key]['folio_unico'] = "CONTACTO_{$costumer['detail'][$key]['id_cliente_contacto']}";
@@ -330,7 +340,7 @@
 		//consulta si el cliente existe
 			$sql = "SELECT id_cliente_facturacion FROM vf_clientes_razones_sociales WHERE id_cliente_facturacion = {$costumer['id_cliente_facturacion']}";
 			$stm = $this->link->query( $sql );
-			if( $stm->num_rows > 0 ){
+			if( $stm->rowCount() > 0 ){
 				$costumer_exists = true;
 			}
 			$sql = ( $costumer_exists == false ? "INSERT INTO" : "UPDATE" );
@@ -370,7 +380,7 @@
 			//consulta si el contacto existe
 				$sql = "SELECT id_cliente_contacto FROM vf_clientes_contacto WHERE id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}";
 				$stm = $this->link->query( $sql );
-				if( $stm->num_rows > 0 ){
+				if( $stm->rowCount() > 0 ){
 					$contact_exists = true;
 				}
 				$sql = ( $contact_exists == false ? "INSERT INTO" : "UPDATE" );

@@ -1,7 +1,7 @@
 <?php
     use Psr\Http\Message\ResponseInterface as Response;
     use Psr\Http\Message\ServerRequestInterface as Request;
-    $app->get('/inserta_cliente_facturacion', function (Request $request, Response $response, $args) {
+    $app->get('/inserta_cliente_facturacion', function (Request $request, Response $response, $args) {die( 'here' );
         include( '../include/db.php' );
         $db = new db();
         $link = $db->conectDB();
@@ -10,7 +10,7 @@
         }
         if( ! include( 'utils/facturacion.php' ) ){
             die( "No se incluyó : facturacion.php" );
-        }//die( 'here' );
+        }
         $Bill = new Bill( $link, -1, 'LNA' );
         $SynchronizationManagmentLog = new SynchronizationManagmentLog( $link );//instancia clase de Peticiones Log
          // $returnsSynchronization = new returnsSynchronization( $link );//instancia clase de sincronizacion de movimientos

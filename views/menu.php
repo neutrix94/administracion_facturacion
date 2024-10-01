@@ -37,16 +37,9 @@ if( $log > 0  ){// &&isset($log)
         $sq_sub="SELECT display,enlace FROM menus WHERE menu_principal='{$mnu_princ['id_menu']}' AND es_principal=0";
         $eje_sbnu = $link->query($sq_sub)or die("Error al consultar submenus : {$sql}");
         while($reg_sbnu = $eje_sbnu->fetch() ){
-           // echo '<br><a href="javascript:carga_pantalla(\''.$reg_sbnu['enlace'].'\');" class="opc_submnu">'.$reg_sbnu['display'].'</a>';
             echo "<div class=\"dropdown-divider\"></div>
-                <a class=\"dropdown-item\" href=\"javascript:carga_pantalla( '{$reg_sbnu['enlace']}' );\">{$reg_sbnu['display']}</a>
-                ";
+                <a class=\"dropdown-item\" href=\"javascript:carga_pantalla( '{$reg_sbnu['enlace']}' );\">{$reg_sbnu['display']}</a>";
         }
-          //"<a class=\"dropdown-item\" href=\"#\">Action</a>
-        //  <div class=\"dropdown-divider\"></div>
-        //  <a class=\"dropdown-item\" href=\"#\">Another action</a>
-        //  <div class=\"dropdown-divider\"></div>
-        //  <a class=\"dropdown-item\" href=\"#\">Something else here</a>";
         echo "</div>
       </li>";
     }

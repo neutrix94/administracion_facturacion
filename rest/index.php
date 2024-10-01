@@ -21,5 +21,8 @@ require __DIR__  . '/endpoints/buscaClientesPorRfc.php';
 require __DIR__  . '/endpoints/actualizaSubtipoPago.php';
 require __DIR__  . '/endpoints/insertaVentaSistemaFacturacion.php';
 require __DIR__  . '/endpoints/enviaFacturaCorreo.php';
+require __DIR__  . '/endpoints/inserta_cliente.php';
+require __DIR__  . '/endpoints/envia_cliente_facturacion.php';
+
 
 $app->run();
