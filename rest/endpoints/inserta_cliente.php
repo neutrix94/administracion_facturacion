@@ -74,16 +74,27 @@ $app->post('/inserta_cliente', function (Request $request, Response $response){
     $costumers_limit = 1000;
     $resp["download"] = $rowsSynchronization->getSynchronizationRows( -1, $log['origin_store'], $costumers_limit, 'sys_sincronizacion_registros_facturacion' );
 
-//consume el webservice para insertar cliente en los sistemas de factureacion
-    $sql = "SELECT value FROM api_config WHERE name = 'path_facturacion' LIMIT 1";
+//consume el webservice para insertar cliente en los sistemas de facturacion
+    $sql = "SELECT value FROM api_config WHERE `name` = 'path_facturacion' LIMIT 1";
     $stm = $link->query( $sql ) or die( "Error al consultar el path del api : {$link->error}" );
     $row = $stm->fetch();
     $api_path = $row['value'];
 
     $post_data = json_encode( array( "costumers"=>$resp["download"] ), JSON_UNESCAPED_UNICODE );  
-    $result_1 = $SynchronizationManagmentLog->sendPetition( "{$api_path}/rest/clientes/nuevoCliente", $post_data );
+    $result_1 = $SynchronizationManagmentLog->sendPetition( "{$api_path}/rest/nuevoCliente", $post_data );
     if( trim( $result_1 ) != 'ok' ){
-        die( "Error al insertar registros en facuracion : $result_1" );
+        die( "Error al insertar registros en facturacion : $result_1" );
+    }
+//consume el webservice para insertar cliente en sistema general linea
+    $sql = "SELECT value FROM api_config WHERE `name` = 'path' LIMIT 1";
+    $stm = $link->query( $sql ) or die( "Error al consultar el path del api sistema general: {$link->error}" );
+    $row = $stm->fetch();
+    $general_api_path = $row['value'];
+    
+    $post_data = json_encode( array( "costumers"=>$resp["download"] ), JSON_UNESCAPED_UNICODE );  
+    $result_1 = $SynchronizationManagmentLog->sendPetition( "{$general_api_path}/rest/facuracion/inserta_cliente", $post_data );
+    if( trim( $result_1 ) != 'ok' ){
+        die( "Error al insertar registros en sisytema General Linea : $result_1" );
     }
     $response->getBody()->write(json_encode( $resp ));
     return $response;
