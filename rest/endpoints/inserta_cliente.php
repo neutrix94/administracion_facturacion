@@ -91,7 +91,8 @@ $app->post('/inserta_cliente', function (Request $request, Response $response){
     $row = $stm->fetch();
     $general_api_path = $row['value'];
     
-    $post_data = json_encode( array( "costumers"=>$resp["download"] ), JSON_UNESCAPED_UNICODE );  
+    //$post_data = json_encode( array( "costumers"=>$resp["download"] ), JSON_UNESCAPED_UNICODE ); 
+    $post_data = json_encode( array( "log"=>$log, "rows"=>$costumers ), JSON_UNESCAPED_UNICODE );  
     $result_1 = $SynchronizationManagmentLog->sendPetition( "{$general_api_path}/rest/facturacion/inserta_cliente", $post_data );
     if( trim( $result_1 ) != 'ok' ){
         die( "Error al insertar registros en sisytema General Linea : $result_1" );
