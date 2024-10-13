@@ -102,6 +102,7 @@
                     url_api
                 FROM razones_sociales
                 WHERE id_equivalente = {$sale_header['id_razon_social']}";
+        //die($sql);
         $stm = $link->query( $sql )or die( "Error al consultar api de sistema destino de facturacion : {$sql}" );//die($sql);
         $row = $stm->fetch(PDO::FETCH_ASSOC);
         $api_path = $row['url_api'];
@@ -111,6 +112,7 @@
             "sale_payments"=>$sale_payments,
             "costumer_rfc"=>$sale_costumer
         ) );
+        //echo "{$api_path}/inserta_venta";
         //public function sendPetition( $url, $post_data ){
 			$resp = "";
 			$crl = curl_init( "{$api_path}/inserta_venta" );
@@ -125,6 +127,7 @@
 			);
 			$resp = curl_exec($crl);//envia peticion
 			curl_close($crl);
+            //var_dump($resp);
             //die('here : ' . " {$url} " . $resp);
             //$resp = json_decode( $Routes->sendPetition( $api_path, "inserta_venta", $post_data ) );
 			//return $resp;
