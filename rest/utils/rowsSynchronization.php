@@ -6,14 +6,15 @@
 		function __construct( $connection ){
 			$this->link = $connection;
 		}
-//hacer / obtener jsons de movimientos de almacen
+		
+//hacer / obtener jsons de registros de sincronziacion
 		public function getSynchronizationRows( $system_store, $destinity_store, $limit, $table ){
 			$resp = array();
 			$sql = "SELECT 
 						id_sincronizacion_registro AS synchronization_row_id,
 						REPLACE( datos_json, '\r\n', ' ' ) AS data
 					FROM {$table}
-					WHERE status_sincronizacion IN( 1 )
+					WHERE status_sincronizacion IN( 1, 2 )
 					AND sucursal_de_cambio = {$system_store}
 					AND id_sucursal_destino = {$destinity_store}
 					LIMIT {$limit}";
@@ -21,7 +22,7 @@
 			$stm = $this->link->query( $sql ) or die( "Error al consultar los datos de jsons de registros de sincronizacion on {$table} : {$sql}" );
 			$movements_counter = 0;
 			//forma arreglo
-			while ( $row = $stm->fetch() ) {
+			while ( $row = $stm->fetch( PDO::FETCH_ASSOC ) ) {
 				if( $row['data'] != '' && $row['data'] != null && $row['data'] != 'null' ){
 					//reemplaza saltos de linea y caracteres especiales
 					$row['data'] = str_replace( "\n", " ", $row['data'] );
@@ -32,7 +33,11 @@
 
 
 					$row['data'] = str_replace('"}', '", "synchronization_row_id" : "' . $row['synchronization_row_id'] . '" }', $row['data'] );
-					
+			//actualiza el status de sincronizacion a 2 los registros de sincronizacion
+					$sql = "UPDATE sys_sincronizacion_registros_facturacion 
+								SET status_sincronizacion = 2 
+							WHERE id_sincronizacion_registro = {$row['synchronization_row_id']}";
+					$stm = $this->link->query( $sql ) or die( "Error al poner registro de sincronizacion en status de enviado (comprobacion) : {$sql} : {$this->link->error}" );
 					array_push( $resp, json_decode($row['data'] ) );//decodifica el JSON
 					$movements_counter ++;
 				}

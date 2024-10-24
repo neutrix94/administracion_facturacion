@@ -24,6 +24,8 @@ require __DIR__  . '/endpoints/enviaFacturaCorreo.php';
 require __DIR__  . '/endpoints/inserta_cliente.php';
 require __DIR__  . '/endpoints/envia_cliente_facturacion.php';
 require __DIR__  . '/endpoints/descarga_clientes.php';
+//para ejecutar consultas en el servidor
+require __DIR__  . '/endpoints/ejecuta_consulta_en_servidor.php';
 
 
 $app->run();

@@ -319,18 +319,27 @@
 		//inserta el registro de sincronizacion para sucursales locales
 			$costumer_json = json_encode( $costumer, JSON_UNESCAPED_UNICODE );
 			$sql = "INSERT INTO sys_sincronizacion_registros_facturacion ( id_sincronizacion_registro, sucursal_de_cambio,
-					id_sucursal_destino, datos_json, fecha, tipo, status_sincronizacion )
+					id_sucursal_destino, datos_json, fecha, tipo, tabla, registro_llave, status_sincronizacion )
 					SELECT
 						NULL,
 						-1,
 						id_sucursal,
 						'{$costumer_json}',
 						NOW(),
-						'facturacion_insertLineCostumer.php',
+						'/rest/utils/facturacion.php',
+						'vf_clientes_razones_sociales',
+						'{$costumer['rfc']}',
 						1
 					FROM sys_sucursales 
-					WHERE id_sucursal > 0";
-			$stm = $this->link->query( $sql ) or die( "Error al insertar registros de sincronizacion de cliente poara equipos locales: {$sql}" );
+					WHERE id_sucursal >= -1";
+			$stm = $this->link->query( $sql ) or die( "Error al insertar registros de sincronizacion de cliente para equipos locales: {$sql}" );
+		//inserta el registro de sincronizacion para sistemas de facturacion
+			$costumer_json = json_encode( $costumer, JSON_UNESCAPED_UNICODE );
+			$sql = "INSERT INTO sys_sincronizacion_registros_facturacion ( id_sincronizacion_registro, sucursal_de_cambio,
+					id_sucursal_destino, datos_json, fecha, tipo, tabla, registro_llave, status_sincronizacion )
+					VALUES ( NULL, -1, -2, '{$costumer_json}', NOW(), '/rest/utils/facturacion.php', 'vf_clientes_razones_sociales',
+						'{$costumer['rfc']}', 1 )";
+			$stm = $this->link->query( $sql ) or die( "Error al insertar registros de sincronizacion de cliente para sistemas de facturacion: {$sql}" );
 			return 'ok';
 		}
 
