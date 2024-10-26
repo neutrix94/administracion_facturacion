@@ -6,48 +6,44 @@
 * Endpoint: descarga_clientes
 * Path: /descarga_clientes
 * Método: POST
-* Descripción: Descarga de clientes
+* Descripción:Servicio para descargar de clientes
 */
 
 $app->post('/descarga_clientes', function (Request $request, Response $response){
-    include( '../include/db.php' );
-    $db = new db();
-    $link = $db->conectDB();
-    $body = $request->getBody();
-    $req = json_decode($body, true);
-    //$log = $req["log"];
-    //$costumers = $req["rows"];
-    $store_id = $req["store_id"];
-  //$link->set_charset("utf8mb4");
-    $resp = array();
-    $resp["ok_rows"] = '';
-    $resp["error_rows"] = '';
-    $resp["rows_download"] = array();
-    $resp["log_download"] = array();
-  if( ! include( 'utils/SynchronizationManagmentLog.php' ) ){
-    die( "No se incluyó : SynchronizationManagmentLog.php" );
-  }
-
-  if( ! include( 'utils/facturacion.php' ) ){
-    die( "No se incluyó : facturacion.php" );
-  }
-  $Bill = new Bill( $link, -1, "24LNA" );//$system_store, $store_prefix
-  
-  $SynchronizationManagmentLog = new SynchronizationManagmentLog( $link );//instancia clase de Peticiones Log
-
-  if( ! include( 'utils/rowsSynchronization.php' ) ){
-    die( "No se incluyó : rowsSynchronization.php" );
-  }
-  $rowsSynchronization = new rowsSynchronization( $link );
-
+//libreria de base de datos
+  include( '../include/db.php' );
+  $db = new db();
+  $link = $db->conectDB();
+  $body = $request->getBody();
+  $req = json_decode($body, true);
+  $store_id = $req["store_id"];
+//$link->set_charset("utf8mb4");
   $resp = array();
   $resp["ok_rows"] = '';
   $resp["error_rows"] = '';
   $resp["rows_download"] = array();
   $resp["log_download"] = array();
-
-  $tmp_ok = "";
-  $tmp_no = "";
+//libreria de log
+  if( ! include( 'utils/SynchronizationManagmentLog.php' ) ){
+    die( "No se incluyó : SynchronizationManagmentLog.php" );
+  }
+//libreria de facturacion
+  if( ! include( 'utils/facturacion.php' ) ){
+    die( "No se incluyó : facturacion.php" );
+  }
+  $Bill = new Bill( $link, -1, "24LNA" );//$system_store, $store_prefix
+  $SynchronizationManagmentLog = new SynchronizationManagmentLog( $link );//instancia clase de Peticiones Log
+  if( ! include( 'utils/rowsSynchronization.php' ) ){
+    die( "No se incluyó : rowsSynchronization.php" );
+  }
+  $rowsSynchronization = new rowsSynchronization( $link );
+  $resp = array();
+  $resp["ok_rows"] = '';
+  $resp["error_rows"] = '';
+//  $resp["rows_download"] = array();
+//  $resp["log_download"] = array();
+//  $tmp_ok = "";
+//  $tmp_no = "";
   //inserta request
   $request_initial_time = $SynchronizationManagmentLog->getCurrentTime();
 //$resp["log"] = $SynchronizationManagmentLog->insertResponse( $log, $request_initial_time );

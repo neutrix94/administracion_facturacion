@@ -175,6 +175,18 @@
 		});
 		//
 	}
+	function ajaxR(url){
+		if(window.ActiveXObject){       
+			var httpObj = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		else if (window.XMLHttpRequest)
+		{       
+			var httpObj = new XMLHttpRequest(); 
+		}
+		httpObj.open("POST", url , false, "", "");
+		httpObj.send(null);
+		return httpObj.responseText;
+	}        
 </script>
 
 <?php

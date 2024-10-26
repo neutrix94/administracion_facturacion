@@ -12,20 +12,28 @@ $app->get('/example', function (Request $request, Response $response, $args) {
     return $response;
 });
 
-require __DIR__  . '/endpoints/insertarClienteFacturacion.php';
-require __DIR__  . '/endpoints/insertaVentaFacturacion.php';
+/****************************************************Endpoints servidor****************************************************/
+  //clientes
+    require __DIR__  . '/endpoints/inserta_cliente.php';//sevidor para insertar cliente desde la pantalla de clientes en sistemas locales.
+    require __DIR__  . '/endpoints/inserta_cliente_directo.php';//servidor para insertar clientes desde la pantalla de facturacion de clientes (ambiente público).
+    require __DIR__  . '/endpoints/buscaClientesPorRfc.php';//API para buscar clientes por RFC.
+    require __DIR__  . '/endpoints/descarga_clientes.php';//API para obtener clientes para descargar en los servidores locales.
+  //ventas
+    require __DIR__  . '/endpoints/buscaVentasPorFolio.php';
+    require __DIR__  . '/endpoints/actualizaSubtipoPago.php';
+    require __DIR__  . '/endpoints/insertaVentaSistemaFacturacion.php';
+  //Ejecutar consultas en el servidor
+    require __DIR__  . '/endpoints/ejecuta_consulta_en_servidor.php';
 
-require __DIR__  . '/endpoints/buscaVentasPorFolio.php';
-require __DIR__  . '/endpoints/buscaClientesPorRfc.php';
+/*******************************************Endpoints cliente para consumir apis*******************************************/
+  //clientes
+    require __DIR__  . '/endpoints/envia_cliente_facturacion.php';
+  //ventas
+    require __DIR__  . '/endpoints/enviaFacturaCorreo.php';
+    require __DIR__  . '/endpoints/insertaVentaFacturacion.php';
 
-require __DIR__  . '/endpoints/actualizaSubtipoPago.php';
-require __DIR__  . '/endpoints/insertaVentaSistemaFacturacion.php';
-require __DIR__  . '/endpoints/enviaFacturaCorreo.php';
-require __DIR__  . '/endpoints/inserta_cliente.php';
-require __DIR__  . '/endpoints/envia_cliente_facturacion.php';
-require __DIR__  . '/endpoints/descarga_clientes.php';
-//para ejecutar consultas en el servidor
-require __DIR__  . '/endpoints/ejecuta_consulta_en_servidor.php';
-
-
+/*Deshabilitados*/
+    //require __DIR__  . '/endpoints/prueba.php';
+    //require __DIR__  . '/endpoints/insertarClienteFacturacion.php';
+    
 $app->run();
