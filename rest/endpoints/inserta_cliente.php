@@ -86,7 +86,7 @@ $app->post('/inserta_cliente', function (Request $request, Response $response){
     $result_1 = $SynchronizationManagmentLog->sendPetition( "{$api_path}/rest/clientes/envia_cliente_facturacion", $post_data );
     $result_json = json_decode($result_1, true);
     //var_dump(  );
-    if( trim( $result_json['status'] ) != '200' ){
+    if( trim( $result_json['status'] ) != '200' && trim($result_1) != 'ok' ){
         die( "Error al insertar registros en facturacion : {$result_1}" );
     }else{
     //actualiza el status de sincronizacion del registros de razones sociales 

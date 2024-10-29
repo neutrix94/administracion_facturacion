@@ -18,7 +18,7 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
     $body = $request->getBody();
     $req = json_decode($body, true);
     $costumers = $req["rows"];//recibe los cientes
-    var_dump($costumers);die('');
+    //var_dump($costumers);die('');
     $resp = array();
     $resp["ok_rows"] = '';
     $resp["error_rows"] = '';
@@ -44,25 +44,27 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
     $resp["error_rows"] = '';
     $resp["rows_download"] = array();
     $resp["log_download"] = array();
+    $costumer_rfc ="";
 
     $tmp_ok = "";
     $tmp_no = "";
 //inserta request
     $request_initial_time = $SynchronizationManagmentLog->getCurrentTime();
-    $resp["log"] = $SynchronizationManagmentLog->insertResponse( $log, $request_initial_time );
+    //$resp["log"] = $SynchronizationManagmentLog->insertResponse( $log, $request_initial_time );
     if( sizeof( $costumers ) > 0 ){
+        $costumer_rfc = $costumers[0]['rfc'];
         $insert_costumers = $Bill->insertCostumers( $costumers );
         //var_dump( $insert_returns );//die('');
         $resp["ok_rows"] = $insert_costumers;//$insert_returns["ok_rows"];
     //return json_encode( $insert_returns );
         if( isset( $insert_costumers["error"] ) ){//$insert_returns["error"] != '' && $insert_returns["error"] != null
         //inserta error si es el caso
-        $resp["log"] = $SynchronizationManagmentLog->updateResponseLog( $insert_costumers["error"], $resp["log"]["unique_folio"] );
+        //$resp["log"] = $SynchronizationManagmentLog->updateResponseLog( $insert_costumers["error"], $resp["log"]["unique_folio"] );
         }else{
             //$insert_returns["error"] = '';
             $resp["ok_rows"] = $insert_costumers;//$insert_returns["ok_rows"];
         //inserta respuesta exitosa
-            $resp["log"] = $SynchronizationManagmentLog->updateResponseLog( "{$resp["ok_rows"]} | ", $resp["log"]["unique_folio"] );//{$insert_returns["error_rows"]}
+            //$resp["log"] = $SynchronizationManagmentLog->updateResponseLog( "{$resp["ok_rows"]} | ", $resp["log"]["unique_folio"] );//{$insert_returns["error_rows"]}
         }
     }/*else{
     //inserta excepcion controlada
@@ -70,11 +72,12 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
         $resp["log"] = $SynchronizationManagmentLog->updateResponseLog( $response_string, $resp["log"]["unique_folio"] );
     }*/
 //consulta si tiene registros por comprobar
-    //    $resp["download"] = $rowsSynchronization->getSynchronizationCostumersPendingRows( -1, $log['origin_store'], 50, 'sys_sincronizacion_registros_facturacion' );
-
+    $resp["download"] = $rowsSynchronization->getSynchronizationRows( -1, -2, 50, 'sys_sincronizacion_registros_facturacion' );
+//var_dump($resp);
+//return '';
 //consulta las clientes que se tiene que descargar 
-    $costumers_limit = 1000;
-    $resp["download"] = $rowsSynchronization->getSynchronizationRows( -1, $log['origin_store'], $costumers_limit, 'sys_sincronizacion_registros_facturacion' );
+    //$costumers_limit = 1000;
+    //$resp["download"] = $rowsSynchronization->getSynchronizationRows( -1, $log['origin_store'], $costumers_limit, 'sys_sincronizacion_registros_facturacion' );
 
 //consume el webservice para insertar cliente en los sistemas de facturacion
     $sql = "SELECT value FROM api_config WHERE `name` = 'path_facturacion' LIMIT 1";
@@ -82,11 +85,12 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
     $row = $stm->fetch();
     $api_path = $row['value'];
 
-    $post_data = json_encode( array( "costumers"=>$resp["download"] ), JSON_UNESCAPED_UNICODE );  
+    $post_data = json_encode( array( "costumers"=>$resp["download"] ), JSON_UNESCAPED_UNICODE );//json_encode( $costumers ); //json_encode( array( "costumers"=>$resp["download"] ), JSON_UNESCAPED_UNICODE );  
     $result_1 = $SynchronizationManagmentLog->sendPetition( "{$api_path}/rest/clientes/envia_cliente_facturacion", $post_data );
     $result_json = json_decode($result_1, true);
-    //var_dump(  );
-    if( trim( $result_json['status'] ) != '200' ){
+//  echo $post_data;return '';
+//var_dump( $result_1 );//die("{$api_path}/rest/clientes/envia_cliente_facturacion");
+    if( trim($result_1) != 'ok'  ){//&& trim( $result_json['status'] ) != '200'
         die( "Error al insertar registros en facturacion : {$result_1}" );
     }else{
     //actualiza el status de sincronizacion del registros de razones sociales 
@@ -102,11 +106,21 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
     $row = $stm->fetch();
     $general_api_path = $row['value'];
 //inserta cliente en sistema general de facturacion 
-    $post_data = json_encode( array( "log"=>$log, "rows"=>$costumers ), JSON_UNESCAPED_UNICODE ); 
-    $result_1 = $SynchronizationManagmentLog->sendPetition( "{$general_api_path}/rest/facturacion/inserta_cliente_general_linea", $post_data );
+    $post_data = json_encode( array(  "rows"=>$costumers ), JSON_UNESCAPED_UNICODE ); //"log"=>$log,
+    $result_1 = $SynchronizationManagmentLog->sendPetition( "{$general_api_path}/rest/facturacion/inserta_cliente_directo_general_linea", $post_data );
+    //die( "{$general_api_path}/rest/facturacion/inserta_cliente_directo_general_linea" );
     if( trim( $result_1 ) != 'ok' ){
         die( "Error al insertar registros en sistema General Linea : $result_1" );
     }
+    if( $costumer_rfc != '' ){
+        $sql = "DELETE FROM sys_sincronizacion_registros_facturacion WHERE id_sucursal_destino IN ( -2, -1 ) 
+        AND datos_json LIKE '%{$costumer_rfc}%'";
+        $stm = $link->query($sql) or die( "Error al eliminar registros de sincronizacion en tabla sys_sincronizacion_registros_facturacion : {$sql} : " . $link->error );
+    //die('ok');
+    }else{
+        die( "Error al recuperar rfc del cliente." );
+    }
+    die('ok');
     $response->getBody()->write(json_encode( $resp ));
     return $response;
 });

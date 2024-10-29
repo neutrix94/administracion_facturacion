@@ -35,6 +35,7 @@ $app->post('/clientes/envia_cliente_facturacion', function (Request $request, Re
     $body = $request->getBody();
     $req = json_decode($body, true);
     $costumers = $req['costumers'];
+//var_dump($costumers);return '';
     if( $linkFact->connect_error ){
         die( "Error al conectar con la Base de Datos : " . $linkFact->connect_error);
     }
