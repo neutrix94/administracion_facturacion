@@ -9,25 +9,33 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 * Método: POST
 * Descripción: Servicio para registrar nuev producto en BDs facturación
 */
-$app->post('/clientes/nuevoCliente', function (Request $request, Response $response){
+$app->post('/clientes/envia_cliente_facturacion', function (Request $request, Response $response){
     include( '../include/db.php' );
     $db = new db();
     $link = $db->conectDB();
 /*Implementacion Oscar 2024-06-27*/
-    $sql = "SELECT host_db, usuario_db, contrasena_db, nombre_db FROM razones_sociales WHERE activo = 1 LIMIT 1";
+    $sql = "SELECT 
+                TRIM(host_db) AS host, 
+                TRIM(usuario_db) AS user, 
+                TRIM(contrasena_db) As pass, 
+                TRIM(nombre_db) AS db_name 
+            FROM razones_sociales 
+            WHERE activo = 1 
+            LIMIT 1";
     $db_stm = $link->query( $sql ) or die( "Error al consultar los parametros de bases de datos de facturacion : {$sql}" );
     $db_row = $db_stm->fetch( PDO::FETCH_ASSOC );
-    $dbHost = "localhost";//"sistemageneralcasa.com";$db_row['host_db']
-    $dbUser = "root";//"wwsist_oscar23";$db_row['usuario_db']
-    $dbPassword = "";//"wwsist_oscar23_23";$db_row['contrasena_db']
-    $dbName = "facturacion2023_casa_luces_bazar";//"wwsist_casa_luces_bazar"; */$db_row['nombre_db']
+    $dbHost = $db_row['host'];//"localhost";//"sistemageneralcasa.com";
+    $dbUser = $db_row['user'];//"wwsist_oscar23";"root"
+    $dbPassword = $db_row['pass'];//"wwsist_oscar23_23";
+    $dbName = $db_row['db_name'];//"wwsist_casa_luces_bazar"; facturacion2023_casa_luces_bazar*/$db_row['nombre_db']
+    $linkFact = mysqli_connect("{$dbHost}", "{$dbUser}", "{$dbPassword}", "{$dbName}");
     $ok_rows = "";
     //echo "{$dbHost}/{$dbUser}/{$dbPassword}/{$dbName}";
 //recibe parametros del request
     $body = $request->getBody();
     $req = json_decode($body, true);
     $costumers = $req['costumers'];
-    $linkFact = mysqli_connect("localhost:3306", "root", "", "facturacion2023_casa_luces_bazar");
+//var_dump($costumers);return '';
     if( $linkFact->connect_error ){
         die( "Error al conectar con la Base de Datos : " . $linkFact->connect_error);
     }
