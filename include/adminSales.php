@@ -42,10 +42,11 @@
             </div>
             <div class="col-6">
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Buscar por Folio">
+                    <input type="text" id="sale_seeker" class="form-control" placeholder="Buscar por Folio" onkeyup="seekSale( event );">
                     <button
                         type="button"
                         class="btn btn-primary"
+                        onclick="seekSale( 'intro' );"
                     >
                         <i class="icon-search"></i>
                     </button>
@@ -72,7 +73,7 @@
 						<th width="10%" class="text-center">Eliminar</th>
 					</tr>
 				</thead>
-				<tbody style="max-height : 200px; overflow:auto;">
+				<tbody style="max-height : 200px; overflow:auto;" id="SalesListContent">
 			<?php
 			$c=0;//inicaimos el contador en cero
 			while( $r = $eje->fetch( PDO::FETCH_ASSOC ) ){
@@ -289,5 +290,28 @@ var resaltada=0;
 	function quita_resaltado(num){
 		$("#fila_"+num).css("background","white");		
 	}
+    function getSales( start_position = 0, limit = 30 ){
+    //manda a buscar venta
+        var url = `ajax/SalesDB.php?fl=getSales&folio=${text}&start=${start_position}&limit=${limit}`;
+        var resp = ajaxR( url );
+        $( '#SalesListContent' ).html( resp );
+    }
+    function seekSale( e ){
+        var keycode = e.keyCode;
+        if( e != 'intro' && keycode != 13 ){
+            return false;
+        }
+    //
+        var text = $( "#sale_seeker" ).val();
+        if( text.length <= 0 ){
+            alert( "Debes ingresar un folio de venta pra buscar." );
+            $( "#sale_seeker" ).focus();
+            return false;
+        }
+    //manda a buscar venta
+        var url = `ajax/SalesDB.php?fl=seekSaleByFolio&folio=${text}`;
+        var resp = ajaxR( url );
+        $( '#SalesListContent' ).html( resp );
+    }
 
 </script>

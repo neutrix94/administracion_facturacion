@@ -109,6 +109,7 @@
 			//$this->link->autocommit( false );
 			$this->link->beginTransaction();
 			foreach ( $costumers as $key => $costumer ) {
+//var_dump( $costumer );die("stop");
 				//var_dump( $costumer['id_cliente_facturacion_tmp'] );
 				$insert = $this->insertLineCostumer( $costumer );
 				if( $insert != "ok" ){
@@ -117,7 +118,11 @@
 			//inserta los registros de sincronizacion de clientes en los sistemas de facturacion
 				
 				$rows .= ( $rows == "" ? "" : "," );
-				$rows .= $costumer['detail'][0]['synchronization_row_id'];
+				if( isset( $costumer['detail'][0]['synchronization_row_id'] ) ){
+					$rows .= $costumer['detail'][0]['synchronization_row_id'];
+				}else{
+					
+				}
 			}
 		//autoriza transaccion
 			//$this->link->autocommit( true );
@@ -233,6 +238,7 @@
 			die( 'ok' );
 		}
 		public function insertLineCostumer( $costumer ){
+//var_dump($costumer);
 			$action = "";
 		//verifica si el cliente existe en relacion al RFC
 			$sql = "SELECT id_cliente_facturacion FROM vf_clientes_razones_sociales WHERE rfc = '{$costumer['rfc']}'";

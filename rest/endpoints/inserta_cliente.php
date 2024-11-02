@@ -24,38 +24,37 @@ $app->post('/inserta_cliente', function (Request $request, Response $response){
     $resp["error_rows"] = '';
     $resp["rows_download"] = array();
     $resp["log_download"] = array();
-  if( ! include( 'utils/SynchronizationManagmentLog.php' ) ){
-    die( "No se incluyó : SynchronizationManagmentLog.php" );
-  }
-
-  if( ! include( 'utils/facturacion.php' ) ){
-    die( "No se incluyó : facturacion.php" );
-  }
-  $Bill = new Bill( $link, -1, "24LNA" );//$system_store, $store_prefix
+    if( ! include( 'utils/SynchronizationManagmentLog.php' ) ){
+        die( "No se incluyó : SynchronizationManagmentLog.php" );
+    }
+    if( ! include( 'utils/facturacion.php' ) ){
+        die( "No se incluyó : facturacion.php" );
+    }
+    $Bill = new Bill( $link, -1, "24LNA" );//$system_store, $store_prefix
   
-  $SynchronizationManagmentLog = new SynchronizationManagmentLog( $link );//instancia clase de Peticiones Log
+    $SynchronizationManagmentLog = new SynchronizationManagmentLog( $link );//instancia clase de Peticiones Log
 
-  if( ! include( 'utils/rowsSynchronization.php' ) ){
-    die( "No se incluyó : rowsSynchronization.php" );
-  }
-  $rowsSynchronization = new rowsSynchronization( $link );
+    if( ! include( 'utils/rowsSynchronization.php' ) ){
+        die( "No se incluyó : rowsSynchronization.php" );
+    }
+    $rowsSynchronization = new rowsSynchronization( $link );
 
-  $resp = array();
-  $resp["ok_rows"] = '';
-  $resp["error_rows"] = '';
-  $resp["rows_download"] = array();
-  $resp["log_download"] = array();
+    $resp = array();
+    $resp["ok_rows"] = '';
+    $resp["error_rows"] = '';
+    $resp["rows_download"] = array();
+    $resp["log_download"] = array();
 
-  $tmp_ok = "";
-  $tmp_no = "";
-  //inserta request
-  $request_initial_time = $SynchronizationManagmentLog->getCurrentTime();
-  $resp["log"] = $SynchronizationManagmentLog->insertResponse( $log, $request_initial_time );
+    $tmp_ok = "";
+    $tmp_no = "";
+//inserta request
+    $request_initial_time = $SynchronizationManagmentLog->getCurrentTime();
+    $resp["log"] = $SynchronizationManagmentLog->insertResponse( $log, $request_initial_time );
     if( sizeof( $costumers ) > 0 ){
         $insert_costumers = $Bill->insertCostumers( $costumers );
-       //var_dump( $insert_returns );//die('');
+        //var_dump( $insert_returns );//die('');
         $resp["ok_rows"] = $insert_costumers;//$insert_returns["ok_rows"];
-//return json_encode( $insert_returns );
+    //return json_encode( $insert_returns );
         if( isset( $insert_costumers["error"] ) ){//$insert_returns["error"] != '' && $insert_returns["error"] != null
         //inserta error si es el caso
         $resp["log"] = $SynchronizationManagmentLog->updateResponseLog( $insert_costumers["error"], $resp["log"]["unique_folio"] );
@@ -84,10 +83,10 @@ $app->post('/inserta_cliente', function (Request $request, Response $response){
     $api_path = $row['value'];
 
     $post_data = json_encode( array( "costumers"=>$resp["download"] ), JSON_UNESCAPED_UNICODE );  
-    $result_1 = $SynchronizationManagmentLog->sendPetition( "{$api_path}/rest/clientes/nuevoCliente", $post_data );
+    $result_1 = $SynchronizationManagmentLog->sendPetition( "{$api_path}/rest/clientes/envia_cliente_facturacion", $post_data );
     $result_json = json_decode($result_1, true);
     //var_dump(  );
-    if( trim( $result_json['status'] ) != '200' ){
+    if( trim( $result_json['status'] ) != '200' && trim($result_1) != 'ok' ){
         die( "Error al insertar registros en facturacion : {$result_1}" );
     }else{
     //actualiza el status de sincronizacion del registros de razones sociales 
@@ -102,13 +101,11 @@ $app->post('/inserta_cliente', function (Request $request, Response $response){
     $stm = $link->query( $sql ) or die( "Error al consultar el path del api sistema general: {$link->error}" );
     $row = $stm->fetch();
     $general_api_path = $row['value'];
-    
-    //$post_data = json_encode( array( "costumers"=>$resp["download"] ), JSON_UNESCAPED_UNICODE ); 
-    $post_data = json_encode( array( "log"=>$log, "rows"=>$costumers ), JSON_UNESCAPED_UNICODE );  
-    //die("{$general_api_path}/rest/facturacion/inserta_cliente");
-    $result_1 = $SynchronizationManagmentLog->sendPetition( "{$general_api_path}/rest/facturacion/inserta_cliente", $post_data );
+//inserta cliente en sistema general de facturacion 
+    $post_data = json_encode( array( "log"=>$log, "rows"=>$costumers ), JSON_UNESCAPED_UNICODE ); 
+    $result_1 = $SynchronizationManagmentLog->sendPetition( "{$general_api_path}/rest/facturacion/inserta_cliente_general_linea", $post_data );
     if( trim( $result_1 ) != 'ok' ){
-        die( "Error al insertar registros en sisytema General Linea : $result_1" );
+        die( "Error al insertar registros en sistema General Linea : $result_1" );
     }
     $response->getBody()->write(json_encode( $resp ));
     return $response;
