@@ -114,9 +114,10 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
         die( "Error al insertar registros en sistema General Linea : $result_1" );
     }
     if( $costumer_rfc != '' ){
-        $sql = "DELETE FROM sys_sincronizacion_registros_facturacion WHERE id_sucursal_destino IN ( -2, -1 ) 
-        AND datos_json LIKE '%{$costumer_rfc}%'";
-        $stm = $link->query($sql) or die( "Error al eliminar registros de sincronizacion en tabla sys_sincronizacion_registros_facturacion : {$sql} : {$link->error}" );
+    //deshabilitado Oscar 2024-11-07 para que no elimine los jsons de sincronizacion de clientes RS y GeneralLinea
+        //$sql = "DELETE FROM sys_sincronizacion_registros_facturacion WHERE id_sucursal_destino IN ( -2, -1 ) 
+        //AND datos_json LIKE '%{$costumer_rfc}%'";
+        //$stm = $link->query($sql) or die( "Error al eliminar registros de sincronizacion en tabla sys_sincronizacion_registros_facturacion : {$sql} : {$link->error}" );
     //die('ok');
     }else{
         die( "Error al recuperar rfc del cliente." );
