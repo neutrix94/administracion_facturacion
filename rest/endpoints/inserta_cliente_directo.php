@@ -7,6 +7,7 @@
 * Path: /inserta_clientes
 * Método: POST
 * Descripción: Insercion de clientes directo desde la pantalla de clientes
+* Version Oscar 2024-11-07 para corregir error de ciclado de clientes
 */
 //$log = $req["log"];
 $app->post('/inserta_cliente_directo', function (Request $request, Response $response){
@@ -90,7 +91,7 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
     $result_json = json_decode($result_1, true);
 //  echo $post_data;return '';
 //var_dump( $result_1 );//die("{$api_path}/rest/clientes/envia_cliente_facturacion");
-    if( trim($result_1) != 'ok'  ){//&& trim( $result_json['status'] ) != '200'
+    if( $result_json['status'] != 200 ){//&& trim( $result_json['status'] ) != '200'trim($result_1) != 'ok'
         die( "Error al insertar registros en facturacion : {$result_1}" );
     }else{
     //actualiza el status de sincronizacion del registros de razones sociales 
@@ -115,14 +116,14 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
     if( $costumer_rfc != '' ){
         $sql = "DELETE FROM sys_sincronizacion_registros_facturacion WHERE id_sucursal_destino IN ( -2, -1 ) 
         AND datos_json LIKE '%{$costumer_rfc}%'";
-        $stm = $link->query($sql) or die( "Error al eliminar registros de sincronizacion en tabla sys_sincronizacion_registros_facturacion : {$sql} : " . $link->error );
+        $stm = $link->query($sql) or die( "Error al eliminar registros de sincronizacion en tabla sys_sincronizacion_registros_facturacion : {$sql} : {$link->error}" );
     //die('ok');
     }else{
         die( "Error al recuperar rfc del cliente." );
     }
     die('ok');
-    $response->getBody()->write(json_encode( $resp ));
-    return $response;
+    //$response->getBody()->write(json_encode( $resp ));
+    //return $response;
 });
 
 ?>
