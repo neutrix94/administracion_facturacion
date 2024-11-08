@@ -8,6 +8,7 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 * Path: /productos/nuevoFact
 * Método: POST
 * Descripción: Servicio para registrar nuev producto en BDs facturación
+* Version Oscar 2024-11-07 para corregir error de ciclado de clientes
 */
 $app->post('/clientes/envia_cliente_facturacion', function (Request $request, Response $response){
     include( '../include/db.php' );
@@ -29,7 +30,7 @@ $app->post('/clientes/envia_cliente_facturacion', function (Request $request, Re
     $dbPassword = $db_row['pass'];//"wwsist_oscar23_23";
     $dbName = $db_row['db_name'];//"wwsist_casa_luces_bazar"; facturacion2023_casa_luces_bazar*/$db_row['nombre_db']
     $linkFact = mysqli_connect("{$dbHost}", "{$dbUser}", "{$dbPassword}", "{$dbName}");
-    $ok_rows = "";
+    $ok_rows = array();
     //echo "{$dbHost}/{$dbUser}/{$dbPassword}/{$dbName}";
 //recibe parametros del request
     $body = $request->getBody();
@@ -146,16 +147,15 @@ $app->post('/clientes/envia_cliente_facturacion', function (Request $request, Re
                 }
             }
         }
-        $ok_rows .= ( $ok_rows == "" ? "" : "," );
-        $ok_rows .= $costumer['rfc'];//agrega el rfc a registros exitosos
+    //implementacion Oscar 2024-11-07 para actualizar el status de la sincronizacion de registro de facturacion
+        $sql = "UPDATE sys_sincronizacion_registros_facturacion SET status_sincronizacion = 3 WHERE id_sincronizacion_registro = {$costumer['synchronization_row_id']}";
+        $stm = $link->query( $sql ) or die( "Error al actualizar el registro de sincronizacion de facturacion : {$sql} : {$link->error}" );
+        array_push( $ok_rows, $costumer['synchronization_row_id'] );
 //  $linkFact->autocommit( true );
     }
-    //$resp = array( "status"=>200, "ok_rows"=>$ok_rows );
-    //$response->getBody()->write(json_encode( $resp ));
-    //return $response;
-    //return json_encode( array( "status"=>200, "ok_rows"=>$ok_rows ) );
-    die( 'ok' );
-
+    $resp = array( "status"=>200, "ok_rows"=>$ok_rows );
+    $response->getBody()->write(json_encode( $resp ));
+    return $response;
 });
 
 ?>
