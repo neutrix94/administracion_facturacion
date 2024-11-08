@@ -7,6 +7,7 @@
 * Path: /inserta_clientes
 * Método: POST
 * Descripción: Insercion de clientes
+ *Version Oscar 2024-11-08 para corregir error al insertar cliente desde ambiente local
 */
 
 $app->post('/inserta_cliente', function (Request $request, Response $response){
@@ -82,11 +83,12 @@ $app->post('/inserta_cliente', function (Request $request, Response $response){
     $row = $stm->fetch();
     $api_path = $row['value'];
 
-    $post_data = json_encode( array( "costumers"=>$resp["download"] ), JSON_UNESCAPED_UNICODE );  
+    $costumers_to_rs = $rowsSynchronization->getSynchronizationRows( -1, -2, 50, 'sys_sincronizacion_registros_facturacion' );
+    $post_data = json_encode( array( "costumers"=>$costumers_to_rs ), JSON_UNESCAPED_UNICODE );  
     $result_1 = $SynchronizationManagmentLog->sendPetition( "{$api_path}/rest/clientes/envia_cliente_facturacion", $post_data );
     $result_json = json_decode($result_1, true);
     //var_dump(  );
-    if( trim( $result_json['status'] ) != '200' && trim($result_1) != 'ok' ){
+    if( $result_json['status'] != 200 ){//&& trim($result_1) != 'ok'
         die( "Error al insertar registros en facturacion : {$result_1}" );
     }else{
     //actualiza el status de sincronizacion del registros de razones sociales 
@@ -102,10 +104,23 @@ $app->post('/inserta_cliente', function (Request $request, Response $response){
     $row = $stm->fetch();
     $general_api_path = $row['value'];
 //inserta cliente en sistema general de facturacion 
-    $post_data = json_encode( array( "log"=>$log, "rows"=>$costumers ), JSON_UNESCAPED_UNICODE ); 
-    $result_1 = $SynchronizationManagmentLog->sendPetition( "{$general_api_path}/rest/facturacion/inserta_cliente_general_linea", $post_data );
-    if( trim( $result_1 ) != 'ok' ){
+    $costumers_to_general_system = $rowsSynchronization->getSynchronizationRows( -1, -1, 50, 'sys_sincronizacion_registros_facturacion' );
+    $post_data = json_encode( array( "log"=>$log, "rows"=>$costumers_to_general_system ), JSON_UNESCAPED_UNICODE ); 
+    $result_1 = $SynchronizationManagmentLog->sendPetition( "{$general_api_path}/rest/facturacion/inserta_cliente_directo_general_linea", $post_data );
+    /*if( trim( $result_1 ) != 'ok' ){
         die( "Error al insertar registros en sistema General Linea : $result_1" );
+    }*/
+    $result_json = json_decode( $result_1, true );
+    if( $result_json['status'] != 200 ){//trim( $result_1 ) != 'ok'
+        var_dump( $result_1 );
+        die( "Error al insertar registros en sistema General Linea : $result_1" );
+    }else{
+    //actualiza el status de registro sincronizacion de General Linea
+        foreach ( $result_json['ok_rows'] as $key => $value ) {
+            $sql = "UPDATE sys_sincronizacion_registros_facturacion SET status_sincronizacion = 3 WHERE id_sincronizacion_registro = {$value}";
+            $link->query( $sql ) or die( "Error al actualizar registros de facturacion : {$sql} : {$link->error}" );        
+        }
+       // var_dump( $result_1 );die('here');
     }
     $response->getBody()->write(json_encode( $resp ));
     return $response;
