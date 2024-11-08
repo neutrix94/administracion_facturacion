@@ -148,9 +148,9 @@ $app->post('/clientes/envia_cliente_facturacion', function (Request $request, Re
             }
         }
     //implementacion Oscar 2024-11-07 para actualizar el status de la sincronizacion de registro de facturacion
-        $sql = "UPDATE sys_sincronizacion_registros_facturacion SET status_sincronizacion = 3 WHERE id_sincronizacion_registro = {$costumer['synchronization_row_id']}";
+        $sql = "UPDATE sys_sincronizacion_registros_facturacion SET status_sincronizacion = 3 WHERE id_sincronizacion_registro = {$costumer['detail'][0]['synchronization_row_id']}";
         $stm = $link->query( $sql ) or die( "Error al actualizar el registro de sincronizacion de facturacion : {$sql} : {$link->error}" );
-        array_push( $ok_rows, $costumer['synchronization_row_id'] );
+        array_push( $ok_rows, $costumer['detail'][0]['synchronization_row_id'] );
 //  $linkFact->autocommit( true );
     }
     $resp = array( "status"=>200, "ok_rows"=>$ok_rows );
