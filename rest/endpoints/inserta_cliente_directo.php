@@ -119,7 +119,7 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
     }else{
     //actualiza el status de registro sincronizacion de General Linea
         foreach ( $result_json['ok_rows'] as $key => $value ) {
-            $sql = "UPDATE sys_sincronizacion_registros_facturacion SET status_sincronizacion = 1 WHERE id_sincronizacion_registro = {$value}";
+            $sql = "UPDATE sys_sincronizacion_registros_facturacion SET status_sincronizacion = 3 WHERE id_sincronizacion_registro = {$value}";
             $link->query( $sql ) or die( "Error al actualizar registros de facturacion : {$sql} : {$link->error}" );        
         }
        // var_dump( $result_1 );die('here');
