@@ -1,5 +1,7 @@
 <?php
-//ok 2023/11/25
+/*
+	*Version 2024-11-07 para que mande mas de un registro cuando busca jsons pendientes de enviar a Razones Sociales y General Linea
+*/
 	class rowsSynchronization
 	{
 		private $link;
@@ -36,7 +38,7 @@
 					$sql = "UPDATE sys_sincronizacion_registros_facturacion 
 								SET status_sincronizacion = 2 
 							WHERE id_sincronizacion_registro = {$row['synchronization_row_id']}";
-					$stm = $this->link->query( $sql ) or die( "Error al poner registro de sincronizacion en status de enviado (comprobacion) : {$sql} : {$this->link->error}" );
+					$stm2 = $this->link->query( $sql ) or die( "Error al poner registro de sincronizacion en status de enviado (comprobacion) : {$sql} : {$this->link->error}" );
 					array_push( $resp, json_decode($row['data'] ) );//decodifica el JSON
 					$movements_counter ++;
 				}
