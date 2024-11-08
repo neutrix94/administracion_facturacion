@@ -108,7 +108,7 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
     $row = $stm->fetch();
     $general_api_path = $row['value'];
 //inserta cliente en sistema general de facturacion
-    $costumers_to_send = $rowsSynchronization->getSynchronizationRows( -1, -2, 50, 'sys_sincronizacion_registros_facturacion' );
+    $costumers_to_send = $rowsSynchronization->getSynchronizationRows( -1, -1, 50, 'sys_sincronizacion_registros_facturacion' );
     $post_data = json_encode( array(  "rows"=>$costumers_to_send ), JSON_UNESCAPED_UNICODE ); //"log"=>$log,
     $result_1 = $SynchronizationManagmentLog->sendPetition( "{$general_api_path}/rest/facturacion/inserta_cliente_directo_general_linea", $post_data );
     $result_json = json_decode( $result_1, true );
