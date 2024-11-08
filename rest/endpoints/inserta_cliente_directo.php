@@ -8,6 +8,7 @@
 * Método: POST
 * Descripción: Insercion de clientes directo desde la pantalla de clientes
 * Version Oscar 2024-11-07 para corregir error de ciclado de clientes
+* Version Oscar 2024-11-07 para corregir error de ciclado de clientes al insertar en General Linea
 */
 //$log = $req["log"];
 $app->post('/inserta_cliente_directo', function (Request $request, Response $response){
@@ -109,9 +110,19 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
 //inserta cliente en sistema general de facturacion 
     $post_data = json_encode( array(  "rows"=>$costumers ), JSON_UNESCAPED_UNICODE ); //"log"=>$log,
     $result_1 = $SynchronizationManagmentLog->sendPetition( "{$general_api_path}/rest/facturacion/inserta_cliente_directo_general_linea", $post_data );
+    $result_json = json_decode( $result_1, true );
     //die( "{$general_api_path}/rest/facturacion/inserta_cliente_directo_general_linea" );
-    if( trim( $result_1 ) != 'ok' ){
+    if( $result_json['status'] != 200 ){//trim( $result_1 ) != 'ok'
+        var_dump( $result_1 );
         die( "Error al insertar registros en sistema General Linea : $result_1" );
+    }else{
+    //actualiza el status de registro sincronizacion de General Linea
+        ;
+        foreach ( $result_json['ok_rows'] as $key => $value ) {
+            $sql = "UPDATE sys_sincronizacion_registros_facturacion WHERE id_sincronizacion_registro = {$value}";
+            $link->query( $sql ) or die( "Error al actualizar registros de facturacion : {$sql} : {$link->error}" );        
+        }
+       // var_dump( $result_1 );die('here');
     }
     if( $costumer_rfc != '' ){
     //deshabilitado Oscar 2024-11-07 para que no elimine los jsons de sincronizacion de clientes RS y GeneralLinea
