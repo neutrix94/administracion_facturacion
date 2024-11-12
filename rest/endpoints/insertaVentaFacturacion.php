@@ -6,6 +6,7 @@
         $db = new db();
         $link = $db->conectDB();
         $body = $request->getBody();
+        $enviar_facturacion_directo = false;//variable para indicar que la venta se tiene que enviar.
         $req = json_decode($body, true);
         if( ! isset( $req['venta'] ) ){
             $response->getBody()->write(json_encode( array( "status"=>"400", "message"=>"Error : No llego ninguna venta; Se necesita una venta para continuar." ) ));
@@ -60,6 +61,9 @@
                 '{$cobro['fecha']}', '{$cobro['hora']}', '{$cobro['observaciones']}', '{$cobro['cobro_cancelado']}', '{$cobro['folio_unico']}', 
                 '{$cobro['id_forma_pago']}', 1 )";
             $stm = $link->query( $sql ) or die( "Error al insertar cobro de venta : {$sql}" );
+            if( $cobro['id_tipo_pago'] == 7 ){//si encuentra pago con tarjeta
+                $enviar_facturacion_directo = true;
+            }
         }
     //inserta pagos de la venta
         $pagos = $req['pagos'];
@@ -74,7 +78,25 @@
             $stm = $link->query( $sql ) or die( "Error al insertar pagos de venta : {$sql}" );
         }
         $link->commit();
-
+    //envia la nota de venta a la razon social para su facturacion
+        if( $enviar_facturacion_directo == true ){
+            $bill_api_path = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+            $bill_api_path = str_replace( '/inserta_venta_facturacion', '', $bill_api_path );     
+            $resp = "";
+            $post_data = json_encode( array( "sale_folio"=>$venta['folio_nv'] ) );
+            $crl = curl_init( "{$bill_api_path}/inserta_venta_sistema_facturacion" );
+            curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+            curl_setopt($crl, CURLOPT_POST, true);
+            curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+            //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+            curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+            curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json' )
+            );
+            $resp = curl_exec($crl);//envia peticion
+            curl_close($crl);
+        }
         $response->getBody()->write(json_encode( array( "status"=>"200" ) ));
         return $response;
     });
