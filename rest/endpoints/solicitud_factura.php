@@ -31,7 +31,7 @@
                     FROM solicitudes_factura
                     WHERE folio_venta = '{$sale_folio}'";
             $stm = $link->query( $sql );
-            if( $stm->rowsCount() <= 0 ){
+            if( $link->rowsCount() <= 0 ){
             //inserta el registro de solicitud de factura
                 try{
                 //actualiza la cabecera de la nota de venta

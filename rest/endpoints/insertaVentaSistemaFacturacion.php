@@ -59,7 +59,7 @@
                     id_sesion_caja, 
                     tipo_sistema, 
                     id_status_facturacion,
-                    {$cfdi_use} AS cfdi
+                    2 AS cfdi
                 FROM ec_pedidos 
                 WHERE folio_nv = '{$sale_folio}'
                 LIMIT 1";
