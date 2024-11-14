@@ -109,7 +109,7 @@
 			curl_close($crl);
         //actualiza el registro de intento de facturacion
             try{
-                $sql = "UPDATE peticiones_solicitud_factura SET respuesta = ''{$resp}'', detalle_respuesta = '{$resp}' WHERE id_peticion_solicitud_factura = {$id_intento_solicitud_factura}";
+                $sql = "UPDATE peticiones_solicitud_factura SET respuesta = '{$resp}', detalle_respuesta = '{$resp}' WHERE id_peticion_solicitud_factura = {$id_intento_solicitud_factura}";
                 $stm = $link->query( $sql ) or die( "Error al" );
             }catch(PDOException $e){
                 error_log( "Error al actualizar intento de solicitud de factura : {$sql} : {$e}" );

@@ -59,7 +59,7 @@
                 VALUES ( '{$cobro['id_sucursal']}', {$sale_id}, '{$cobro['id_devolucion']}', '{$cobro['id_cajero']}', '{$cobro['id_sesion_caja']}', 
                 '{$cobro['id_afiliacion']}', '{$cobro['id_terminal']}', '{$cobro['id_banco']}', '{$cobro['id_tipo_pago']}', '{$cobro['monto']}', 
                 '{$cobro['fecha']}', '{$cobro['hora']}', '{$cobro['observaciones']}', '{$cobro['cobro_cancelado']}', '{$cobro['folio_unico']}', 
-                '{$cobro['id_forma_pago']}', 1 )";
+                IF( '{$cobro['id_forma_pago']}' = '1', 1, 14 ), 1 )";
             $stm = $link->query( $sql ) or die( "Error al insertar cobro de venta : {$sql}" );
             if( $cobro['id_tipo_pago'] == 7 ){//si encuentra pago con tarjeta
                 $enviar_facturacion_directo = true;

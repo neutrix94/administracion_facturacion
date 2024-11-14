@@ -91,7 +91,8 @@
                     fecha, 
                     hora, 
                     folio_unico, 
-                    id_forma_pago 
+                    14 AS id_forma_pago,
+                    id_cajero_cobro 
                 FROM ec_cajero_cobros 
                 WHERE id_pedido = {$sale_header['id_pedido']}";
         $stm = $link->query( $sql ) or die( "Error al consultar detalle de la nota de venta : {$sql}" );
