@@ -29,7 +29,7 @@
         $rs_api_path = null;
         try{
             $stm = $link->query( $sql );
-            if( $stm->numrows() <= 0 ){
+            if( $stm->rowCount() <= 0 ){
                 $response->getBody()->write(json_encode( array( "status"=>"300", "message"=>"No se econtro path para actualizar tipo pago en RS." ) ));
                 return $response;
             }
