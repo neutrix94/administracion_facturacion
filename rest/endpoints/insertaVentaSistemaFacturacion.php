@@ -91,7 +91,7 @@
                     fecha, 
                     hora, 
                     folio_unico, 
-                    14 AS id_forma_pago,
+                    IF( id_forma_pago = 1, 1, 14 ) AS id_forma_pago,
                     id_cajero_cobro 
                 FROM ec_cajero_cobros 
                 WHERE id_pedido = {$sale_header['id_pedido']}";
