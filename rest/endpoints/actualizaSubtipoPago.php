@@ -45,7 +45,7 @@
             return $response;
         }else{
     //consume servicio en la razon social correspondiente para ir a actualizar el tipo de pago
-            $post_data = json_encode( array( "payment_id"=>$req['payment_id'], "payment_type"=>$req['payment_id']) );
+            $post_data = json_encode( array( "payment_id"=>$req['payment_id'], "payment_type"=>$req['payment_subtype']) );
             $resp = "";
 			$crl = curl_init( "{$rs_api_path}/actualiza_tipo_pago_razon_social" );
 			curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
