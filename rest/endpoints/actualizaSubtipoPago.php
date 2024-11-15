@@ -40,7 +40,7 @@
             $response->getBody()->write(json_encode( array( "status"=>"300", "message"=>"Error al consultar endpoint de API para actualizar el API en RS : {$sql} : {$e}" ) ));
             return $response;
         }
-        if( $rs_api_path = '' || $rs_api_path == null ){
+        if( $rs_api_path == '' || $rs_api_path == null ){
             $response->getBody()->write(json_encode( array( "status"=>"300", "message"=>"No se econtro path para actualizar tipo pago en RS." ) ));
             return $response;
         }else{
