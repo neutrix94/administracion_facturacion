@@ -16,8 +16,10 @@
         $body = $request->getBody();
         $req = json_decode($body, true);
         $sale_folio = $req['sale_folio'];
-        $sale_costumer = $req['sale_costumer'];
-        $cfdi_use = $req['cfdi_use'];
+/*Estos se tiene que actualizar al solicitar la factura*/
+//$sale_costumer = $req['sale_costumer'];
+//$cfdi_use = $req['cfdi_use'];
+/**/
     //consulta el status de la venta
         $sql = "SELECT 
                     p.id_status_facturacion, 
@@ -34,8 +36,8 @@
                 
             die( json_encode( array( "status"=>200, "message"=>"La nota de venta ya fue facturada. {$row['url_api']}" ) ) );
         }
-//actualiza el cfdi en el sistema de administracion de facturacion
-        $sql = "UPDATE ec_pedidos SET uso_cfdi = {$cfdi_use}, id_status_facturacion = IF( id_status_facturacion = 3, 4, id_status_facturacion ) 
+//actualiza el cfdi en el sistema de administracion de facturacion {$cfdi_use}
+        $sql = "UPDATE ec_pedidos SET uso_cfdi = 2, id_status_facturacion = IF( id_status_facturacion = 3, 4, id_status_facturacion ) 
                 WHERE folio_nv = '{$sale_folio}'";
         $stm = $link->query( $sql ) or die( "Error al actualizar el uso de cfdi : {$sql}" );
 //consulta los datos de la venta
@@ -57,7 +59,7 @@
                     id_sesion_caja, 
                     tipo_sistema, 
                     id_status_facturacion,
-                    {$cfdi_use} AS cfdi
+                    2 AS cfdi
                 FROM ec_pedidos 
                 WHERE folio_nv = '{$sale_folio}'
                 LIMIT 1";
@@ -89,7 +91,8 @@
                     fecha, 
                     hora, 
                     folio_unico, 
-                    id_forma_pago 
+                    IF( id_forma_pago = 1, 1, 14 ) AS id_forma_pago,
+                    id_cajero_cobro 
                 FROM ec_cajero_cobros 
                 WHERE id_pedido = {$sale_header['id_pedido']}";
         $stm = $link->query( $sql ) or die( "Error al consultar detalle de la nota de venta : {$sql}" );

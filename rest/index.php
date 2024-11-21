@@ -32,6 +32,9 @@ $app->get('/example', function (Request $request, Response $response, $args) {
     require __DIR__  . '/endpoints/enviaFacturaCorreo.php';
     require __DIR__  . '/endpoints/insertaVentaFacturacion.php';
 
+//solicitud de factura 
+    require __DIR__ . '/endpoints/solicitud_factura.php';
+
 /*Deshabilitados*/
     //require __DIR__  . '/endpoints/prueba.php';
     //require __DIR__  . '/endpoints/insertarClienteFacturacion.php';
