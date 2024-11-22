@@ -1,9 +1,7 @@
 <?php
-//ok 2023/11/25
-//die( "here" );
-	/*include( '../../../conexionMysqli.php' );
-	$bill = new Bill( $link );
-	echo $bill->insertBillSystemCostumerSynchronization();*/
+/*
+	* Version Oscar 2024-11-22 para loguear error de clientes con datos undefinied en contactos
+*/
 	class Bill
 	{
 		private $link;	
@@ -238,11 +236,17 @@
 			die( 'ok' );
 		}
 		public function insertLineCostumer( $costumer ){
+$file = fopen("log_inserta_cliente.txt", "a");
+fwrite($file, "Facturacion LOG : " . PHP_EOL);
+fclose($file);
 //var_dump($costumer);
 			$action = "";
 		//verifica si el cliente existe en relacion al RFC
 			$sql = "SELECT id_cliente_facturacion FROM vf_clientes_razones_sociales WHERE rfc = '{$costumer['rfc']}'";
 			$check_stm = $this->link->query( $sql ) or die( "Error al consultar si el cliente existe en linea por RFC : {$sql}" );
+$file = fopen("log_inserta_cliente.txt", "a");
+fwrite($file, "Busca Cliente : {$sql}" . PHP_EOL);
+fclose($file);
 			if( $check_stm->rowCount() > 0 ){
 				$aux_row = $check_stm->fetch( PDO::FETCH_ASSOC );
 				$costumer['id_cliente_facturacion'] = "{$aux_row['id_cliente_facturacion']}";
@@ -290,6 +294,9 @@
 				$sql .= " WHERE id_cliente_facturacion = {$costumer['id_cliente_facturacion']}";
 				$stm = $this->link->query( $sql ) or die( "Error al actualizar el cliente : {$sql}" );
 			}
+$file = fopen("log_inserta_cliente.txt", "a");
+fwrite($file, "Cabecera cliente : {$sql}" . PHP_EOL);
+fclose($file);
 		//procesa el detalle
 			foreach ( $costumer['detail'] as $key => $contact ) {
 				$sql = ( $costumer['detail'][$key]['id_cliente_contacto'] == "" || $costumer['detail'][$key]['id_cliente_contacto'] == "0" ? "INSERT INTO" : "UPDATE" );
@@ -321,6 +328,9 @@
 					$sql .= " WHERE id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}";
 					$stm = $this->link->query( $sql ) or die( "Error al actualizar el contacto : {$sql}" );
 				}
+$file = fopen("log_inserta_cliente.txt", "a");
+fwrite($file, "Detalle contactos cliente : {$sql}" . PHP_EOL);
+fclose($file);
 			}
 		//inserta el registro de sincronizacion para sucursales locales
 			$costumer_json = json_encode( $costumer, JSON_UNESCAPED_UNICODE );
@@ -339,6 +349,9 @@
 					FROM sys_sucursales 
 					WHERE id_sucursal >= -1";
 			$stm = $this->link->query( $sql ) or die( "Error al insertar registros de sincronizacion de cliente para equipos locales: {$sql}" );
+$file = fopen("log_inserta_cliente.txt", "a");
+fwrite($file, "Insercion registros sincronizacion : {$sql}" . PHP_EOL);
+fclose($file);
 		//inserta el registro de sincronizacion para sistemas de facturacion
 			$costumer_json = json_encode( $costumer, JSON_UNESCAPED_UNICODE );
 			$sql = "INSERT INTO sys_sincronizacion_registros_facturacion ( id_sincronizacion_registro, sucursal_de_cambio,
@@ -346,6 +359,9 @@
 					VALUES ( NULL, -1, -2, '{$costumer_json}', NOW(), '/rest/utils/facturacion.php', 'vf_clientes_razones_sociales',
 						'{$costumer['rfc']}', 1 )";
 			$stm = $this->link->query( $sql ) or die( "Error al insertar registros de sincronizacion de cliente para sistemas de facturacion: {$sql}" );
+$file = fopen("log_inserta_cliente.txt", "a");
+fwrite($file, "Insercion registros sincronizacion para RS facturacion : {$sql}\n\n" . PHP_EOL);
+fclose($file);
 			return 'ok';
 		}
 
