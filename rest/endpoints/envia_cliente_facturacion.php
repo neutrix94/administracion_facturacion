@@ -55,102 +55,109 @@ $app->post('/clientes/envia_cliente_facturacion', function (Request $request, Re
     //itera clientes
         foreach ($bd_facturacion as $key_2 => $bd_destino) {
             $client_exists = false;
+            $costumer_error_repeat = false;
         //verifica si el cliente existe en relacion al rfc
-            $sql = "SELECT id_cliente FROM {$bd_destino}.ec_clientes WHERE id_cliente >= 10000 AND nombre = '{$costumer['rfc']}'";
+            $sql = "SELECT id_cliente, nombre FROM {$bd_destino}.ec_clientes WHERE id_cliente >= 10000 AND cliente = {$costumer['id_cliente_facturacion']}";//nombre = '{$costumer['rfc']}'
             $stm_check_costumer = $linkFact->query( $sql ) or die( "Error al consultar si el cliente ya existe : {$linkFact->error}" );
             if( $stm_check_costumer->num_rows > 0 ){
                 $client_exists = true;
-            }
-            $sql = ( $client_exists == false ? "INSERT INTO" : "UPDATE" );
-            $sql .= " {$bd_destino}.ec_clientes SET ";
-            if( $client_exists == false ){
-                $sql .= "id_cliente = '{$costumer['id_cliente_facturacion']}', ";
-            }
-        //cabecera de cliente
-            $sql .= "nombre = '{$costumer['rfc']}', 
-                telefono = '{$costumer['detail'][0]['telefono']}', 
-                telefono_2 = '', 
-                movil = '{$costumer['detail'][0]['celular']}', 
-                contacto = '{$costumer['detail'][0]['nombre']}', 
-                email = '{$costumer['detail'][0]['correo']}', 
-                es_cliente = 1, 
-                id_sucursal = 1, 
-                idTipoPersona = {$costumer['id_tipo_persona']}, 
-                EntregaConsSitFiscal = '{$costumer['entrega_cedula_fiscal']}', 
-                regimenFiscal = '{$costumer['regimen_fiscal']}', 
-                folio_unico = '{$costumer['folio_unico']}'";
-            if( $client_exists == false ){
-                $stm = $linkFact->query( $sql ) or die( "Error al insertar nuevo cliente de facturacion en {$bd_destino} : {$linkFact->error}" );
-            }else{
-                $sql .= " WHERE id_cliente = {$costumer['id_cliente_facturacion']}";
-                $stm = $linkFact->query( $sql ) or die( "Error al actualiza cliente de facturacion en {$bd_destino} : {$linkFact->error}" );
-            }
-        //razon social de cliente
-            $sql = ( $client_exists == false ? "INSERT INTO" : "UPDATE" );
-            $sql .= " {$bd_destino}.ec_clientes_razones_sociales SET ";
-            if( $client_exists == false ){
-                $sql .= "id_cliente_rs = '{$costumer['id_cliente_facturacion']}', ";
-            }
-            $sql .= "id_cliente = '{$costumer['id_cliente_facturacion']}', 
-                    rfc = '{$costumer['rfc']}', 
-                    razon_social = '{$costumer['razon_social']}', 
-                    calle = '{$costumer['calle']}', 
-                    no_int = '{$costumer['no_int']}', 
-                    no_ext = '{$costumer['no_ext']}', 
-                    colonia = '{$costumer['colonia']}', 
-                    del_municipio = '{$costumer['del_municipio']}', 
-                    cp = '{$costumer['cp']}', 
-                    estado = '{$costumer['estado']}', 
-                    pais = '{$costumer['pais']}'";
-            if( $client_exists == false ){
-                $stm = $linkFact->query( $sql ) or die( "Error al insertar nueva razon social cliente de facturacion en {$bd_destino} : {$sql} {$linkFact->error}" );
-            }else{
-                $sql .= " WHERE id_cliente_rs = {$costumer['id_cliente_facturacion']}";
-                $stm = $linkFact->query( $sql ) or die( "Error al actualizar razon social de facturacion en {$bd_destino} : {$linkFact->error}" );
-            }
-        //procesa el detalle
-            $contact_exists = false;
-            foreach ( $costumer['detail'] as $key => $contact ) {
-                $contact_exists = false;
-            //consulta si el contacto existe
-                $sql = "SELECT 
-                            id_cliente_contacto 
-                        FROM {$bd_destino}.ec_clientes_contacto
-                        WHERE ( id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']} )
-                        OR ( nombre = '{$costumer['detail'][$key]['nombre']}' AND telefono = '{$costumer['detail'][$key]['telefono']}' )
-                        OR ( nombre = '{$costumer['detail'][$key]['nombre']}' AND celular = '{$costumer['detail'][$key]['celular']}' )
-                        OR ( nombre = '{$costumer['detail'][$key]['nombre']}' AND correo = '{$costumer['detail'][$key]['correo']}' )";
-                $stm = $linkFact->query( $sql ) or die( "Error al consultar si existe el contacto en facturacion : {$linkFact->error}" );
-                if( $stm->num_rows > 0 ){
-                $contact_exists = true;
+                $costumer_row = $stm_check_costumer->fetch_assoc();
+                if( $costumer_row['nombre'] != $costumer['rfc'] ){
+                    $costumer_error_repeat = true;
                 }
-                $sql = ( $contact_exists == false ? "INSERT INTO" : "UPDATE" );
-                $costumer['detail'][$key]['id_cliente_facturacion'] = $costumer['id_cliente_facturacion'];
-                $sql .= " {$bd_destino}.ec_clientes_contacto SET ";
-                if( $contact_exists == false ){
-                    $sql .= "id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}, ";
+            }
+            if( ! $costumer_error_repeat ){
+                $sql = ( $client_exists == false ? "INSERT INTO" : "UPDATE" );
+                $sql .= " {$bd_destino}.ec_clientes SET ";
+                if( $client_exists == false ){
+                    $sql .= "id_cliente = '{$costumer['id_cliente_facturacion']}', ";
                 }
-                $sql .= "id_cliente_facturacion = '{$costumer['detail'][$key]['id_cliente_facturacion']}',
-                        nombre = '{$costumer['detail'][$key]['nombre']}', 
-                        telefono = '{$costumer['detail'][$key]['telefono']}',
-                        celular = '{$costumer['detail'][$key]['celular']}', 
-                        correo = '{$costumer['detail'][$key]['correo']}', 
-                        uso_cfdi = ( SELECT id FROM ec_cfdi WHERE clave ='{$costumer['detail'][$key]['uso_cfdi']}' LIMIT 1 ), 
-                        fecha_ultima_actualizacion = NOW(), 
-                        sincronizar = '1',
-                        folio_unico = '{$costumer['detail'][$key]['folio_unico']}'";
-                if( $contact_exists == false  ){
-                    $stm = $linkFact->query( $sql ) or die( "Error al insertar el nuevo contacto : {$linkFact->error}" );
+            //cabecera de cliente
+                $sql .= "nombre = '{$costumer['rfc']}', 
+                    telefono = '{$costumer['detail'][0]['telefono']}', 
+                    telefono_2 = '', 
+                    movil = '{$costumer['detail'][0]['celular']}', 
+                    contacto = '{$costumer['detail'][0]['nombre']}', 
+                    email = '{$costumer['detail'][0]['correo']}', 
+                    es_cliente = 1, 
+                    id_sucursal = 1, 
+                    idTipoPersona = {$costumer['id_tipo_persona']}, 
+                    EntregaConsSitFiscal = '{$costumer['entrega_cedula_fiscal']}', 
+                    regimenFiscal = '{$costumer['regimen_fiscal']}', 
+                    folio_unico = '{$costumer['folio_unico']}'";
+                if( $client_exists == false ){
+                    $stm = $linkFact->query( $sql ) or die( "Error al insertar nuevo cliente de facturacion en {$bd_destino} : {$linkFact->error}" );
                 }else{
-                    $sql .= " WHERE id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}";
-                    $stm = $linkFact->query( $sql ) or die( "Error al actualizar el contacto : {$linkFact->error}" );
+                    $sql .= " WHERE id_cliente = {$costumer['id_cliente_facturacion']}";
+                    $stm = $linkFact->query( $sql ) or die( "Error al actualiza cliente de facturacion en {$bd_destino} : {$linkFact->error}" );
                 }
+        //razon social de cliente
+                $sql = ( $client_exists == false ? "INSERT INTO" : "UPDATE" );
+                $sql .= " {$bd_destino}.ec_clientes_razones_sociales SET ";
+                if( $client_exists == false ){
+                    $sql .= "id_cliente_rs = '{$costumer['id_cliente_facturacion']}', ";
+                }
+                $sql .= "id_cliente = '{$costumer['id_cliente_facturacion']}', 
+                        rfc = '{$costumer['rfc']}', 
+                        razon_social = '{$costumer['razon_social']}', 
+                        calle = '{$costumer['calle']}', 
+                        no_int = '{$costumer['no_int']}', 
+                        no_ext = '{$costumer['no_ext']}', 
+                        colonia = '{$costumer['colonia']}', 
+                        del_municipio = '{$costumer['del_municipio']}', 
+                        cp = '{$costumer['cp']}', 
+                        estado = '{$costumer['estado']}', 
+                        pais = '{$costumer['pais']}'";
+                if( $client_exists == false ){
+                    $stm = $linkFact->query( $sql ) or die( "Error al insertar nueva razon social cliente de facturacion en {$bd_destino} : {$sql} {$linkFact->error}" );
+                }else{
+                    $sql .= " WHERE id_cliente_rs = {$costumer['id_cliente_facturacion']}";
+                    $stm = $linkFact->query( $sql ) or die( "Error al actualizar razon social de facturacion en {$bd_destino} : {$linkFact->error}" );
+                }
+            //procesa el detalle
+                $contact_exists = false;
+                foreach ( $costumer['detail'] as $key => $contact ) {
+                    $contact_exists = false;
+                //consulta si el contacto existe
+                    $sql = "SELECT 
+                                id_cliente_contacto 
+                            FROM {$bd_destino}.ec_clientes_contacto
+                            WHERE ( id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']} )
+                            OR ( nombre = '{$costumer['detail'][$key]['nombre']}' AND telefono = '{$costumer['detail'][$key]['telefono']}' )
+                            OR ( nombre = '{$costumer['detail'][$key]['nombre']}' AND celular = '{$costumer['detail'][$key]['celular']}' )
+                            OR ( nombre = '{$costumer['detail'][$key]['nombre']}' AND correo = '{$costumer['detail'][$key]['correo']}' )";
+                    $stm = $linkFact->query( $sql ) or die( "Error al consultar si existe el contacto en facturacion : {$linkFact->error}" );
+                    if( $stm->num_rows > 0 ){
+                    $contact_exists = true;
+                    }
+                    $sql = ( $contact_exists == false ? "INSERT INTO" : "UPDATE" );
+                    $costumer['detail'][$key]['id_cliente_facturacion'] = $costumer['id_cliente_facturacion'];
+                    $sql .= " {$bd_destino}.ec_clientes_contacto SET ";
+                    if( $contact_exists == false ){
+                        $sql .= "id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}, ";
+                    }
+                    $sql .= "id_cliente_facturacion = '{$costumer['detail'][$key]['id_cliente_facturacion']}',
+                            nombre = '{$costumer['detail'][$key]['nombre']}', 
+                            telefono = '{$costumer['detail'][$key]['telefono']}',
+                            celular = '{$costumer['detail'][$key]['celular']}', 
+                            correo = '{$costumer['detail'][$key]['correo']}', 
+                            uso_cfdi = ( SELECT id FROM ec_cfdi WHERE clave ='{$costumer['detail'][$key]['uso_cfdi']}' LIMIT 1 ), 
+                            fecha_ultima_actualizacion = NOW(), 
+                            sincronizar = '1',
+                            folio_unico = '{$costumer['detail'][$key]['folio_unico']}'";
+                    if( $contact_exists == false  ){
+                        $stm = $linkFact->query( $sql ) or die( "Error al insertar el nuevo contacto : {$linkFact->error}" );
+                    }else{
+                        $sql .= " WHERE id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}";
+                        $stm = $linkFact->query( $sql ) or die( "Error al actualizar el contacto : {$linkFact->error}" );
+                    }
+                }
+            //implementacion Oscar 2024-11-07 para actualizar el status de la sincronizacion de registro de facturacion
+                $sql = "UPDATE sys_sincronizacion_registros_facturacion SET status_sincronizacion = 3 WHERE id_sincronizacion_registro = {$costumer['detail'][0]['synchronization_row_id']}";
+                $stm = $link->query( $sql ) or die( "Error al actualizar el registro de sincronizacion de facturacion : {$sql} : {$link->error}" );
+                array_push( $ok_rows, $costumer['detail'][0]['synchronization_row_id'] );
             }
         }
-    //implementacion Oscar 2024-11-07 para actualizar el status de la sincronizacion de registro de facturacion
-        $sql = "UPDATE sys_sincronizacion_registros_facturacion SET status_sincronizacion = 3 WHERE id_sincronizacion_registro = {$costumer['detail'][0]['synchronization_row_id']}";
-        $stm = $link->query( $sql ) or die( "Error al actualizar el registro de sincronizacion de facturacion : {$sql} : {$link->error}" );
-        array_push( $ok_rows, $costumer['detail'][0]['synchronization_row_id'] );
 //  $linkFact->autocommit( true );
     }
     $resp = array( "status"=>200, "ok_rows"=>$ok_rows );
