@@ -57,7 +57,7 @@ $app->post('/clientes/envia_cliente_facturacion', function (Request $request, Re
             $client_exists = false;
             $costumer_error_repeat = false;
         //verifica si el cliente existe en relacion al rfc
-            $sql = "SELECT id_cliente, nombre FROM {$bd_destino}.ec_clientes WHERE id_cliente >= 10000 AND cliente = {$costumer['id_cliente_facturacion']}";//nombre = '{$costumer['rfc']}'
+            $sql = "SELECT id_cliente, nombre FROM {$bd_destino}.ec_clientes WHERE id_cliente >= 10000 AND id_cliente = {$costumer['id_cliente_facturacion']}";//nombre = '{$costumer['rfc']}'
             $stm_check_costumer = $linkFact->query( $sql ) or die( "Error al consultar si el cliente ya existe : {$linkFact->error}" );
             if( $stm_check_costumer->num_rows > 0 ){
                 $client_exists = true;
