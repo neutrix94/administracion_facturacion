@@ -63,8 +63,8 @@
                     '{$venta['folio_unico']}', '{$venta['id_sesion_caja']}', '{$venta['tipo_sistema']}', '{$venta['monto_pago_inicial']}', 
                     '{$venta['cobro_finalizado']}', 3 )";
 
-            error_log("SQL INSERT ec_pedidos");
-            error_log( $sqlInsertPedidos );
+            //error_log("SQL INSERT ec_pedidos");
+            //error_log( $sqlInsertPedidos );
             $resultInsertPedidos = $link->query($sqlInsertPedidos);
             //$link->query( $sql ) or die( "Error al insertar cabecera de movimiento de almacen : {$sql}" );
             //ToDo: Agregar $resultInsertPedidos
@@ -117,8 +117,8 @@
                         '{$cobro['fecha']}', '{$cobro['hora']}', '{$cobro['observaciones']}', '{$cobro['cobro_cancelado']}', '{$cobro['folio_unico']}', 
                         IF( '{$cobro['id_forma_pago']}' = '1', 1, 14 ), 1 )";
 
-                        error_log("SQL INSERT ec_cajero_cobros del pedido ".$venta['id_pedido']);
-                        error_log( $sqlInsertCobros );
+                        //error_log("SQL INSERT ec_cajero_cobros del pedido ".$venta['id_pedido']);
+                        //error_log( $sqlInsertCobros );
                     
                     $resultInsertCobros = $link->query( $sqlInsertCobros );
 
@@ -160,11 +160,11 @@
                     //$stm = $link->query( $sql ) or die( "Error al insertar pagos de venta : {$sql}" );
 
                     $resultInsertPagos = $link->query( $sqlInsertPagos );
-                    error_log("SQL INSERT ec_pedido_pagos del pedido ".$venta['id_pedido']);
-                    error_log( $sqlInsertPagos );
+                    //error_log("SQL INSERT ec_pedido_pagos del pedido ".$venta['id_pedido']);
+                    //error_log( $sqlInsertPagos );
                 }
 
-                array_push( $responseFacturacion['exitosos'],  $venta['id_pedido'] );
+                array_push( $responseFacturacion['exitosos'],  $venta['folio_nv'] );
             }
         }
 
@@ -179,6 +179,7 @@
                 //error_log( print_r( $folios,true ) );
                 
                 $arrayVentasParaRazonesSociales = array();
+                $arrayVentasParaRazonesSociales['sales'] = array();
                 if( count($folios) > 0 ){
                     for ($i=0; $i < count($folios); $i++) {
                         $folio = $folios[$i]["folio_nv"];
@@ -289,7 +290,7 @@
                                 "sale_payments"=>$sale_payments,
                         );
 
-                        array_push( $arrayVentasParaRazonesSociales, $post_data );
+                        array_push( $arrayVentasParaRazonesSociales['sales'], $post_data );
                         
                     }//Fin for recorrido de ventas
                     
@@ -302,15 +303,15 @@
                     $row = $resultApiPath->fetch(PDO::FETCH_ASSOC);
                     $api_path = $row['url_api'];
                     error_log( "Enviamos petición a razones sociales" );
-                    error_log( "{$api_path}/api/facturacion/inserta_venta" );
+                    error_log( "{$api_path}/api/facturacion/inserta_ventas_por_lote" );
                     error_log( print_r($arrayVentasParaRazonesSociales,true) );
 
                     
-                    $crl = curl_init( "{$api_path}/api/facturacion/inserta_venta" );
+                    $crl = curl_init( "{$api_path}/api/facturacion/inserta_ventas_por_lote" );
                     curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($crl, CURLINFO_HEADER_OUT, true);
                     curl_setopt($crl, CURLOPT_POST, true);
-                    curl_setopt($crl, CURLOPT_POSTFIELDS, $arrayVentasParaRazonesSociales);
+                    curl_setopt($crl, CURLOPT_POSTFIELDS, json_encode($arrayVentasParaRazonesSociales));
                     //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
                     curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
                     curl_setopt($crl, CURLOPT_HTTPHEADER, array(
@@ -318,30 +319,41 @@
                     );
                     $resp = curl_exec($crl);//envia peticion
                     curl_close($crl);
-
-                    $responseRazonSocial = json_decode($resp, true);
+    
+                    $responseRazonSocial = json_decode(trim($resp), true);
                     error_log( "Respuesta de la razón social" );
-                    error_log( print_r( $responseRazonSocial,true ) );
-
-                    if( $responseRazonSocial['status'] == '200' ){
+                    //error_log( print_r( $resp,true ) );
+                    //error_log( print_r( $responseRazonSocial,true ) );
+                    error_log( "Respuesta de la razón json_decode" );
+                    //error_log( print_r( $responseRazonSocial ) );
+                    
+                    if( $responseRazonSocial !== null ){
+                        if( $responseRazonSocial['status'] == '200' ){
                         //únicamente actualizamos los registros exitosos
                         $exitosos = $responseRazonSocial['exitosos'];
 
-                        if( count( $exitosos ) > 0 ){
+                            if( count( $exitosos ) > 0 ){
                             
-                            for ($i=0; $i < count($exitosos) ; $i++) { 
+                                for ($i=0; $i < count($exitosos) ; $i++) { 
+    
+                                    $folio_exitoso = $exitosos[$i];
+                                    $sqlUpdateInsertadoEnRazonSocial = "UPDATE ec_pedidos SET id_status_facturacion = 5 WHERE folio_nv = '{$folio_exitoso}'";
+    
+                                    error_log( "Actualizamos ec_pedidos indicando inserción en Razón Social" );
+                                    error_log( $sqlUpdateInsertadoEnRazonSocial );
+    
+                                    $resultUpdateInsertadoEnRazonSocial = $link->query( $sqlUpdateInsertadoEnRazonSocial );
+                                }
 
-                                $folio_exitoso = $exitosos[$i];
-                                $sqlUpdateInsertadoEnRazonSocial = "UPDATE ec_pedidos SET id_status_facturacion = 5 WHERE folio_nv = '{$folio_exitoso}'";
-
-                                error_log( "Actualizamos ec_pedidos indicando inserción en Razón Social" );
-                                error_log( $sqlUpdateInsertadoEnRazonSocial );
-
-                                $resultUpdateInsertadoEnRazonSocial = $link->query( $sqlUpdateInsertadoEnRazonSocial );
                             }
-
-                        }
+                        }    
+                    }else{
+                        error_log("NO SE CONVIRTIÓ JSON_DECODE");
+                        error_log($resp['status']);
                     }
+                    
+
+                    
                     
 
                 }//fin de los folios
@@ -352,10 +364,10 @@
         }
 
         $response_mssg = array(
-            "status" => "OK",
+            "status" => "200",
             "exitosos" => $responseFacturacion['exitosos'],
             "fallidos" => $responseFacturacion['fallidos'],
-            "razones" => $requestRS,
+            //"razones" => $requestRS
         );
     
 
