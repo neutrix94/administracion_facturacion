@@ -30,7 +30,9 @@ $app->get('/example', function (Request $request, Response $response, $args) {
     require __DIR__  . '/endpoints/envia_cliente_facturacion.php';
   //ventas
     require __DIR__  . '/endpoints/enviaFacturaCorreo.php';
-    require __DIR__  . '/endpoints/insertaVentaFacturacion.php';
+   // require __DIR__  . '/endpoints/insertaVentaFacturacion.php';
+    require __DIR__  . '/endpoints/insertaVentaFacturacionPorLote.php';
+    require __DIR__  . '/endpoints/barrido_ventas_por_lote.php';
 
 //solicitud de factura 
     require __DIR__ . '/endpoints/solicitud_factura.php';
