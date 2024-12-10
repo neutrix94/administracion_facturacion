@@ -73,10 +73,10 @@ $app->post('/clientes/envia_cliente_facturacion', function (Request $request, Re
                     $sql .= " {$bd_destino}.ec_clientes SET ";
                     if( $client_exists == false ){
                         $sql .= "id_cliente = '{$costumer['id_cliente_facturacion']}', ";
-                        $sql  .= "datos_alta = '{}',"
+                        $sql .= "datos_alta = '{$costumer['datos_alta']}',";
                     }else{
 
-                        $sql  .= "datos_alta = CONCAT( datos_alta, ' : {$costumer['datos_alta']}' ),"
+                        $sql  .= "datos_alta = CONCAT( datos_alta, ' : {$costumer['datos_alta']}' ),";
                     }
                 //cabecera de cliente
                     $sql .= "nombre = '{$costumer['rfc']}', 
