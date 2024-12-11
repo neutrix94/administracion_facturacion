@@ -6,104 +6,85 @@
         $db = new db();
         $link = $db->conectDB();
         $body = $request->getBody();
+        $enviar_facturacion_directo = false;//variable para indicar que la venta se tiene que enviar.
         $req = json_decode($body, true);
-        $sale_folio = $req['sale_folio'];
-    //consulta el status de la venta
-        $sql = "SELECT 
-                    p.id_status_facturacion,
-                    rs.url_api,
-                    p.id_razon_social
-                FROM ec_pedidos p
-                LEFT JOIN razones_sociales rs
-                ON rs.id_equivalente = p.id_razon_social
-                WHERE p.folio_nv = '{$sale_folio}'";
-        $stm = $link->query( $sql ) or die( "Error al consultar el status de facturacion de la venta : {$sql}" );
-        $row = $stm->fetch( PDO::FETCH_ASSOC );
-        if( $row['id_status_facturacion'] >= 8 ){
-            die( json_encode( array( "status"=>200, "message"=>"La nota de venta ya fue facturada. {$row['url_api']}" ) ) );
+        if( ! isset( $req['venta'] ) ){
+            $response->getBody()->write(json_encode( array( "status"=>"400", "message"=>"Error : No llego ninguna venta; Se necesita una venta para continuar." ) ));
+            return $response;
         }
-//actualiza el cfdi en el sistema de administracion de facturacion {$cfdi_use}
-        $sql = "UPDATE ec_pedidos SET uso_cfdi = 2, id_status_facturacion = IF( id_status_facturacion = 3, 4, id_status_facturacion ) 
-                WHERE folio_nv = '{$sale_folio}'";
-        $stm = $link->query( $sql ) or die( "Error al actualizar el uso de cfdi : {$sql}" );
-//consulta los datos de la venta
-        $sql = "SELECT 
-                    id_pedido, 
-                    folio_nv, 
-                    id_cliente, 
-                    fecha_alta, 
-                    subtotal, 
-                    iva, 
-                    total, 
-                    id_sucursal, 
-                    id_usuario, 
-                    descuento, 
-                    id_razon_social,  
-                    tipo_pedido, 
-                    id_cajero, 
-                    folio_unico, 
-                    id_sesion_caja, 
-                    tipo_sistema, 
-                    id_status_facturacion,
-                    2 AS cfdi
-                FROM ec_pedidos 
-                WHERE folio_nv = '{$sale_folio}'
-                LIMIT 1";
-        $stm = $link->query( $sql ) or die( "Error al consultar cabecera de la nota de venta : {$sql}" );
-        $sale_header = $stm->fetch(PDO::FETCH_ASSOC);
-//consulta el detalle de venta
-        $sql = "SELECT 
-                    id_producto, 
-                    cantidad, 
-                    precio, 
-                    monto,
-                    folio_unico 
-                FROM ec_pedidos_detalle 
-                WHERE id_pedido = {$sale_header['id_pedido']}";
-        $stm = $link->query( $sql ) or die( "Error al consultar detalle de la nota de venta : {$sql}" );
-        $sale_products = array();
-        while( $row = $stm->fetch(PDO::FETCH_ASSOC) ){
-            $sale_products[] = $row; 
+        //var_dump( $req );//die('');//ode($body, true);
+        $link->beginTransaction();
+        $venta = $req['venta'];//`dias_proximo`'{$venta['dias_proximo']}',`id_razon_factura`,'{$venta['id_razon_factura']}',
+    //inserta la cabecera del movimiento de almacen `fecha_factura`,'{$venta['fecha_factura']}',  `ultima_sincronizacion`, '{$venta['ultima_sincronizacion']}',
+        //`id_direccion`,'{$venta['id_direccion']}',  `direccion`,'{$venta['direccion']}',
+        $sql = "INSERT INTO ec_pedidos ( `folio_pedido`, `folio_nv`, `folio_factura`, `folio_cotizacion`, `id_cliente`, `id_estatus`, `id_moneda`, 
+                    `fecha_alta`, `id_razon_social`, `subtotal`, `iva`, `ieps`, `total`, 
+                    `pagado`, `surtido`, `enviado`, `id_sucursal`, `id_usuario`, `fue_cot`, `facturado`, `id_tipo_envio`, 
+                    `descuento`,  `folio_abono`, `correo`, `facebook`, `modificado`, 
+                    `ultima_modificacion`, `tipo_pedido`, `id_status_agrupacion`, `id_cajero`, `id_devoluciones`, `venta_validada`, 
+                    `folio_unico`, `id_sesion_caja`, `tipo_sistema`, `monto_pago_inicial`, `cobro_finalizado`, id_status_facturacion )
+                VALUES( '{$venta['folio_pedido']}', '{$venta['folio_nv']}', '{$venta['folio_factura']}', '{$venta['folio_cotizacion']}', 
+                    '{$venta['id_cliente']}', '{$venta['id_estatus']}', '{$venta['id_moneda']}', '{$venta['fecha_alta']}', 
+                    '{$venta['id_razon_social']}', 
+                    '{$venta['subtotal']}', '{$venta['iva']}', '{$venta['ieps']}', '{$venta['total']}',  
+                    '{$venta['pagado']}', '{$venta['surtido']}', '{$venta['enviado']}', '{$venta['id_sucursal']}', '{$venta['id_usuario']}', 
+                    '{$venta['fue_cot']}', '{$venta['facturado']}', '{$venta['id_tipo_envio']}', '{$venta['descuento']}', 
+                    '{$venta['folio_abono']}', '{$venta['correo']}', '{$venta['facebook']}', 
+                    '{$venta['modificado']}', '{$venta['ultima_modificacion']}', '{$venta['tipo_pedido']}', 
+                    '{$venta['id_status_agrupacion']}', '{$venta['id_cajero']}', '{$venta['id_devoluciones']}', '{$venta['venta_validada']}', 
+                    '{$venta['folio_unico']}', '{$venta['id_sesion_caja']}', '{$venta['tipo_sistema']}', '{$venta['monto_pago_inicial']}', 
+                    '{$venta['cobro_finalizado']}', 3 )";
+        $link->query( $sql ) or die( "Error al insertar cabecera de movimiento de almacen : {$sql}" );
+    //recupera id inserado
+        $sql = "SELECT LAST_INSERT_ID() AS last_id";
+        $stm = $link->query( $sql ) or die( "Error al consultar id de cabecera de venta insertada : {$sql}" );
+        $row = $stm->fetch();
+        $sale_id = $row['last_id'];
+    //inserta el detalle de la venta
+        $detalles = $req['venta_detalle'];
+        foreach ($detalles as $key => $detalle) {
+            $sql = "INSERT INTO ec_pedidos_detalle ( `id_pedido`, `id_producto`, `cantidad`, `precio`, `monto`, `iva`, `ieps`, `cantidad_surtida`, 
+					`descuento`, `modificado`, `es_externo`, `id_precio`, `folio_unico` )
+                VALUES ( {$sale_id}, '{$detalle['id_producto']}', '{$detalle['cantidad']}', '{$detalle['precio']}', '{$detalle['monto']}', '{$detalle['iva']}', 
+                '{$detalle['ieps']}', '{$detalle['cantidad_surtida']}', '{$detalle['descuento']}', '{$detalle['modificado']}', '{$detalle['es_externo']}', 
+                '{$detalle['id_precio']}', '{$detalle['folio_unico']}' )";
+            $stm = $link->query( $sql ) or die( "Error al insertar detalle de venta : {$sql}" );
         }
-//consulta el detalle de pagos de la venta
-        $sql = "SELECT 
-                    id_sucursal, 
-                    id_cajero, 
-                    id_sesion_caja, 
-                    id_afiliacion, 
-                    id_terminal, 
-                    id_banco, 
-                    monto, 
-                    fecha, 
-                    hora, 
-                    folio_unico, 
-                    IF( id_forma_pago = 1, 1, 14 ) AS id_forma_pago,
-                    id_cajero_cobro 
-                FROM ec_cajero_cobros 
-                WHERE id_pedido = {$sale_header['id_pedido']}";
-        $stm = $link->query( $sql ) or die( "Error al consultar detalle de la nota de venta : {$sql}" );
-        $sale_payments = array();
-        while( $row = $stm->fetch(PDO::FETCH_ASSOC) ){
-            $sale_payments[] = $row;
+    //inserta cobros de la venta
+        $cobros = $req['cobros'];
+        foreach ($cobros as $key => $cobro) {
+            $sql = "INSERT INTO ec_cajero_cobros ( `id_sucursal`, `id_pedido`, `id_devolucion`, `id_cajero`, `id_sesion_caja`, `id_afiliacion`, 
+						`id_terminal`, `id_banco`, `id_tipo_pago`, `monto`, `fecha`, `hora`, `observaciones`, `cobro_cancelado`, `folio_unico`, 
+						`id_forma_pago`, `sincronizar` )
+                VALUES ( '{$cobro['id_sucursal']}', {$sale_id}, '{$cobro['id_devolucion']}', '{$cobro['id_cajero']}', '{$cobro['id_sesion_caja']}', 
+                '{$cobro['id_afiliacion']}', '{$cobro['id_terminal']}', '{$cobro['id_banco']}', '{$cobro['id_tipo_pago']}', '{$cobro['monto']}', 
+                '{$cobro['fecha']}', '{$cobro['hora']}', '{$cobro['observaciones']}', '{$cobro['cobro_cancelado']}', '{$cobro['folio_unico']}', 
+                IF( '{$cobro['id_forma_pago']}' = '1', 1, 14 ), 1 )";
+            $stm = $link->query( $sql ) or die( "Error al insertar cobro de venta : {$sql}" );
+            if( $cobro['id_tipo_pago'] == 7 ){//si encuentra pago con tarjeta
+                $enviar_facturacion_directo = true;
+            }
         }
-    //consulta el apath del api de acuerdo a la razon social
-        $sql = "SELECT 
-                    url_api,
-                    enviar_venta_a_rs AS send_sale
-                FROM razones_sociales
-                WHERE id_equivalente = {$sale_header['id_razon_social']}";
-        $stm = $link->query( $sql )or die( "Error al consultar api de sistema destino de facturacion : {$sql}" );//die($sql);
-        $row = $stm->fetch(PDO::FETCH_ASSOC);
-        $api_path = $row['url_api'];
-        if( $row['send_sale'] == 1 ){/*Implementacion Oscar 2024-12-07*/
-            $post_data = json_encode( array( 
-                "sale_header"=>$sale_header, 
-                "sale_products"=>$sale_products, 
-                "sale_payments"=>$sale_payments,
-                "costumer_rfc"=>$sale_costumer
-            ) );
+    //inserta pagos de la venta
+        $pagos = $req['pagos'];
+        foreach ($pagos as $key => $pago) {
+            $sql = "INSERT INTO ec_pedido_pagos ( `id_pedido`, `id_cajero_cobro`, `id_tipo_pago`, `fecha`, `hora`, `monto`, `referencia`, 
+						`id_moneda`, `tipo_cambio`, `id_nota_credito`, `id_cxc`, `exportado`, `es_externo`, `id_cajero`, `folio_unico`, 
+						`sincronizar`, `id_sesion_caja`, `pago_cancelado` )
+                VALUES ( {$sale_id}, '{$pago['id_cajero_cobro']}', '{$pago['id_tipo_pago']}', '{$pago['fecha']}', '{$pago['hora']}', '{$pago['monto']}',
+                '{$pago['referencia']}', '{$pago['id_moneda']}', '{$pago['tipo_cambio']}', '{$pago['id_nota_credito']}', '{$pago['id_cxc']}', 
+                '{$pago['exportado']}', '{$pago['es_externo']}', '{$pago['id_cajero']}', '{$pago['folio_unico']}', '1', '{$pago['id_sesion_caja']}', 
+                '{$pago['pago_cancelado']}' )";
+            $stm = $link->query( $sql ) or die( "Error al insertar pagos de venta : {$sql}" );
+        }
+        $link->commit();
+    //envia la nota de venta a la razon social para su facturacion
+        if( $enviar_facturacion_directo == true ){
+            $bill_api_path = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+            $bill_api_path = str_replace( '/inserta_venta_facturacion', '', $bill_api_path );     
             $resp = "";
-            $crl = curl_init( "{$api_path}/api/facturacion/inserta_venta" );
+            $post_data = json_encode( array( "sale_folio"=>$venta['folio_nv'] ) );
+            $crl = curl_init( "{$bill_api_path}/inserta_venta_sistema_facturacion" );
             curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($crl, CURLINFO_HEADER_OUT, true);
             curl_setopt($crl, CURLOPT_POST, true);
@@ -115,13 +96,7 @@
             );
             $resp = curl_exec($crl);//envia peticion
             curl_close($crl);
-            $response->getBody()->write( $resp );
-            return $response;
         }
-        $resp = array();
-        $resp['status'] = 200;
-        $resp['message'] = 'ok';
-        $response->getBody()->write( json_encode($resp) );
+        $response->getBody()->write(json_encode( array( "status"=>"200" ) ));
         return $response;
     });
-?>
