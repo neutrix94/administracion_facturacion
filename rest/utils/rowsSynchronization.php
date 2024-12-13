@@ -18,7 +18,8 @@
 					FROM {$table}
 					WHERE status_sincronizacion IN( 1, 2 )
 					AND sucursal_de_cambio = {$system_store}
-					AND id_sucursal_destino = {$destinity_store}";//Deshabilitado por oscar 2024-11-07 para no tener un limite de registros //LIMIT {$limit}
+					AND id_sucursal_destino = {$destinity_store}
+					AND datos_json not like '%undefined%'";//Deshabilitado por oscar 2024-11-07 para no tener un limite de registros //LIMIT {$limit}
 		//die( $sql );
 			$stm = $this->link->query( $sql ) or die( "Error al consultar los datos de jsons de registros de sincronizacion on {$table} : {$sql}" );
 			$movements_counter = 0;
