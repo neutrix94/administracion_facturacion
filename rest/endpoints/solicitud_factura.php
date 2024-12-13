@@ -1,4 +1,7 @@
 <?php
+/*
+    * Version Oscar 2024-11-22 para no enviar a insertar jsons que contienen datros undefinied 
+*/
     use Psr\Http\Message\ResponseInterface as Response;
     use Psr\Http\Message\ServerRequestInterface as Request;
     $app->post('/solicitud_factura', function (Request $request, Response $response, $args) {
@@ -10,6 +13,7 @@
         $sale_folio = $req['sale_folio']; 
         $cfdi_use = $req['cfdi_use'];
         $sale_costumer = $req['sale_costumer'];
+        $payment_type = $req['payment_type'];
     //consulta informacion de nota de venta
         $sql = "SELECT 
                     p.id_status_facturacion, 
