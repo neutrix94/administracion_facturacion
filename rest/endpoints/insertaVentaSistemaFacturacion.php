@@ -113,29 +113,36 @@
             "sale_header"=>$sale_header, 
             "sale_products"=>$sale_products, 
             "sale_payments"=>$sale_payments,
-            "costumer_rfc"=>$sale_costumer
+            "costumer_rfc"=>"Mostrador"
         ) );
         //echo "{$api_path}/inserta_venta";
         //public function sendPetition( $url, $post_data ){
-			$resp = "";
-			$crl = curl_init( "{$api_path}/api/facturacion/inserta_venta" );
-			curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($crl, CURLINFO_HEADER_OUT, true);
-			curl_setopt($crl, CURLOPT_POST, true);
-			curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
-			//curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-		    curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
-			curl_setopt($crl, CURLOPT_HTTPHEADER, array(
-			  'Content-Type: application/json' )
-			);
-			$resp = curl_exec($crl);//envia peticion
-			curl_close($crl);
-            //var_dump($resp);
-            //die('here : ' . " {$url} " . $resp);
-            //$resp = json_decode( $Routes->sendPetition( $api_path, "inserta_venta", $post_data ) );
-			//return $resp;
-		//}
-       // var_dump( $resp );
+        $resp = "";
+        $crl = curl_init( "{$api_path}/api/facturacion/inserta_venta" );
+        curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+        curl_setopt($crl, CURLOPT_POST, true);
+        curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+        //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+        curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+        curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json' )
+        );
+        $resp = curl_exec($crl);//envia peticion
+        curl_close($crl);
+error_log( "Resp FACT_RS : {$resp}" );
+        $resp_decode = json_decode( $resp, true );
+    
+        if( isset($resp_decode['status']) && $resp_decode['status'] == 200 ){//si la insercion es exitosa actualiza a status 5 la nota de venta
+            try{
+                $sql = "UPDATE ec_pedidos SET id_status_facturacion = 5 WHERE folio_nv = '{$sale_folio}'";
+                $stm = $link->query( $sql );
+            }catch( PDOException $e ){
+                $response->getBody()->write( json_encode( array( "status"=>400, "Message"=>"Error al actualizar status de venta en sistema de administracion_facturacion : {$sql} : {$e}" ) ) );
+                return $response;
+            }
+        }
+            
         $response->getBody()->write( $resp );
         return $response;
 
