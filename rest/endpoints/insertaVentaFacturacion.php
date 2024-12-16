@@ -80,7 +80,7 @@
         $link->commit();
     //envia la nota de venta a la razon social para su facturacion
         if( $enviar_facturacion_directo == true ){
-            $bill_api_path = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+            $bill_api_path = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
             $bill_api_path = str_replace( '/inserta_venta_facturacion', '', $bill_api_path );     
             $resp = "";
             $post_data = json_encode( array( "sale_folio"=>$venta['folio_nv'] ) );
