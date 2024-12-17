@@ -16,9 +16,9 @@
     //die( "{$billing_path} | {$date_since} | {$date_to} |{$rs_id}");
     $token = "";
     $post_data = json_encode( array( "date_since"=>$date_since, "date_to"=>$date_to, "rs_id"=>$rs_id, "url"=>$billing_path ) );
-die( "POST DATA : {$post_data}" );
+//die( "POST DATA : {$post_data}" );
     $crl = curl_init( "{$billing_path}" );
-    curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($crl, option: CURLOPT_RETURNTRANSFER, true);
     curl_setopt($crl, CURLINFO_HEADER_OUT, true);
     curl_setopt($crl, CURLOPT_POST, true);
     curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
