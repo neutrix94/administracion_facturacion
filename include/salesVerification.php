@@ -77,7 +77,7 @@
                 alert(dat);
 			}
 		});
-        var resp = ajaxR( url );
+        //var resp = ajaxR( url );
     }
 
 </script>
