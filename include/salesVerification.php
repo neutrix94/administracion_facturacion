@@ -108,7 +108,7 @@
     function build_previous_table( json ){
         var content = `<h2 class="text-center">Previo : </h2>
         <table class="table table-bordered table-striped">
-            <thead>
+            <thead style="position : sticky; top : 5px; background-color : white;">
                 <tr>
                     <th class="text-center">Folio</th>
                     <th class="text-center">Total</th>
