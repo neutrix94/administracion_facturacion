@@ -110,6 +110,7 @@
         <table class="table table-bordered table-striped">
             <thead style="position : sticky; top : 5px; background-color : white;">
                 <tr>
+                    <th class="text-center">#</th>
                     <th class="text-center">Folio</th>
                     <th class="text-center">Total</th>
                     <th class="text-center">Fecha</th>
@@ -117,13 +118,16 @@
             </thead>
             <tbody>`;
         var RS = json.RS;
+        var counter = 1;
         for (const key in RS ) {
             for (const key2 in RS[key].sales ) {
                 content += `<tr>
+                    <td class="text-center">${counter}</td>
                     <td class="text-center">${RS[key].sales[key2].sale_header.folio_nv}</td>
                     <td class="text-center">${RS[key].sales[key2].sale_header.total}</td>
                     <td class="text-center">${RS[key].sales[key2].sale_header.fecha_alta}</td>
                 </tr>`;
+                counter ++;
             }
         }
         content += `</tbody>
