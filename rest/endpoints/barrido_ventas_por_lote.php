@@ -139,7 +139,7 @@
                     $post_data = json_encode( array( "sales"=>$sales ) );//forma JSON
                 }
                 if( sizeof( $sales ) > 0 ){
-                    die( $post_data );
+                //die( $post_data );
                 //envia datos a servicio de la razon social
                     $crl = curl_init( "{$RS_row['api_url']}/api/facturacion/inserta_ventas_por_lote" );
                     curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
@@ -161,6 +161,7 @@
                         foreach ($responseRazonSocial['exitosos'] as $key => $folio ) {
                             try{
                                 $sql = "UPDATE ec_pedidos SET id_status_facturacion = 5 WHERE folio_nv = '{$folio}'";
+                                echo $sql;
                                 $update_stm = $link->query( $sql );
                             }catch( PDOException $error ){
                                 $response->getBody()->write(json_encode( array( "status"=>"400", "message"=>"Error al actualizar registro exitoso : {$sql} : {$error}" ) ));
