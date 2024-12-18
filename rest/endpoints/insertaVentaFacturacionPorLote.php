@@ -313,9 +313,9 @@
                     $resultApiPath = $link->query( $sqlGetApiPath );
                     $row = $resultApiPath->fetch(PDO::FETCH_ASSOC);
                     $api_path = $row['url_api'];
-                    error_log( "Enviamos petición a razones sociales" );
-                    error_log( "{$api_path}/api/facturacion/inserta_ventas_por_lote" );
-                    error_log( print_r($arrayVentasParaRazonesSociales,true) );
+//error_log( "Enviamos petición a razones sociales" );
+//error_log( "{$api_path}/api/facturacion/inserta_ventas_por_lote" );
+//error_log( print_r($arrayVentasParaRazonesSociales,true) );
 
                     
                     $crl = curl_init( "{$api_path}/api/facturacion/inserta_ventas_por_lote" );

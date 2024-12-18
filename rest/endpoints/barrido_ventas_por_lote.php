@@ -93,6 +93,7 @@
                 $resultGetVenta = $link->query( $sqlGetVenta );
                 //$sale_header = $resultGetVenta->fetch(PDO::FETCH_ASSOC);
             //itera resultados de las ventas
+                $post_data = array();
                 while( $sale_header = $resultGetVenta->fetch(PDO::FETCH_ASSOC) ){
                 //consulta detalle
                     $sqlDetalleVenta = "SELECT 
@@ -138,12 +139,13 @@
                     $post_data = json_encode( array( "sales"=>$sales ) );//forma JSON
                 }
                 if( sizeof( $sales ) > 0 ){
+                    die( $post_data );
                 //envia datos a servicio de la razon social
                     $crl = curl_init( "{$RS_row['api_url']}/api/facturacion/inserta_ventas_por_lote" );
                     curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($crl, CURLINFO_HEADER_OUT, true);
                     curl_setopt($crl, CURLOPT_POST, true);
-                    curl_setopt($crl, CURLOPT_POSTFIELDS, json_encode($arrayVentasParaRazonesSociales));
+                    curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
                     //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
                     curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
                     curl_setopt($crl, CURLOPT_HTTPHEADER, array(
@@ -151,6 +153,7 @@
                     );
                     $resp = curl_exec($crl);//envia peticion
                     curl_close($crl);
+                    //die($resp);
 
                     $responseRazonSocial = json_decode(trim($resp), true);
                 //actualiza los registros exitosos
