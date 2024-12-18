@@ -80,6 +80,7 @@
             return false;
         }
         var rs_id = $( "#rs_id" ).val();
+        $( '#emergent' ).css( "display", "block" );
 	//enviamos datos por ajax
 		$.ajax({
 			type : 'post',
@@ -87,6 +88,7 @@
 			cache : false,
 			data : { fl : flag, date_since : date_since, date_to : date_to, rs_id : rs_id },
 		    success:function(dat){
+                $( '#emergent' ).css( "display", "none" );
                 if( send == false ){
                     var json_data = JSON.parse(dat);
                     build_previous_table( json_data );
@@ -155,5 +157,9 @@
     }
     .hidden{
         display : none;
+    }
+    #table_content{
+        max-height: 500px !important;
+        overflow: auto;
     }
 </style>
