@@ -42,7 +42,7 @@
 	<link href="css/icons/css/fontello.css" rel="stylesheet" type="text/css"  media="all" />
 	
 	<style type="text/css">
-		#global{position: absolute;padding: 0;top:0;left:0;width: 100%;height: 100%;}/*background-image: url('img/bg8.jpg');*/
+		#global{position: absolute;padding: 0;top:0;left:0;width: 100%;height: 100%; min-width: 80% !important;}/*background-image: url('img/bg8.jpg');*/
 		.titulo{font-size: 30px;top:10%;position: absolute;color: black;}
 		#mnu{background:#556B2F; width: 97%;left:1%;position: relative;padding: 0px;color: white;height: 38px;}
 		.opc{text-decoration: none;padding: 0;height:35px;text-align: center;font-size: 20px;}
@@ -85,6 +85,11 @@
     <div id="alert">
         <div id="alert_content"></div>
     </div>
+	
+	<div id="emergente">
+		<div id="contenido_emergente">
+		</div>
+	</div>
 
 	<div id="global">
 	<!--Menu-->
