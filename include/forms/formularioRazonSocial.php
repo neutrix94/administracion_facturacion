@@ -59,7 +59,7 @@
         <div class="row p-1">
             <div class="col-4">Activo</div>
             <div class="col-8 text-center">
-                <input type="checkbox" id="activo" class="" <?php echo( isset( $rS['activo'] ) ? 'checked' : '' )?>>
+                <input type="checkbox" id="activo" class="" <?php echo( isset( $rS['activo'] ) && $rS['activo'] == 1 ? 'checked' : '' )?>>
             </div>
         </div>
     </div>
@@ -115,7 +115,7 @@
         <div class="row p-1">
             <div class="col-4">Inventario Precio Compra</div>
             <div class="col-8">
-                <input type="text" id="inv_precio_compra" class="form-control" value="<?php echo( isset( $rS['inventario_precio_compra'] ) ? $rS['inventario_precio_compra'] : '' )?>">
+                <input type="text" id="inventario_precio_compra" class="form-control" value="<?php echo( isset( $rS['inventario_precio_compra'] ) ? $rS['inventario_precio_compra'] : '' )?>">
             </div>
         </div>
     </div>
@@ -123,7 +123,7 @@
         <div class="row p-1">
             <div class="col-4">Inventario Precio Venta</div>
             <div class="col-8">
-                <input type="text" id="inv_precio_venta" class="form-control" value="<?php echo( isset( $rS['inventario_precio_venta'] ) ? $rS['inventario_precio_venta'] : '' )?>">
+                <input type="text" id="inventario_precio_venta" class="form-control" value="<?php echo( isset( $rS['inventario_precio_venta'] ) ? $rS['inventario_precio_venta'] : '' )?>">
             </div>
         </div>
     </div>
@@ -140,7 +140,40 @@
         <div class="row p-1">
             <div class="col-4">Observaciones</div>
             <div class="col-8">
-                <input type="text" id="observaciones" class="form-control" value="<?php echo( isset( $rS['observaciones'] ) ? $rS['observaciones'] : '' )?>">
+                <textarea id="observaciones" class="form-control"><?php echo( isset( $rS['observaciones'] ) ? $rS['observaciones'] : '' )?></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6">
+        <div class="row p-1">
+            <div class="col-4">Url API</div>
+            <div class="col-8">
+                <input type="text" id="url_api" class="form-control" value="<?php echo( isset( $rS['url_api'] ) ? $rS['url_api'] : '' )?>">
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="row p-1">
+            <div class="col-4">ID Equivalente :</div>
+            <div class="col-8">
+                <input type="number" id="id_equivalente" class="form-control" value="<?php echo( isset( $rS['id_equivalente'] ) ? $rS['id_equivalente'] : '' )?>">
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="row p-1">
+            <div class="col-4">Enviar directo a Razon Social :</div>
+            <div class="col-8 text-center">
+                <input type="checkbox" id="enviar_venta_a_rs" class="" <?php echo( isset( $rS['enviar_venta_a_rs'] ) && $rS['enviar_venta_a_rs'] == 1 ? 'checked' : '' )?>>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="row p-1">
+            <div class="col-4">Limite barrido ventas :</div>
+            <div class="col-8">
+                <input type="number" id="limite_registros_barrido_ventas" class="form-control" value="<?php echo( isset( $rS['limite_registros_barrido_ventas'] ) ? $rS['limite_registros_barrido_ventas'] : '' )?>">
             </div>
         </div>
     </div>
@@ -149,7 +182,7 @@
         <div class="row p-1">
             <div class="col-4">Ultima actualización</div>
             <div class="col-8">
-                <input type="text" id="alta" class="form-control" value="<?php echo( isset( $rS['alta'] ) ? $rS['alta'] : '' )?>">
+                <input type="text" id="alta" class="form-control" value="<?php echo( isset( $rS['alta'] ) ? $rS['alta'] : '' )?>" readOnly>
             </div>
         </div>
     </div>
@@ -157,7 +190,7 @@
         <div class="row p-1">
             <div class="col-4">Ultima Modificación</div>
             <div class="col-8">
-                <input type="text" id="ultima_modificacion" class="form-control" value="<?php echo( isset( $rS['ultima_modificacion'] ) ? $rS['ultima_modificacion'] : '' )?>">
+                <input type="text" id="ultima_modificacion" class="form-control" value="<?php echo( isset( $rS['ultima_modificacion'] ) ? $rS['ultima_modificacion'] : '' )?>" readOnly>
             </div>
         </div>
     </div>
