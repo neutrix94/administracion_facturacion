@@ -41,20 +41,34 @@
         public function sendBillPetition( $sale_id ){
         //consulta datos de la nota de venta
             $sql = "SELECT 
-                        folio_nv
+                        folio_nv,
+                        uso_cfdi,
+                        id_razon_factura
                     FROM ec_pedidos
                     WHERE id_pedido = {$sale_id}";
             $stm = $this->link->query( $sql ) or die( "Error al consultar el folio de venta : {$sql} : {$this->link->error}" );
         //
             $row = $stm->fetch( PDO::FETCH_ASSOC );
             $sale_folio = $row['folio_nv'];
+            $cfdi_use = $row['uso_cfdi'];
+            $sale_costumer = $row['id_razon_factura'];
+            $url = "";
+            $payment_type = 7;
+        //forma peticion
+            $post_data = json_encode( array( "sale_folio"=>$sale_folio, "cfdi_use"=>$cfdi_use,
+            "sale_costumer"=>$sale_costumer, "payment_type"=>$payment_type ) );
+            die($post_data);
         //consume api
+            $resp = $this->sendPetition( $url, $post_data );
+            var_dump($resp);
             //$sale_folio = $row['folio_nv']; 
             //$cfdi_use = $req['cfdi_use'];
             //$sale_costumer = $req['sale_costumer'];
             //$payment_type = $req['payment_type'];
         }
-
+        public function sendPetition( $url, $post_data ){
+            
+        }
         public function getRowsCounter( $factor, $seeker_text = null, $store_filter = -1, $social_reason_filter = -1, $status = -1 ){
             $sql = "SELECT
                         COUNT( p.id_pedido ) AS counter_rows

@@ -56,6 +56,7 @@
                 <button
                     type="button"
                     class="btn btn-success"
+                    onclick="filter();"
                 >
                     <i class="icon-search"></i>
                 </button>
@@ -71,16 +72,17 @@
 						<th class="text-center" width="10%">Sucursal</th>
 						<th class="text-center" width="10%">Razon Social Emisor</th>
 						<th class="text-center" width="10%">RFC Cliente</th>
-						<th class="text-center" width="10%">Monto</th>
-						<th class="text-center" width="10%">Fecha</th>
+						<th class="text-center" width="7.5%">Monto</th>
+						<th class="text-center" width="7.5%">Fecha</th>
 						<th class="text-center" width="10%">Status</th>
+						<th class="text-center" width="5%">Facturar</th>
 						<th class="text-center" width="5%">Imprimir</th>
 						<th class="text-center" width="5%">Correo</th>
 					</tr>
 				</thead>
 				<tbody id="invoiceRequestList">
 			<?php
-                echo $InvoiceRequestDB->getInvoiceRequests();
+                echo $InvoiceRequestDB->getInvoiceRequests( null,  -1, -1, -1, 50 );
 			?>
 				</tbody>
 			</table>
@@ -176,6 +178,13 @@
             $('#current_page').val( next_page );
         }
         //filter();
+    }
+
+    function bill_petition( sale_id ){
+    //consume api de facturacion
+        var url = `include/invoiceRequestDB.php?action_fl=sendBillPetition&sale_id=${sale_id}`;
+        var resp = ajaxR( url );
+        alert(resp);
     }
 </script>
 
