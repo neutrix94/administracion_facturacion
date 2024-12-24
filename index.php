@@ -149,8 +149,8 @@
     }
     #alert_content{
         position: relative;
-        width : 80%;
-        left : 10%;
+        width : 95%;
+        left : 2.5%;
         min-height: 30%;
         max-height: 80%;
 		overflow: auto;
