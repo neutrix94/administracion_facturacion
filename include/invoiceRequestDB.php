@@ -58,14 +58,10 @@
         //forma peticion
             $post_data = json_encode( array( "sale_folio"=>$sale_folio, "cfdi_use"=>$cfdi_use,
             "sale_costumer"=>$sale_costumer, "payment_type"=>$payment_type ) );
-echo( $post_data . " : " . $url );
+//echo( $post_data . " : " . $url );
         //consume api
             $resp = $this->sendPetition( $url, $post_data );
-            var_dump($resp);
-            //$sale_folio = $row['folio_nv']; 
-            //$cfdi_use = $req['cfdi_use'];
-            //$sale_costumer = $req['sale_costumer'];
-            //$payment_type = $req['payment_type'];
+            return $resp;
         }
         public function sendPetition( $url, $post_data, $token = "" ){
 			$resp = "";
