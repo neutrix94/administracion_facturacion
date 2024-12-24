@@ -17,12 +17,12 @@
                 echo $InvoiceRequestDB->getInvoiceRequests( $seeker_text, $store_filter, $social_reason_filter, $status, $limit, $page_since, $page_to );
             break;
 
-            case "getRowsCounter" :
+            case "getRowsCounter":
                 $factor = ( isset( $_POST['factor'] ) ? $_POST['factor'] : ( isset( $_GET['factor'] ) ? $_GET['factor'] : 50 ) );
                 echo json_encode( $InvoiceRequestDB->getRowsCounter( $factor ) );
             break;
             
-            case '':
+            case 'sendBillPetition':
                 $sale_id = ( isset( $_GET['sale_id'] ) ? $_GET['sale_id'] : $_POST['sale_id'] );
                 echo $InvoiceRequestDB->sendBillPetition( $sale_id );
             break;
@@ -43,7 +43,8 @@
             $sql = "SELECT 
                         folio_nv,
                         uso_cfdi,
-                        id_razon_factura
+                        id_razon_factura,
+                        ( SELECT `value` FROM `api_config` WHERE `key` = 'facturacion' ) AS api_url
                     FROM ec_pedidos
                     WHERE id_pedido = {$sale_id}";
             $stm = $this->link->query( $sql ) or die( "Error al consultar el folio de venta : {$sql} : {$this->link->error}" );
@@ -52,12 +53,12 @@
             $sale_folio = $row['folio_nv'];
             $cfdi_use = $row['uso_cfdi'];
             $sale_costumer = $row['id_razon_factura'];
-            $url = "";
+            $url = "{$row['api_url']}/rest/solicitud_factura";
             $payment_type = 7;
         //forma peticion
             $post_data = json_encode( array( "sale_folio"=>$sale_folio, "cfdi_use"=>$cfdi_use,
             "sale_costumer"=>$sale_costumer, "payment_type"=>$payment_type ) );
-            die($post_data);
+            //die($post_data);
         //consume api
             $resp = $this->sendPetition( $url, $post_data );
             var_dump($resp);
@@ -66,8 +67,22 @@
             //$sale_costumer = $req['sale_costumer'];
             //$payment_type = $req['payment_type'];
         }
-        public function sendPetition( $url, $post_data ){
-            
+        public function sendPetition( $url, $post_data, $token = "" ){
+			$resp = "";
+			$crl = curl_init( $url );
+			curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+			curl_setopt($crl, CURLOPT_POST, true);
+			curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+			//curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+		    curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+			curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+			  'Content-Type: application/json',
+			  'token: ' . $token)
+			);
+			$resp = curl_exec($crl);//envia peticion
+			curl_close($crl);
+			return $resp;
         }
         public function getRowsCounter( $factor, $seeker_text = null, $store_filter = -1, $social_reason_filter = -1, $status = -1 ){
             $sql = "SELECT
