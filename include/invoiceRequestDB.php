@@ -22,8 +22,13 @@
                 echo json_encode( $InvoiceRequestDB->getRowsCounter( $factor ) );
             break;
             
+            case '':
+                $sale_id = ( isset( $_GET['sale_id'] ) ? $_GET['sale_id'] : $_POST['sale_id'] );
+                echo $InvoiceRequestDB->sendBillPetition( $sale_id );
+            break;
+
             default:
-                die( "Permission deniedn on '{$action}'." );
+                die( "Permission denied on '{$action}'." );
             break;
         }
     }
@@ -31,6 +36,23 @@
         private $link;
         public function __construct($connection) {
             $this->link = $connection;
+        }
+
+        public function sendBillPetition( $sale_id ){
+        //consulta datos de la nota de venta
+            $sql = "SELECT 
+                        folio_nv
+                    FROM ec_pedidos
+                    WHERE id_pedido = {$sale_id}";
+            $stm = $this->link->query( $sql ) or die( "Error al consultar el folio de venta : {$sql} : {$this->link->error}" );
+        //
+            $row = $stm->fetch( PDO::FETCH_ASSOC );
+            $sale_folio = $row['folio_nv'];
+        //consume api
+            //$sale_folio = $row['folio_nv']; 
+            //$cfdi_use = $req['cfdi_use'];
+            //$sale_costumer = $req['sale_costumer'];
+            //$payment_type = $req['payment_type'];
         }
 
         public function getRowsCounter( $factor, $seeker_text = null, $store_filter = -1, $social_reason_filter = -1, $status = -1 ){
@@ -63,7 +85,9 @@
                 p.total AS sale_ammount,
                 p.fecha_alta AS sale_date_time,
                 st.nombre_status AS status_name
-            FROM ec_pedidos p
+            FROM solicitudes_factura sf
+            LEFT JOIN ec_pedidos p
+            ON p.folio_nv = sf.folio_venta
             LEFT JOIN sys_sucursales s
             ON s.id_sucursal = p.id_sucursal
             LEFT JOIN razones_sociales rs
@@ -117,6 +141,15 @@
 						<td>{$r['sale_ammount']}</td>
 						<td>{$r['sale_date_time']}</td>
 						<td>{$r['status_name']}</td>
+						<td align=\"center\">
+							<button 
+								type=\"button\"
+								class=\"btn\"
+								onclick=\"bill_petition( {$r['sale_id']} );\"
+							>
+								<i class=\"icon-bell-5\"></i>
+							</button>
+						</td>
 						<td align=\"center\">
 							<button 
 								type=\"button\"
