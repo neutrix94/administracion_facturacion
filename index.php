@@ -136,8 +136,7 @@
 </body>
 </html>
 <style>
-
-#alert{
+	#alert{
         position : fixed;
         top : 0;
         height: 100%;
@@ -159,6 +158,29 @@
         box-shadow: 3px 3px 15px rgba( 0, 0, 0, .5 );
         padding: 20px;
     }
+	#emergente{
+		position: fixed;
+		z-index: 200;
+		width: 100%;
+		height: 100%;
+		top:0;left:0; 
+		background: rgba(0,0,0,.4);
+		display: none;
+	}
+	#contenido_emergente{
+		position: absolute;
+		width: 95%;
+		left:2.5%;
+		/*border:2px solid white;*/
+		top:10%;
+		height:80%;
+		/*border-radius: 2%;*/
+		overflow:auto;
+		background : white;
+		/*background: rgba(0,0,0,.5);*/
+		z-index: 200;
+		box-shadow: 4px 4px 15px rgba( 0,0,0,.5 );
+	}
 </style>
 <script type="text/javascript">
 
