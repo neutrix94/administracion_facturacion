@@ -184,6 +184,20 @@
     //consume api de facturacion
         var url = `include/invoiceRequestDB.php?action_fl=sendBillPetition&sale_id=${sale_id}`;
         var resp = ajaxR( url );
+        var json = JSON.parse( resp );
+        var content = `<h3>${json.message}</h3>
+            <div class="text-center">
+                <br>
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    onclick="close_emergent();"
+                >
+                    <i>Aceptar y cerrar</i>
+                </button>
+            </div>`;
+        $( '#contenido_emergente' ).html(  );
+        $( '#emergente' ).css( "display", "block" );
         alert(resp);
     }
 </script>
