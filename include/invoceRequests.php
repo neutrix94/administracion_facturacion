@@ -185,7 +185,8 @@
         var url = `include/invoiceRequestDB.php?action_fl=sendBillPetition&sale_id=${sale_id}`;
         var resp = ajaxR( url );
         var json = JSON.parse( resp );
-        var content = `<h2 style="font-size : 300%;" class="text-center">${json.message}</h2>
+        var content = `<br><br><br>
+        <h2 style="font-size : 300%;" class="text-center">${json.message}</h2>
             <div class="text-center">
                 <br>
                 <button
@@ -199,6 +200,11 @@
         $( '#contenido_emergente' ).html( content );
         $( '#emergente' ).css( "display", "block" );
         //alert(resp);
+    }
+
+    function close_emergent(){
+        $( '#contenido_emergente' ).html( '' );
+        $( '#emergente' ).css( "display", "none" );
     }
 </script>
 
