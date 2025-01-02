@@ -62,9 +62,9 @@
         //consume api
             $resp = $this->sendPetition( $url, $post_data );
             $resp_json = json_decode( $resp );
-            if( trim( $resp_json['message'] ) == 'La nota de venta ya habia sido facturada.' ){
-                $sql = "UPDATE ec_pedidos SET id_status_facturacion = IF( id_status_facturacion <= 9, 9, id_status_facturacion )";
-                $stm = $this->link->query( $sql ) or die( "Error al actulizar status de la venta en administracion de facturacion : {$sql} : {$this->link->error}" );
+            if( trim( $resp_json->message ) == 'La nota de venta ya habia sido facturada.' ){
+                $sql = "UPDATE ec_pedidos SET id_status_facturacion = IF( id_status_facturacion <= 8, 8, id_status_facturacion ) WHERE folio_nv = '{$sale_folio}'";
+                $stm = $this->link->query( $sql ) or die( "Error al actualizar status de la venta en administracion de facturacion : {$sql}" );
             }
             return $resp;
         }
