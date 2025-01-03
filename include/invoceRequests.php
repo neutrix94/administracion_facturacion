@@ -226,9 +226,9 @@
                     <table class="table">
                     <thead>
                         <tr>
-                            <th>Fecha</th>
-                            <th>Respuesta</th>
-                            <th>Detalle Respuesta</th>
+                            <th class="col-2">Fecha</th>
+                            <th class="col-5">Respuesta</th>
+                            <th class="col-5">Detalle Respuesta</th>
                         </tr>
                     </thead>
                     <tbody>`;
