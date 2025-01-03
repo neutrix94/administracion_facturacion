@@ -223,7 +223,15 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <table class="table">`;
+                    <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Respuesta</th>
+                            <th>Detalle Respuesta</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
             for (var j in json[i].detail ) {
                 content += `<tr>
                     <td>${json[i].detail[j].fecha_alta}</td>
@@ -231,7 +239,8 @@
                     <td>${json[i].detail[j].detalle_respuesta}</td>
                 </tr>`;  
             }
-            content += `</table>
+            content += `</tbody>
+                    </table>
                 </td>
             </tr>`;
         }
