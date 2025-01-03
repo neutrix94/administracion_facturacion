@@ -16,6 +16,10 @@
 //consulta las status para los filtros
     $status = $InvoiceRequestDB->getStatus();
 ?>
+<!-- libreria para dar formato a jsons -->
+	<script src="./js/highlight/highlight.min.js"></script>
+	<link rel="stylesheet" href="./js/highlight/styles/default.min.css">
+    <script>hljs.highlightAll();</script>
 	<div style="width:90%;height:500px;">
 		<br>
 		<b>
