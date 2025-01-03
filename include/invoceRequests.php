@@ -236,7 +236,17 @@
             </tr>`;
         }
         content += `</tbody>
-        </table>`;
+        </table>
+        <br><br>
+        <div class="text-center">
+            <button
+                type="button"
+                class="btn btn-success"
+                onclick="close_emergent();"
+            >
+                <i>Aceptar y cerrar</i>
+            </button>
+        </div>`;
         $( '#contenido_emergente' ).html( content );
         $( '#emergente' ).css( "display", "block" );
     }
