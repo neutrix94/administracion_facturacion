@@ -218,7 +218,7 @@
             <tbody>`;
         for (var i in json) {        
             content += `<tr>
-                <td>${json[i].id_razon_social}</td>
+                <td>${json[i].nombre}</td>
                 <td>${json[i].fecha_alta}</td>
             </tr>
             <tr>

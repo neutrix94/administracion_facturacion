@@ -55,11 +55,13 @@
             $sale_folio = $row['folio_nv'];
         //consulta cabeceras de solicitudes de factura
             $sql = "SELECT 
-                        id_solicitud_factura, 
-                        id_razon_social, 
-                        fecha_alta 
-                    FROM solicitudes_factura
-                    WHERE folio_venta = '{$sale_folio}'";
+                        sf.id_solicitud_factura, 
+                        rs.nombre, 
+                        sf.fecha_alta 
+                    FROM solicitudes_factura sf
+                    LEFT JOIN razones_sociales rs
+                    ON sf.id_razon_social = rs.id_razon_social
+                    WHERE sf. folio_venta = '{$sale_folio}'";
             $stm = $this->link->query( $sql ) or die( "Error al consultar la cabecera de solicitud de factura : {$sql} : {$this->link->error}" );
             while( $row = $stm->fetch( PDO::FETCH_ASSOC ) ){
                 $row['detail'] = array();
