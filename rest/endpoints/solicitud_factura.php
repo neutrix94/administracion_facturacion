@@ -54,6 +54,8 @@
             $RS_resp = curl_exec($crl);//envia peticion
             curl_close($crl);
             $json_resp = json_decode( $RS_resp );
+error_log( "URL : {$bill_api_path}/rest/inserta_venta_sistema_facturacion");
+error_log( "POST DATA : {$post_data}");
 error_log( "Respuesta al subir nota en efectivo : {$RS_resp}");
         }
     //consulta si ya tiene una solicitud de factura 
