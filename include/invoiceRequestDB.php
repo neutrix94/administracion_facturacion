@@ -72,7 +72,7 @@
                         FROM peticiones_solicitud_factura 
                         WHERE id_solicitud_factura = {$row['id_solicitud_factura']}";
                 $stm_2 = $this->link->query( $sql ) or die( "Error al consultar detalle de solicitud de factura : {$sql} : {$this->link->error}" );
-                while( $row2 = $stm->fetch( PDO::FETCH_ASSOC ) ){
+                while( $row2 = $stm_2->fetch( PDO::FETCH_ASSOC ) ){
                     array_push( $row['detail'], $row2 );
                 }
                 array_push( $resp, $row );
