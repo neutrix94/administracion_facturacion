@@ -206,8 +206,37 @@
     function show_bill_petition_detail( sale_id ){
         var url = `include/invoiceRequestDB.php?action_fl=showBillPetitionDetail&sale_id=${sale_id}`;
         var resp = ajaxR( url );
-        alert( resp );
+        var content = ``;
         var json = JSON.parse( resp );
+        content += `<table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Razon Social</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        for (var i in json) {        
+            content += `<tr>
+                <td>${json[i].id_razon_social}</td>
+                <td>${json[i].fecha_alta}</td>
+            </tr>
+            <tr>
+                <td>
+                    <table class="table">`;
+            for (var j in json[i].detail ) {
+                content += `<tr>
+                    <td>${json[i].detail[j].fecha_alta}</td>
+                    <td>${json[i].detail[j].respuesta}</td>
+                    <td>${json[i].detail[j].detalle_respuesta}</td>
+                </tr>`;  
+            }
+            content += `</table>
+                </td>
+            </tr>`;
+        }
+        content += `</tbody>
+        </table>`;
     }
 
     function close_emergent(){
