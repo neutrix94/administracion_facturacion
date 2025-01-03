@@ -237,6 +237,8 @@
         }
         content += `</tbody>
         </table>`;
+        $( '#contenido_emergente' ).html( content );
+        $( '#emergente' ).css( "display", "block" );
     }
 
     function close_emergent(){
