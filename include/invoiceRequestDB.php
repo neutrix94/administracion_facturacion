@@ -29,7 +29,7 @@
 
             case 'showBillPetitionDetail':
                 $sale_id = ( isset( $_GET['sale_id'] ) ? $_GET['sale_id'] : $_POST['sale_id'] );
-                echo $InvoiceRequestDB->showBillPetitionDetail( $sale_id );
+                echo json_encode( $InvoiceRequestDB->showBillPetitionDetail( $sale_id ) );
             break;
 
             default :
@@ -44,16 +44,40 @@
         }
 
         public function showBillPetitionDetail( $sale_id ){
-        //consulta cabeceras de solicitudes de factura 
-            
+            $resp = array();
         //consulta datos de la nota de venta
             $sql = "SELECT 
                         folio_nv
                     FROM ec_pedidos
                     WHERE id_pedido = {$sale_id}";
             $stm = $this->link->query( $sql ) or die( "Error al consultar el folio" );
-        //consulta detalles de solicitudes de factura
-            
+            $row = $stm->fetch( PDO::FETCH_ASSOC );
+            $sale_folio = $row['folio_nv'];
+        //consulta cabeceras de solicitudes de factura
+            $sql = "SELECT 
+                        id_solicitud_factura, 
+                        id_razon_social, 
+                        fecha_alta 
+                    FROM solicitudes_factura
+                    WHERE folio_venta = '{$sale_folio}'";
+            $stm = $this->link->query( $sql ) or die( "Error al consultar la cabecera de solicitud de factura : {$sql} : {$this->link->error}" );
+            while( $row = $stm->fetch( PDO::FETCH_ASSOC ) ){
+                $row['detail'] = array();
+            //consulta detalles de solicitudes de factura
+                $sql = "SELECT 
+                            id_peticion_solicitud_factura,
+                            respuesta,
+                            detalle_respuesta,
+                            fecha_alta 
+                        FROM peticiones_solicitud_factura 
+                        WHERE id_solicitud_factura = {$row['id_solicitud_factura']}";
+                $stm_2 = $this->link->query( $sql ) or die( "Error al consultar detalle de solicitud de factura : {$sql} : {$this->link->error}" );
+                while( $row2 = $stm->fetch( PDO::FETCH_ASSOC ) ){
+                    array_push( $row['detail'], $row2 );
+                }
+                array_push( $row['detail'], $row );
+            }
+            return $resp;
         }
 
         public function sendBillPetition( $sale_id ){
