@@ -72,9 +72,10 @@
 						<th class="text-center" width="10%">Sucursal</th>
 						<th class="text-center" width="10%">Razon Social Emisor</th>
 						<th class="text-center" width="10%">RFC Cliente</th>
-						<th class="text-center" width="7.5%">Monto</th>
-						<th class="text-center" width="7.5%">Fecha</th>
+						<th class="text-center" width="5%">Monto</th>
+						<th class="text-center" width="5%">Fecha</th>
 						<th class="text-center" width="10%">Status</th>
+						<th class="text-center" width="5%">Detalle</th>
 						<th class="text-center" width="5%">Facturar</th>
 						<th class="text-center" width="5%">Imprimir</th>
 						<th class="text-center" width="5%">Correo</th>
@@ -200,6 +201,13 @@
         $( '#contenido_emergente' ).html( content );
         $( '#emergente' ).css( "display", "block" );
         //alert(resp);
+    }
+
+    function show_bill_petition_detail( sale_id ){
+        var url = `include/invoiceRequestDB.php?action_fl=showBillPetitionDetail&sale_id=${sale_id}`;
+        var resp = ajaxR( url );
+        alert( resp );
+        var json = JSON.parse( resp );
     }
 
     function close_emergent(){

@@ -111,6 +111,7 @@
 			);
 			$resp = curl_exec($crl);//envia peticion
 			curl_close($crl);
+            $json_response = json_decode( $resp );
         //actualiza el registro de intento de facturacion
             try{
                 $sql = "UPDATE peticiones_solicitud_factura SET respuesta = '{$resp}', detalle_respuesta = '{$resp}' WHERE id_peticion_solicitud_factura = {$id_intento_solicitud_factura}";
@@ -119,12 +120,16 @@
                 error_log( "Error al actualizar intento de solicitud de factura : {$sql} : {$e}" );
                 die( "Error al actualizar intento de solicitud de factura : {$sql} : {$e}" );
             }
-            //var_dump($resp);
-            //die('here : ' . " {$url} " . $resp);
-            //$resp = json_decode( $Routes->sendPetition( $api_path, "inserta_venta", $post_data ) );
-			//return $resp;
-		//}
-       // var_dump( $resp );
+        if( $json_response->status == 200 ){
+        //actualiza el status de la nota de venta
+            try{
+                $sql = "UPDATE ec_pedidos SET id_status_facturacion = 8 WHERE folio_nv = '{$sale_folio}'";
+                $stm = $link->query( $sql ) or die( "Error al actualizar el status de la nota de venta : {$sql}" );
+            }catch(PDOException $e){
+                error_log( "Error al actualizar el status de la nota de venta : {$sql} : {$e}" );
+                die( "Error al actualizar el status de la nota de venta : {$sql} : {$e}" );
+            }
+        }
         $response->getBody()->write( $resp );
         return $response;
 

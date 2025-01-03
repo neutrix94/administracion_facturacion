@@ -27,7 +27,12 @@
                 echo $InvoiceRequestDB->sendBillPetition( $sale_id );
             break;
 
-            default:
+            case 'showBillPetitionDetail':
+                $sale_id = ( isset( $_GET['sale_id'] ) ? $_GET['sale_id'] : $_POST['sale_id'] );
+                echo $InvoiceRequestDB->showBillPetitionDetail( $sale_id );
+            break;
+
+            default :
                 die( "Permission denied on '{$action}'." );
             break;
         }
@@ -36,6 +41,19 @@
         private $link;
         public function __construct($connection) {
             $this->link = $connection;
+        }
+
+        public function showBillPetitionDetail( $sale_id ){
+        //consulta cabeceras de solicitudes de factura 
+            
+        //consulta datos de la nota de venta
+            $sql = "SELECT 
+                        folio_nv
+                    FROM ec_pedidos
+                    WHERE id_pedido = {$sale_id}";
+            $stm = $this->link->query( $sql ) or die( "Error al consultar el folio" );
+        //consulta detalles de solicitudes de factura
+            
         }
 
         public function sendBillPetition( $sale_id ){
@@ -171,6 +189,15 @@
 						<td>{$r['sale_ammount']}</td>
 						<td>{$r['sale_date_time']}</td>
 						<td>{$r['status_name']}</td>
+						<td align=\"center\">
+							<button 
+								type=\"button\"
+								class=\"btn\"
+								onclick=\"show_bill_petition_detail( {$r['sale_id']} );\"
+							>
+								<i class=\"icon-list\"></i>
+							</button>
+						</td>
 						<td align=\"center\">
 							<button 
 								type=\"button\"
