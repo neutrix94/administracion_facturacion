@@ -239,8 +239,8 @@
             for (var j in json[i].detail ) {
                 content += `<tr>
                     <td>${json[i].detail[j].fecha_alta}</td>
-                    <td>${json[i].detail[j].respuesta}</td>
-                    <td>${json[i].detail[j].detalle_respuesta}</td>
+                    <td><pre><code class="language-html">${json[i].detail[j].respuesta}</code></pre></td>
+                    <td><pre><code class="language-html">${json[i].detail[j].detalle_respuesta}</code></pre></td>
                 </tr>`;  
             }
             content += `</tbody>
