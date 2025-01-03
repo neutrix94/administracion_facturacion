@@ -237,6 +237,21 @@
                     </thead>
                     <tbody>`;
             for (var j in json[i].detail ) {
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`\r\n\t\t\t\t\t`, `\n`);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`\r\n\t\t\t\t`, `\n`);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`\r\n\t\t\t`, `\n`);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`\\t`, `    `);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`\\r\\n`, `\n`);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`,"`, `,\n"`);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`,{`, `,\n{`);
+
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`\r\n\t\t\t\t\t`, `\n`);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`\r\n\t\t\t\t`, `\n`);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`\r\n\t\t\t`, `\n`);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`\\t`, `    `);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`\\r\\n`, `\n`);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`,"`, `,\n"`);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`,{`, `,\n{`);
                 content += `<tr>
                     <td>${json[i].detail[j].fecha_alta}</td>
                     <td><pre><code class="json">${json[i].detail[j].respuesta}</code></pre></td>
