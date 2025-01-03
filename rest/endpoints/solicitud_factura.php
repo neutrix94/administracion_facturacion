@@ -26,6 +26,36 @@
                 WHERE p.folio_nv = '{$sale_folio}'";
         $stm = $link->query( $sql ) or die( "Error al consultar cabecera de venta : {$sql}" );
         $sale_header = $stm->fetch( PDO::FETCH_ASSOC );
+    //envia la factura a su respectiva razon social si no ha sido enviada
+        if( $sale_header['id_status_facturacion'] <= 4 ){
+            $bill_api_path = "";
+        //consulta path de administracion de facturacion        
+            try{
+                $api_sql = "SELECT `value` AS bill_api_path FROM api_config WHERE `name` = 'path_facturacion'";
+                $api_stm = $link->query( $sql );
+                $api_row = $api_stm->fetch(PDO::FETCH_ASSOC);
+                $bill_api_path = $api_row['bill_api_path'];
+            }catch( PDOException $e ){
+                $response->getBody()->write( json_encode( array( "status"=>400, "message"=>"Error al consultar el path de API : {$sql} : {$e}" ) ) );
+                return $response;
+            }
+        //consume API de facturacion para enviar la venta a su RS
+            $RS_resp = "";
+            $post_data = json_encode( array( "sale_folio"=>$sale_folio ) );
+            $crl = curl_init( "{$bill_api_path}/rest/inserta_venta_sistema_facturacion" );
+            curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+            curl_setopt($crl, CURLOPT_POST, true);
+            curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+            curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+            curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json' )
+            );
+            $RS_resp = curl_exec($crl);//envia peticion
+            curl_close($crl);
+            $json_resp = json_decode( $RS_resp );
+error_log( "Respuesta al subir nota en efectivo : {$RS_resp}");
+        }
     //consulta si ya tiene una solicitud de factura 
         $id_solicitud_factura = null;
         $id_intento_solicitud_factura = null;
