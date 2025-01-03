@@ -262,6 +262,7 @@
         </div>`;
         $( '#contenido_emergente' ).html( content );
         $( '#emergente' ).css( "display", "block" );
+        hljs.highlightAll();
     }
 
     function close_emergent(){
