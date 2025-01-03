@@ -32,7 +32,7 @@
         //consulta path de administracion de facturacion        
             try{
                 $api_sql = "SELECT `value` AS bill_api_path FROM api_config WHERE `name` = 'path_facturacion'";
-                $api_stm = $link->query( $sql );
+                $api_stm = $link->query( $api_sql );
                 $api_row = $api_stm->fetch(PDO::FETCH_ASSOC);
                 $bill_api_path = $api_row['bill_api_path'];
             }catch( PDOException $e ){
