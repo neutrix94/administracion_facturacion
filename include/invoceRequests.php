@@ -222,7 +222,7 @@
                 <td>${json[i].fecha_alta}</td>
             </tr>
             <tr>
-                <td>
+                <td colspan="2">
                     <table class="table">`;
             for (var j in json[i].detail ) {
                 content += `<tr>
