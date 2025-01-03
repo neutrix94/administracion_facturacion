@@ -75,7 +75,7 @@
                 while( $row2 = $stm->fetch( PDO::FETCH_ASSOC ) ){
                     array_push( $row['detail'], $row2 );
                 }
-                array_push( $row['detail'], $row );
+                array_push( $resp, $row );
             }
             return $resp;
         }
