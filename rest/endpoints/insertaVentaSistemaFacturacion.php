@@ -24,7 +24,7 @@
         $sql = "SELECT 
                     p.id_status_facturacion, 
                     rs.url_api,
-                    p.id_razon_social 
+                    p.id_razon_social
                 FROM ec_pedidos p 
                 LEFT JOIN razones_sociales rs
                 ON rs.id_equivalente = p.id_razon_social
@@ -130,9 +130,9 @@
         );
         $resp = curl_exec($crl);//envia peticion
         curl_close($crl);
-error_log( "Resp FACT_RS : {$resp}" );
+//error_log( "Resp FACT_RS : {$resp}" );
         $resp_decode = json_decode( $resp, true );
-    
+/*    
         if( isset($resp_decode['status']) && $resp_decode['status'] == 200 ){//si la insercion es exitosa actualiza a status 5 la nota de venta
             try{
                 $sql = "UPDATE ec_pedidos SET id_status_facturacion = 5 WHERE folio_nv = '{$sale_folio}'";
@@ -142,7 +142,7 @@ error_log( "Resp FACT_RS : {$resp}" );
                 return $response;
             }
         }
-            
+*/      
         $response->getBody()->write( $resp );
         return $response;
 

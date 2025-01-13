@@ -41,19 +41,32 @@
     </div>
     <br>
 </div>
+<div id="table_content">
+    
+</div>
 <br><br>
 <div class="row" style="width:97% !important;">
     <button
         type="button"
-        class="form-control btn btn-success"
+        class="form-control btn btn-info"
+        id="previous_btn"
         onclick="salesVerification();"
     >
-        Comprobar Ventas
+        Ver Previo
+    </button>
+    <button
+        type="button"
+        class="form-control btn btn-success hidden"
+        id="send_btn"
+        onclick="salesVerification( true );"
+    >
+        Enviar Ventas
     </button>
 </div>
 
 <script>
-    function salesVerification(){
+    function salesVerification( send = false ){
+        var flag = ( ( send == true ) ? "send" : "makePrevious" );
         var date_since = $( "#date_since" ).val();
         if( date_since == '' ){
             alert("La fecha desde no puede ir vacia.");
@@ -67,17 +80,59 @@
             return false;
         }
         var rs_id = $( "#rs_id" ).val();
+        $( '#emergent' ).css( "display", "block" );
 	//enviamos datos por ajax
 		$.ajax({
 			type : 'post',
 			url : 'include/ajax/salesVerificationDB.php',
 			cache : false,
-			data : { date_since : date_since, date_to : date_to, rs_id : rs_id },
+			data : { fl : flag, date_since : date_since, date_to : date_to, rs_id : rs_id },
 		    success:function(dat){
-                alert(dat);
+                $( '#emergent' ).css( "display", "none" );
+                if( send == false ){
+                    var json_data = JSON.parse(dat);
+                    build_previous_table( json_data );
+                    $( '#previous_btn' ).addClass( 'hidden' );
+                    $( '#send_btn' ).removeClass( 'hidden' );
+                    //console.log(json_data);
+                }else{
+                    console.log( dat );
+                    alert(dat);
+                }
+                //alert(dat);
 			}
 		});
-        var resp = ajaxR( url );
+        //var resp = ajaxR( url );
+    }
+
+    function build_previous_table( json ){
+        var content = `<h2 class="text-center">Previo : </h2>
+        <table class="table table-bordered table-striped">
+            <thead style="position : sticky; top : 5px; background-color : white;">
+                <tr>
+                    <th class="text-center">#</th>
+                    <th class="text-center">Folio</th>
+                    <th class="text-center">Total</th>
+                    <th class="text-center">Fecha</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        var RS = json.RS;
+        var counter = 1;
+        for (const key in RS ) {
+            for (const key2 in RS[key].sales ) {
+                content += `<tr>
+                    <td class="text-center">${counter}</td>
+                    <td class="text-center">${RS[key].sales[key2].sale_header.folio_nv}</td>
+                    <td class="text-center">${RS[key].sales[key2].sale_header.total}</td>
+                    <td class="text-center">${RS[key].sales[key2].sale_header.fecha_alta}</td>
+                </tr>`;
+                counter ++;
+            }
+        }
+        content += `</tbody>
+            </table>`;
+        $( '#table_content' ).html( content );
     }
 
 </script>
@@ -103,5 +158,12 @@
         max-height: 70%;
         background-color: white;
         box-shadow: 1px 1px 10px rgba( 0,0,0,.5 );
+    }
+    .hidden{
+        display : none;
+    }
+    #table_content{
+        max-height: 500px !important;
+        overflow: auto;
     }
 </style>

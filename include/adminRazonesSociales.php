@@ -81,44 +81,64 @@
 	</div>
 
 <script>
-var id_rs,nombre_rs,link,user_db,pass_db,nombre_db,host_db,rfc,observaciones,status,orden,max_comp,comp_act,max_vtas,vtas_act,inv_prec_comp,inv_prec_vta,color;
-	function guarda_RS(id_reg,flag){	//extraemos datos del formulario
-		id_rs=$("#id_razon_social").val();
-		nombre_rs=$("#nombre").val();
-		host_db=$("#host_db").val();
-		link=$("#link").val();
-		user_db=$("#usuario_db").val();
-		pass_db=$("#contrasena_db").val();
-		nombre_db=$("#nombre_db").val();
-		rfc=$("#rfc").val();
+	var id_razon_social, nombre, rfc, link, orden, maximo_compras, compras_actuales, inv_precio_compra, color, url_api, enviar_venta_a_rs,
+		host_db, usuario_db, nombre_db, activo, contrasena_db, maximo_ventas, ventas_actuales, inventario_precio_venta, observaciones, id_equivalente, limite_registros_barrido_ventas;
+	function guarda_RS( id_reg, flag = 10000 ){	//extraemos datos del formulario
+//alert( flag );
+		id_razon_social = $("#id_razon_social").val();
+		nombre = $("#nombre").val();
+		rfc = $("#rfc").val();
+		link = $("#link").val();
+		orden = $("#orden").val();
+		maximo_compras = $("#maximo_compras").val();
+		compras_actuales = $("#compras_actuales").val();
+		inv_precio_compra = $("#inv_precio_compra").val();
+		color = $("#color").val();
+		url_api = $("#url_api").val();
+		enviar_venta_a_rs = ( $( '#enviar_venta_a_rs' ).prop( 'checked' ) == true ? '1' : '0' );
+
+		host_db = $("#host_db").val();
+		usuario_db = $("#usuario_db").val();
+		nombre_db = $("#nombre_db").val();
+		activo = ( $( '#activo' ).prop( 'checked' ) == true ? '1' : '0' );
+		contrasena_db = $("#contrasena_db").val();
+		maximo_ventas = $("#maximo_ventas").val();
+		ventas_actuales = $("#ventas_actuales").val();
+		inventario_precio_venta = $("#inventario_precio_venta").val();
 		observaciones=$("#observaciones").val();
-		status=$("#activo").val();
-		orden=$("#orden").val();
-		max_comp=$("#maximo_compras").val();
-		comp_act=$("#compras_actuales").val();
-		max_vtas=$("#maximo_ventas").val();
-		vtas_act=$("#ventas_actuales").val();
-		inv_prec_comp=$("#inv_precio_compra").val();
-		inv_prec_vta=$("#inv_precio_venta").val();
-		color=$("#color").val();
+		limite_registros_barrido_ventas = $("#limite_registros_barrido_ventas").val();
+		
+
+
 	//enviamos datos por ajax
 		$.ajax({
 			type:'post',
-			url:'ajax/rS.php',
+			url:'ajax/razonesSocialesBD.php',
 			cache:false,
 			data:{
-					flag : flag,
-					id_registro : id_rs,
-					nom_rs : nombre_rs,
-					server : host_db,
-					nombre_base_datos : nombre_db,
-					rfc : rfc,
-					enlace : link,
-					ord : orden,
-					pass_base_datos : pass_db,
-					usuario_base_datos : user_db,
-					activo : status,
-					observ : observaciones
+					fl : flag,
+					id_razon_social : id_razon_social, 
+					nombre : nombre, 
+					rfc : rfc, 
+					link : link, 
+					orden : orden, 
+					maximo_compras : maximo_compras, 
+					compras_actuales : compras_actuales, 
+					inv_precio_compra : inv_precio_compra, 
+					color : color, 
+					url_api : url_api, 
+					enviar_venta_a_rs : enviar_venta_a_rs,
+					host_db : host_db, 
+					usuario_db : usuario_db, 
+					nombre_db : nombre_db, 
+					activo : activo, 
+					contrasena_db : contrasena_db, 
+					maximo_ventas : maximo_ventas, 
+					ventas_actuales : ventas_actuales, 
+					inv_precio_venta : inv_precio_venta, 
+					observaciones : observaciones, 
+					id_equivalente : id_equivalente, 
+					limite_registros_barrido_ventas : limite_registros_barrido_ventas
 				},
 				success:function(dat){
 					var aux=dat.split("|");
@@ -135,6 +155,7 @@ var id_rs,nombre_rs,link,user_db,pass_db,nombre_db,host_db,rfc,observaciones,sta
 
 	function muestra_datos_RS(id,flag){
 		url = ( id <= 0 ? './include/forms/formularioRazonSocial.php' : 'ajax/razonesSocialesBD.php' );
+		//alert(url);
 		if(flag==0){
 			$("#guardar_rs").attr('onclick','guarda_RS(0,'+flag+')');
 		}else{
@@ -147,6 +168,9 @@ var id_rs,nombre_rs,link,user_db,pass_db,nombre_db,host_db,rfc,observaciones,sta
 				success : function( dat ){
 					$( '#alert_content' ).html( dat );
 					$( '#alert' ).css( 'display', 'block' );
+					if( id > 0 ){
+						$( '#guardar_rs' ).attr( `onclick`, `guarda_RS( ${id}, 2 );` );
+					}
 					return false;
 					//alert('dat:'+dat);
 					var aux=dat.split("|");

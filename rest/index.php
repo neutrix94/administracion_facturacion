@@ -36,7 +36,8 @@ $app->get('/example', function (Request $request, Response $response, $args) {
 
 //solicitud de factura 
     require __DIR__ . '/endpoints/solicitud_factura.php';
-
+//previo de barrido de ventas
+    require __DIR__  . '/endpoints/barridoVentasPrevio.php';
 /*Deshabilitados*/
     //require __DIR__  . '/endpoints/prueba.php';
     //require __DIR__  . '/endpoints/insertarClienteFacturacion.php';
