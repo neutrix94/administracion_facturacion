@@ -40,13 +40,17 @@
                     ON p.id_sucursal = s.id_sucursal
                     WHERE 1";
             $sql .= ( $folio == '' ? "" : " AND p.folio_nv LIKE '%{$folio}%'" );
+            $sql .= " ORDER BY p.id_pedido ";
             if( $start != 0 ){
                 $sql .= " LIMIT {$start}, $limit";
             }else{
                 $sql .= " LIMIT $limit";
             }
-            $sql .= "ORDER BY p.id_pedido ";
-            $stm = $this->link->query( $sql ) or die( "Error al consultar la venta  : {$sql} : {$this->link->error}" );
+            try{
+                $stm = $this->link->query( $sql ) or die( "Error al consultar la venta  : {$sql} : {$this->link->error}" );
+            }catch( PDOException $e ){
+                die( "Error al consultar las notas de venta : {$sql} : {$e}" );
+            }
             $c = 0;
             if( $stm->rowCount() <= 0 ){
                 return "<tr><td colspan=\"10\" class=\"text-center\">Sin resultados.</td></tr>";

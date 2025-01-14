@@ -36,7 +36,7 @@
             <div class="col-6">
                 <b>
                     <p class="subtitulo" align="left" style="position : sticky; top: 0; background-color : white;">
-                        <i class="icon-money-1">Administración de Ventas 2024</i> 
+                        <i class="icon-money-1">Administración de Ventas 2025</i> 
                     </p>
                 </b>
             </div>
@@ -310,7 +310,9 @@ var resaltada=0;
         }
     //manda a buscar venta
         var url = `ajax/SalesDB.php?fl=seekSaleByFolio&folio=${text}`;
+//alert(url);
         var resp = ajaxR( url );
+//alert(resp);
         $( '#SalesListContent' ).html( resp );
     }
 
