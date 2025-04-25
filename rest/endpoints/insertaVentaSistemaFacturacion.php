@@ -113,13 +113,13 @@
         $payment_type = 1;//efectivo por default
         try{
             $sql = "SELECT
-                        id_forma_pago
+                        id_tipo_pago
                     FROM ec_cajero_cobros
                     WHERE id_pedido = {$sale_header['id_pedido']}";
             $stm = $link->query($sql);
             if($stm->rowCount() == 1){
                 $row = $stm->fetch(PDO::FETCH_ASSOC);
-                $payment_type = $row['id_forma_pago'];
+                $payment_type = ($row['id_forma_pago'] == 1 ? 1 : ($row['id_forma_pago'] == 8 ? 9 : 14) );
             }else if($stm->rowCount() > 1){
                 $payment_type = 17;
             }
