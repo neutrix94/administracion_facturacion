@@ -115,7 +115,7 @@
             $sql = "SELECT
                         id_forma_pago
                     FROM ec_cajero_cobros
-                    WHERE id_pedido = {$sale_id}";
+                    WHERE id_pedido = {$sale_header['id_pedido']}";
             $stm = $link->query($sql);
             if($stm->rowCount() == 1){
                 $row = $stm->fetch(PDO::FETCH_ASSOC);
@@ -126,7 +126,7 @@
         }catch(PDOException $error){
             die("Error al consultar los tipos de pagos : {$sql} : {$error}");
         }
-        $sale_header['payment_type'] = $payment_type;
+        $sale_header['payment_type'] = $payment_type; 
     //Forma json para la peticion
         $post_data = json_encode( array( 
             "sale_header"=>$sale_header, 
