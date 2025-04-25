@@ -109,6 +109,25 @@
         $stm = $link->query( $sql )or die( "Error al consultar api de sistema destino de facturacion : {$sql}" );//die($sql);
         $row = $stm->fetch(PDO::FETCH_ASSOC);
         $api_path = $row['url_api'];
+    //tipo de pago
+        $payment_type = 1;//efectivo por default
+        try{
+            $sql = "SELECT
+                        id_forma_pago
+                    FROM ec_cajero_cobros
+                    WHERE id_pedido = {$sale_id}";
+            $stm = $link->query($sql);
+            if($stm->rowCount() == 1){
+                $row = $stm->fetch(PDO::FETCH_ASSOC);
+                $payment_type = $row['id_forma_pago'];
+            }else if($stm->rowCount() > 1){
+                $payment_type = 17;
+            }
+        }catch(PDOException $error){
+            die("Error al consultar los tipos de pagos : {$sql} : {$error}");
+        }
+        $sale_header['payment_type'] = $payment_type;
+    //Forma json para la peticion
         $post_data = json_encode( array( 
             "sale_header"=>$sale_header, 
             "sale_products"=>$sale_products, 
@@ -155,4 +174,24 @@
         );
         return $response;*/
     });
+
+/*    function getPaymentType($sale_id, $link){
+        $payment_type = 1;//efectivo por default
+        try{
+            $sql = "SELECT
+                        id_forma_pago
+                    FROM ec_cajero_cobros
+                    WHERE id_pedido = {$sale_id}";
+            $stm = $link->query($sql);
+            if($stm->rowCount() == 1){
+                $row = $stm->fetch(PDO::FETCH_ASSOC);
+                $payment_type = $row['id_forma_pago'];
+            }else if($stm->rowCount() > 1){
+                $payment_type = 17;
+            }
+        }catch(PDOException $error){
+            die("Error al consultar los tipos de pagos : {$sql} : {$error}");
+        }
+        return $payment_type;
+    }*/
 ?>
