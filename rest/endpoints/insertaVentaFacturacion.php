@@ -68,7 +68,7 @@
                 '{$cobro['fecha']}', '{$cobro['hora']}', '{$cobro['observaciones']}', '{$cobro['cobro_cancelado']}', '{$cobro['folio_unico']}', 
                 IF( '{$cobro['id_forma_pago']}' = '1', 1, 14 ), 1 )";
             $stm = $link->query( $sql ) or die( "Error al insertar cobro de venta : {$sql}" );
-            if( $cobro['id_tipo_pago'] == 7 ){//si encuentra pago con tarjeta
+            if( $cobro['id_tipo_pago'] == 7 || $cobro['id_tipo_pago'] == 8 ){//si encuentra pago con tarjeta
                 $enviar_facturacion_directo = true;
             }
         }
