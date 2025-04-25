@@ -7,7 +7,8 @@
 </style>
 <br><br><br><br><br><br>
 <div id="form_log" class="bg-light text-center"><br>
-	<img src="img/logocasadelasluces-easy.png" alt=""><br>
+	<h3>Administración de Facturación</h3>
+	<img src="img/Logo.png" width="40%"><br>
 	<b class="text-center">Inicio de sesión</b><br><br>
 	<div>
 		<input type="text" id="user" class="form-control" placeholder="Usuario" tabindex="1">

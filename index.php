@@ -42,7 +42,7 @@
 	<link href="css/icons/css/fontello.css" rel="stylesheet" type="text/css"  media="all" />
 	
 	<style type="text/css">
-		#global{position: absolute;padding: 0;top:0;left:0;width: 100%;height: 100%; min-width: 80% !important;}/*background-image: url('img/bg8.jpg');*/
+		#global{position: absolute;padding: 0;top:0;left:0;width: 100%;height: 100%; min-width: 100% !important; background-image: url('img/bg8.jpg');}/*background-image: url('img/bg8.jpg');*/
 		.titulo{font-size: 30px;top:10%;position: absolute;color: black;}
 		#mnu{background:#556B2F; width: 97%;left:1%;position: relative;padding: 0px;color: white;height: 38px;}
 		.opc{text-decoration: none;padding: 0;height:35px;text-align: center;font-size: 20px;}
@@ -142,7 +142,7 @@
         height: 100%;
         left : 0;
         width: 100%;
-        background : rgba( 0, 0, 0, .5 );
+        background : rgba( 0, 0, 0, .7 );
         z-index: 100;
         display : none;
     }
@@ -157,6 +157,7 @@
         background : white;
         box-shadow: 3px 3px 15px rgba( 0, 0, 0, .5 );
         padding: 20px;
+		border-radius: 10px;
     }
 	#emergente{
 		position: fixed;
