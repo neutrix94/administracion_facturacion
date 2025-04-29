@@ -47,6 +47,7 @@
                     id_cliente, 
                     fecha_alta, 
                     subtotal, 
+                    descuento, 
                     iva, 
                     total, 
                     id_sucursal, 
