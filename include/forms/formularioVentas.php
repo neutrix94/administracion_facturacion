@@ -87,7 +87,45 @@
             </div>
         </div>
     </div>
-    <div class="col-6"></div>
+    <div class="col-12">
+        <br>
+        <h3 class="text-center">Detalle de la venta</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th class="text-center">Id Producto</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-center">Precio</th>
+                    <th class="text-center">Monto</th>
+                    <th class="text-center">Folio Único</th>
+                </tr>
+            </thead>
+            <tbody>
+    <?php
+        $total = 0;
+        while($row_detail = $detail_smt->fetch(PDO::FETCH_ASSOC)){
+            echo "<tr>
+                    <td class=\"text-center\">{$row_detail['id_producto']}</td>
+                    <td class=\"text-center\">{$row_detail['cantidad']}</td>
+                    <td class=\"text-center\">$ {$row_detail['precio']}</td>
+                    <td class=\"text-center\">$ {$row_detail['monto']}</td>
+                    <td>{$row_detail['folio_unico']}</td>
+                </tr>";
+                $total += $row_detail['monto'];
+        }
+    ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th class="text-center">Total : </th>
+                    <th class="text-center">$ <?php echo $total;?></th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
     <div class="col-2"></div>
     <div class="col-8 text-center p-2">
         <br>

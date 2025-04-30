@@ -90,6 +90,7 @@
     //consulta detalle de una venta en especifico
         public function getSpecificSale($sale_id){
             $sale = array();
+            $detail_smt = null;
             try{
                 $sql = "SELECT
                             p.id_pedido,
@@ -115,8 +116,17 @@
                 if($stm->rowCount() > 0){
                     $sale = $stm->fetch(PDO::FETCH_ASSOC);
                 }
+                $sql = "SELECT
+                            id_producto,
+                            cantidad,
+                            precio,
+                            monto,
+                            folio_unico
+                        FROM ec_pedidos_detalle
+                        WHERE id_pedido = {$sale_id}";
+                $detail_smt = $this->link->query($sql);
             }catch(PDOException $error){
-                die("Error al consultar pagos de la venta : {$sql} : {$error}");
+                die("Error al consultar información de la venta : {$sql} : {$error}");
             }
             include( '../include/forms/formularioVentas.php' );
         }
