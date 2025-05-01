@@ -152,6 +152,17 @@
         curl_close($crl);
 //error_log( "Resp FACT_RS : {$resp}" );
         $resp_decode = json_decode( $resp, true );
+        if( isset($resp_decode['status']) && $resp_decode['status'] != 200 ){
+        //inserta el error en la tabla de errores
+            try{
+                $resp = str_replace("'", "\'", $resp);
+                $sql = "INSERT INTO ec_pedidos_error_envio_rs( id_pedido_error_envio_rs, id_pedido, contenido_respuesta, fecha_alta, omitir ) 
+                    VALUES ( NULL, '{$sale_header['id_pedido']}', '{$resp}', NOW(), '0' )";
+                $link->query($sql);
+            }catch(PDOException $error){
+                die("Error al insertar el error de envio a Razon Social : {$sql} : {$error}");
+            }
+        }
 /*    
         if( isset($resp_decode['status']) && $resp_decode['status'] == 200 ){//si la insercion es exitosa actualiza a status 5 la nota de venta
             try{
