@@ -50,11 +50,11 @@
     //inserta el detalle de la venta
         $detalles = $req['venta_detalle'];
         foreach ($detalles as $key => $detalle) {
-            $sql = "INSERT INTO ec_pedidos_detalle ( `id_pedido`, `id_producto`, `cantidad`, `precio`, `monto`, `iva`, `ieps`, `cantidad_surtida`, 
+            $sql = "INSERT INTO ec_pedidos_detalle ( `id_pedido`, `id_producto`, `cantidad`, `precio`, `monto`, `precio_facturacion`, `monto_facturacion`, `iva`, `ieps`, `cantidad_surtida`, 
 					`descuento`, `modificado`, `es_externo`, `id_precio`, `folio_unico` )
-                VALUES ( {$sale_id}, '{$detalle['id_producto']}', '{$detalle['cantidad']}', '{$detalle['precio']}', '{$detalle['monto']}', '{$detalle['iva']}', 
-                '{$detalle['ieps']}', '{$detalle['cantidad_surtida']}', '{$detalle['descuento']}', '{$detalle['modificado']}', '{$detalle['es_externo']}', 
-                '{$detalle['id_precio']}', '{$detalle['folio_unico']}' )";
+                VALUES ( {$sale_id}, '{$detalle['id_producto']}', '{$detalle['cantidad']}', '{$detalle['precio']}', '{$detalle['monto']}', '{$detalle['precio_facturacion']}', 
+                '{$detalle['monto_facturacion']}', '{$detalle['iva']}', '{$detalle['ieps']}', '{$detalle['cantidad_surtida']}', '{$detalle['descuento']}', '{$detalle['modificado']}', 
+                '{$detalle['es_externo']}', '{$detalle['id_precio']}', '{$detalle['folio_unico']}' )";
             $stm = $link->query( $sql ) or die( "Error al insertar detalle de venta : {$sql}" );
         }
     //inserta cobros de la venta

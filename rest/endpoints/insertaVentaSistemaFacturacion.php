@@ -70,8 +70,8 @@
         $sql = "SELECT 
                     id_producto, 
                     cantidad, 
-                    precio, 
-                    monto,
+                    precio_facturacion, 
+                    monto_facturacion,
                     folio_unico 
                 FROM ec_pedidos_detalle 
                 WHERE id_pedido = {$sale_header['id_pedido']}";
