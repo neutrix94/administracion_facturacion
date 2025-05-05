@@ -72,7 +72,8 @@
                     cantidad, 
                     precio_facturacion AS precio, 
                     monto_facturacion AS monto,
-                    folio_unico 
+                    folio_unico,
+                    folio_facturacion
                 FROM ec_pedidos_detalle 
                 WHERE id_pedido = {$sale_header['id_pedido']}";
         $stm = $link->query( $sql ) or die( "Error al consultar detalle de la nota de venta : {$sql}" );
