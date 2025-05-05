@@ -51,10 +51,10 @@
         $detalles = $req['venta_detalle'];
         foreach ($detalles as $key => $detalle) {
             $sql = "INSERT INTO ec_pedidos_detalle ( `id_pedido`, `id_producto`, `cantidad`, `precio`, `monto`, `precio_facturacion`, `monto_facturacion`, `iva`, `ieps`, `cantidad_surtida`, 
-					`descuento`, `modificado`, `es_externo`, `id_precio`, `folio_unico` )
+					`descuento`, `modificado`, `es_externo`, `id_precio`, `folio_unico`, folio_facturacion )
                 VALUES ( {$sale_id}, '{$detalle['id_producto']}', '{$detalle['cantidad']}', '{$detalle['precio']}', '{$detalle['monto']}', '{$detalle['precio_facturacion']}', 
                 '{$detalle['monto_facturacion']}', '{$detalle['iva']}', '{$detalle['ieps']}', '{$detalle['cantidad_surtida']}', '{$detalle['descuento']}', '{$detalle['modificado']}', 
-                '{$detalle['es_externo']}', '{$detalle['id_precio']}', '{$detalle['folio_unico']}' )";
+                '{$detalle['es_externo']}', '{$detalle['id_precio']}', '{$detalle['folio_unico']}', '{$detalle['folio_facturacion']}' )";
             $stm = $link->query( $sql ) or die( "Error al insertar detalle de venta : {$sql}" );
         }
     //inserta cobros de la venta
