@@ -105,7 +105,7 @@ $app->post('/devolucion', function (Request $request, Response $response) {
                 $stm = $link->query( $sql ) or die( "Error al consultar el url de api de facturacion RS : {$sql}" );
                 $api_row = $stm->fetch( PDO::FETCH_ASSOC );
             //consume el servicio para actualizar la nota de venta en la razon social correspondiente
-                $post_data = json_decode($req);
+                $post_data = json_encode($req);
                 $update_RS = $SynchronizationManagmentLog->sendPetition("{$api_row['url_api']}/api/facturacion/devolucion", $post_data);
             
                 $payload = json_encode(array("status"=>200, "message"=>"Venta actualizada en administracion de facturacion y Razon Social exitosamente."));
