@@ -74,7 +74,8 @@ error_log( "Respuesta al subir nota en efectivo : {$RS_resp}");
                     try{
                         $sql = "UPDATE ec_pedidos 
                                 SET uso_cfdi = {$cfdi_use}, 
-                                id_razon_factura = (SELECT id_cliente_facturacion FROM vf_clientes_razones_sociales WHERE rfc = '{$sale_costumer}' LIMIT 1)
+                                id_razon_factura = (SELECT id_cliente_facturacion FROM vf_clientes_razones_sociales WHERE rfc = '{$sale_costumer}' LIMIT 1), 
+                                id_cliente = (SELECT id_cliente_facturacion FROM vf_clientes_razones_sociales WHERE rfc = '{$sale_costumer}' LIMIT 1)
                                 WHERE id_pedido = {$sale_header['id_pedido']}";
                         $stm_2 = $link->query( $sql );
                     }catch(PDOException $e){

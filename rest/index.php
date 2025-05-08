@@ -31,6 +31,7 @@ $app->get('/example', function (Request $request, Response $response, $args) {
   //ventas
     require __DIR__  . '/endpoints/enviaFacturaCorreo.php';
     require __DIR__  . '/endpoints/insertaVentaFacturacion.php';
+    require __DIR__  . '/endpoints/devolucion.php';//edicion de devolucion de ventas
     require __DIR__  . '/endpoints/insertaVentaFacturacionPorLote.php';
     require __DIR__  . '/endpoints/barrido_ventas_por_lote.php';
 

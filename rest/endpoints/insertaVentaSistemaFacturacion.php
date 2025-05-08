@@ -47,6 +47,7 @@
                     id_cliente, 
                     fecha_alta, 
                     subtotal, 
+                    descuento, 
                     iva, 
                     total, 
                     id_sucursal, 
@@ -69,9 +70,10 @@
         $sql = "SELECT 
                     id_producto, 
                     cantidad, 
-                    precio, 
-                    monto,
-                    folio_unico 
+                    precio_facturacion AS precio, 
+                    monto_facturacion AS monto,
+                    folio_unico,
+                    folio_facturacion
                 FROM ec_pedidos_detalle 
                 WHERE id_pedido = {$sale_header['id_pedido']}";
         $stm = $link->query( $sql ) or die( "Error al consultar detalle de la nota de venta : {$sql}" );
@@ -91,7 +93,7 @@
                     fecha, 
                     hora, 
                     folio_unico, 
-                    IF( id_forma_pago = 1, 1, 14 ) AS id_forma_pago,
+                    IF( id_tipo_pago = 1, 1, IF( id_tipo_pago = 8, 9, 14) ) AS id_forma_pago,
                     id_cajero_cobro 
                 FROM ec_cajero_cobros 
                 WHERE id_pedido = {$sale_header['id_pedido']}";
@@ -109,6 +111,25 @@
         $stm = $link->query( $sql )or die( "Error al consultar api de sistema destino de facturacion : {$sql}" );//die($sql);
         $row = $stm->fetch(PDO::FETCH_ASSOC);
         $api_path = $row['url_api'];
+    //tipo de pago
+        $payment_type = 1;//efectivo por default
+        try{
+            $sql = "SELECT
+                        id_tipo_pago
+                    FROM ec_cajero_cobros
+                    WHERE id_pedido = {$sale_header['id_pedido']}";
+            $stm = $link->query($sql);
+            if($stm->rowCount() == 1){
+                $row = $stm->fetch(PDO::FETCH_ASSOC);
+                $payment_type = ($row['id_tipo_pago'] == 1 ? 1 : ($row['id_tipo_pago'] == 8 ? 9 : 14) );
+            }else if($stm->rowCount() > 1){
+                $payment_type = 17;
+            }
+        }catch(PDOException $error){
+            die("Error al consultar los tipos de pagos : {$sql} : {$error}");
+        }
+        $sale_header['payment_type'] = $payment_type; 
+    //Forma json para la peticion
         $post_data = json_encode( array( 
             "sale_header"=>$sale_header, 
             "sale_products"=>$sale_products, 
@@ -132,6 +153,17 @@
         curl_close($crl);
 //error_log( "Resp FACT_RS : {$resp}" );
         $resp_decode = json_decode( $resp, true );
+        if( isset($resp_decode['status']) && $resp_decode['status'] != 200 ){
+        //inserta el error en la tabla de errores
+            try{
+                $resp = str_replace("'", "\'", $resp);
+                $sql = "INSERT INTO ec_pedidos_error_envio_rs( id_pedido_error_envio_rs, id_pedido, contenido_respuesta, fecha_alta, omitir ) 
+                    VALUES ( NULL, '{$sale_header['id_pedido']}', '{$resp}', NOW(), '0' )";
+                $link->query($sql);
+            }catch(PDOException $error){
+                die("Error al insertar el error de envio a Razon Social : {$sql} : {$error}");
+            }
+        }
 /*    
         if( isset($resp_decode['status']) && $resp_decode['status'] == 200 ){//si la insercion es exitosa actualiza a status 5 la nota de venta
             try{
@@ -155,4 +187,24 @@
         );
         return $response;*/
     });
+
+/*    function getPaymentType($sale_id, $link){
+        $payment_type = 1;//efectivo por default
+        try{
+            $sql = "SELECT
+                        id_forma_pago
+                    FROM ec_cajero_cobros
+                    WHERE id_pedido = {$sale_id}";
+            $stm = $link->query($sql);
+            if($stm->rowCount() == 1){
+                $row = $stm->fetch(PDO::FETCH_ASSOC);
+                $payment_type = $row['id_forma_pago'];
+            }else if($stm->rowCount() > 1){
+                $payment_type = 17;
+            }
+        }catch(PDOException $error){
+            die("Error al consultar los tipos de pagos : {$sql} : {$error}");
+        }
+        return $payment_type;
+    }*/
 ?>

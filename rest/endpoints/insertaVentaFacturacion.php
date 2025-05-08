@@ -50,11 +50,11 @@
     //inserta el detalle de la venta
         $detalles = $req['venta_detalle'];
         foreach ($detalles as $key => $detalle) {
-            $sql = "INSERT INTO ec_pedidos_detalle ( `id_pedido`, `id_producto`, `cantidad`, `precio`, `monto`, `iva`, `ieps`, `cantidad_surtida`, 
-					`descuento`, `modificado`, `es_externo`, `id_precio`, `folio_unico` )
-                VALUES ( {$sale_id}, '{$detalle['id_producto']}', '{$detalle['cantidad']}', '{$detalle['precio']}', '{$detalle['monto']}', '{$detalle['iva']}', 
-                '{$detalle['ieps']}', '{$detalle['cantidad_surtida']}', '{$detalle['descuento']}', '{$detalle['modificado']}', '{$detalle['es_externo']}', 
-                '{$detalle['id_precio']}', '{$detalle['folio_unico']}' )";
+            $sql = "INSERT INTO ec_pedidos_detalle ( `id_pedido`, `id_producto`, `cantidad`, `precio`, `monto`, `precio_facturacion`, `monto_facturacion`, `iva`, `ieps`, `cantidad_surtida`, 
+					`descuento`, `modificado`, `es_externo`, `id_precio`, `folio_unico`, folio_facturacion )
+                VALUES ( {$sale_id}, '{$detalle['id_producto']}', '{$detalle['cantidad']}', '{$detalle['precio']}', '{$detalle['monto']}', '{$detalle['precio_facturacion']}', 
+                '{$detalle['monto_facturacion']}', '{$detalle['iva']}', '{$detalle['ieps']}', '{$detalle['cantidad_surtida']}', '{$detalle['descuento']}', '{$detalle['modificado']}', 
+                '{$detalle['es_externo']}', '{$detalle['id_precio']}', '{$detalle['folio_unico']}', '{$detalle['folio_facturacion']}' )";
             $stm = $link->query( $sql ) or die( "Error al insertar detalle de venta : {$sql}" );
         }
     //inserta cobros de la venta
@@ -68,7 +68,7 @@
                 '{$cobro['fecha']}', '{$cobro['hora']}', '{$cobro['observaciones']}', '{$cobro['cobro_cancelado']}', '{$cobro['folio_unico']}', 
                 IF( '{$cobro['id_forma_pago']}' = '1', 1, 14 ), 1 )";
             $stm = $link->query( $sql ) or die( "Error al insertar cobro de venta : {$sql}" );
-            if( $cobro['id_tipo_pago'] == 7 ){//si encuentra pago con tarjeta
+            if( $cobro['id_tipo_pago'] == 7 || $cobro['id_tipo_pago'] == 8 ){//si encuentra pago con tarjeta
                 $enviar_facturacion_directo = true;
             }
         }
