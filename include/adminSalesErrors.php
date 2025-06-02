@@ -200,7 +200,6 @@
     function try_again(sale_id){
         var url = `ajax/SalesErrorsDB.php?fl=retrySendingSale&sale_id=${sale_id}`;
         var resp = ajaxR( url );
-        $( '#SalesListContent' ).html( resp );
         var content = `<div><h2 class="text-ecnter">Respuesta : </h2></div>
         <div>
             <h3 class="text-center">${resp}</h3>
