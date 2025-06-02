@@ -30,8 +30,7 @@
         LEFT JOIN sys_sucursales s
         ON p.id_sucursal = s.id_sucursal
         WHERE 1 
-        ORDER BY id_pedido DESC
-        LIMIT 20";
+        ORDER BY id_pedido DESC/*LIMIT 20*/";
 	$eje = $link->query( $sql )or die("Error al listar las razones sociales : {$sql}");
 ?>
     <script src="./js/highlight/highlight.min.js"></script>
@@ -195,6 +194,26 @@
         var url = `ajax/SalesErrorsDB.php?fl=seekSaleByFolio&folio=${text}`;
         var resp = ajaxR( url );
         $( '#SalesListContent' ).html( resp );
+    }
+
+    function try_again(sale_id){
+        var url = `ajax/SalesErrorsDB.php?fl=retrySendingSale&sale_id=${sale_id}`;
+        var resp = ajaxR( url );
+        $( '#SalesListContent' ).html( resp );
+        var content = `<div><h2 class="text-ecnter">Respuesta : </h2></div>
+        <div>
+            <h3 class="text-center">${resp}</h3>
+        </div>
+        <div class="text-center">
+            <button
+                class="btn btn-success"
+                onclick="close_alert();"
+            >
+                <i class="icon-ok-circle">Aceptar y cerrar</i>
+            </button>
+        </div>`;
+        $( '#alert_content' ).html( content );
+        $( '#alert' ).css( 'display', 'block' );
     }
 </script>
 

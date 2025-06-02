@@ -21,6 +21,11 @@
                 $sale_id = ( isset( $_POST['sale_id'] ) ? $_POST['sale_id'] : $_GET['sale_id'] );
                 echo $SalesDB->getSpecificSale($sale_id);
             break;
+
+            case 'retrySendingSale' :
+                $sale_id = ( isset( $_POST['sale_id'] ) ? $_POST['sale_id'] : $_GET['sale_id'] );
+                echo $SalesDB->retrySendingSale($sale_id);
+            break;
             
             default:
                 die( "Permission denied on : '{$action}'." );
@@ -31,6 +36,62 @@
         private $link;
         public function __construct( $connection ) {
             $this->link = $connection;
+        }
+
+        public function retrySendingSale($sale_id){
+            $folio = "";
+            $api_path = "";
+        //consulta folio y url de API
+            try{
+                $sql = "SELECT 
+                            folio_nv,
+                            (SELECT `value` FROM api_config WHERE `name` = 'path_facturacion' LIMIT 1) AS api_path
+                        FROM ec_pedidos WHERE id_pedido = {$sale_id}";
+                $stm = $this->link->query($sql);
+                $row = $stm->fetch(PDO::FETCH_ASSOC);
+                $folio = $row['folio_nv'];
+                $api_path = $row['api_path'];
+            }catch(PDOException $error){
+                die(json_encode(array("status"=>"302", "message"=>"Error al consultar folio y url del api : {$sql}", "error_detail"=>$error->getMessage())));
+            }
+            if($folio == ""){
+                die(json_encode(array("status"=>"303", "message"=>"No se encontro el folio de la venta : {$sale_id}")));
+            }
+            if($folio == ""){
+                die(json_encode(array("status"=>"303", "message"=>"No se encontro el path del API.")));
+            }
+        //consume servicio para enviar venta de nuevo
+/**/                 
+            $resp = "";
+            $post_data = json_encode( array( "sale_folio"=>$folio ) );
+            $crl = curl_init( "{$api_path}/rest/inserta_venta_sistema_facturacion" );
+            curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+            curl_setopt($crl, CURLOPT_POST, true);
+            curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+            //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+            curl_setopt($crl, CURLOPT_TIMEOUT, 6000);
+            curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json' )
+            );
+            $resp = curl_exec($crl);//envia peticion
+            curl_close($crl);
+            $resp_decode = json_decode( $resp, true );
+            $status_update = "";
+            if( isset($resp_decode['status']) && $resp_decode['status'] == 200 ){//si la insercion es exitosa actualiza a status 5 la nota de venta
+                $status_update = 5;//insertado en RS
+            }else{
+                $status_update = 4;//enviado a RS pero no se inserta
+            }
+//actualiza el status de la nota de venta
+            try{
+                $sql = "UPDATE ec_pedidos SET id_status_facturacion = {$status_update} WHERE folio_nv = '{$folio}'";
+                $stm = $this->link->query( $sql );
+            }catch( PDOException $e ){
+                die( json_encode( array( "status"=>400, "Message"=>"Error al actualizar status de venta en sistema de administracion_facturacion : {$sql} : ", "error_detail"=>"{$e->getMessage()}" ) ) );
+            }
+            return $resp;
+/**/
         }
         public function getSales( $folio = '', $start = 0, $limit = 30, $order_by = 'ASC' ){
             $resp = "";
@@ -50,9 +111,9 @@
             $sql .= ( $folio == '' ? "" : " AND p.folio_nv LIKE '%{$folio}%'" );
             $sql .= " ORDER BY p.id_pedido ";
             if( $start != 0 ){
-                $sql .= " LIMIT {$start}, $limit";
+            //    $sql .= " LIMIT {$start}, $limit";
             }else{
-                $sql .= " LIMIT $limit";
+            //    $sql .= " LIMIT $limit";
             }
             try{
                 $stm = $this->link->query( $sql ) or die( "Error al consultar la venta  : {$sql} : {$this->link->error}" );
