@@ -22,7 +22,7 @@
             s.nombre AS store_name,
             p.folio_nv,
             p.total,
-            GROUP_CONCAT(peer.contenido_respuesta SEPARATOR '<br>') AS contenido_respuesta,
+            GROUP_CONCAT(peer.contenido_respuesta SEPARATOR '\n') AS contenido_respuesta,
             peer.omitir
         FROM ec_pedidos_error_envio_rs peer
         LEFT JOIN ec_pedidos p
