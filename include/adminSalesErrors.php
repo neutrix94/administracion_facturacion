@@ -22,7 +22,7 @@
             s.nombre AS store_name,
             p.folio_nv,
             p.total,
-            peer.contenido_respuesta,
+            GROUP_CONCAT(peer.contenido_respuesta SEPARATOR '<br>') AS contenido_respuesta,
             peer.omitir
         FROM ec_pedidos_error_envio_rs peer
         LEFT JOIN ec_pedidos p
@@ -30,6 +30,7 @@
         LEFT JOIN sys_sucursales s
         ON p.id_sucursal = s.id_sucursal
         WHERE 1 
+        GROUP BY p.id_pedido
         ORDER BY id_pedido DESC/*LIMIT 20*/";
 	$eje = $link->query( $sql )or die("Error al listar las razones sociales : {$sql}");
 ?>
