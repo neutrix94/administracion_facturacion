@@ -6,6 +6,8 @@
         $body = $request->getBody();
         $req = json_decode($body, true);
         $clientes = array();
+        $contador_clientes = 0;
+        $contador_contactos = 0;
         $contactos = array();
         $clientes_rs = "";
         $contactos_rs = "";
@@ -33,6 +35,7 @@
             $stm = $link->query($sql);
             while($row = $stm->fetch(PDO::FETCH_ASSOC)){
                 $clientes[] = $row;
+                $contador_clientes ++;
             }
         }catch(PDOException $error){
             $payload = json_encode(array("status"=>"302", "message"=>"Error al consultar clientes faltantes en adminsitracion de facturacion : {$sql}", "error_detail"=>"{$error->getMessage()}"));   
@@ -48,6 +51,7 @@
             $stm = $link->query($sql);
             while($row = $stm->fetch(PDO::FETCH_ASSOC)){
                 $contactos[] = $row;
+                $contador_contactos ++;
             }
         }catch(PDOException $error){
             $payload = json_encode(array("status"=>"302", "message"=>"Error al consultar contactos faltantes en adminsitracion de facturacion : {$sql}", "error_detail"=>"{$error->getMessage()}"));   
@@ -55,6 +59,7 @@
             return $response;
         }
         
-        $response->getBody()->write(json_encode( array( "status"=>"200", "clientes"=>$clientes, "contactos"=>$contactos ) ));
+        $response->getBody()->write(json_encode( array( "status"=>"200", "contador_clientes_admin_fact"=>"$contador_clientes", 
+            "contador_contactos_admin_fact"=>"$contador_contactos", "clientes"=>$clientes, "contactos"=>$contactos ) ));
         return $response;
     });
