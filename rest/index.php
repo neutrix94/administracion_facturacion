@@ -24,6 +24,7 @@ $app->get('/example', function (Request $request, Response $response, $args) {
     require __DIR__  . '/endpoints/insertaVentaSistemaFacturacion.php';
   //Ejecutar consultas en el servidor
     require __DIR__  . '/endpoints/ejecuta_consulta_en_servidor.php';
+    require __DIR__  . '/obtener_clientes_pendientes.php';
 
 /*******************************************Endpoints cliente para consumir apis*******************************************/
   //clientes
