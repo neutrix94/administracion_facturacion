@@ -147,8 +147,9 @@ error_log( "Respuesta al subir nota en efectivo : {$RS_resp}");
             $json_response = json_decode( $resp );
         //actualiza el registro de intento de facturacion
             try{
+                $resp = str_replace("'", "\'", $resp );
                 $sql = "UPDATE peticiones_solicitud_factura SET respuesta = '{$resp}', detalle_respuesta = '{$resp}' WHERE id_peticion_solicitud_factura = {$id_intento_solicitud_factura}";
-                $stm = $link->query( $sql ) or die( "Error al" );
+                $stm = $link->query( $sql );
             }catch(PDOException $e){
                 error_log( "Error al actualizar intento de solicitud de factura : {$sql} : {$e}" );
                 die( "Error al actualizar intento de solicitud de factura : {$sql} : {$e}" );
