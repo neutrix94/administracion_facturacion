@@ -159,6 +159,16 @@ error_log( "Respuesta al subir nota en efectivo : {$RS_resp}");
             try{
                 $sql = "UPDATE ec_pedidos SET id_status_facturacion = 8 WHERE folio_nv = '{$sale_folio}'";
                 $stm = $link->query( $sql ) or die( "Error al actualizar el status de la nota de venta : {$sql}" );
+            //valida si fue facturada
+                if(isset($json_response->files_url)){
+                    try{
+                        $sql = "UPDATE ec_pedidos SET url_descarga_archivos_facturacion = '{$json_response->files_url}/code/ajax/fElectronica/zip.php?id_venta={$json_response->bill_system_id}'";
+                        $stm = $link->query( $sql );
+                    }catch(PDOException $error){
+                        die( "Error al actualizar el url de descarga de archivos de la nota de venta : {$sql} : {$error->getMessage()}" );
+                    }
+                }
+
             }catch(PDOException $e){
                 error_log( "Error al actualizar el status de la nota de venta : {$sql} : {$e}" );
                 die( "Error al actualizar el status de la nota de venta : {$sql} : {$e}" );
