@@ -26,6 +26,38 @@
                 WHERE p.folio_nv = '{$sale_folio}'";
         $stm = $link->query( $sql ) or die( "Error al consultar cabecera de venta : {$sql}" );
         $sale_header = $stm->fetch( PDO::FETCH_ASSOC );
+    //envia la factura a su respectiva razon social si no ha sido enviada
+        if( $sale_header['id_status_facturacion'] <= 4 ){
+            $bill_api_path = "";
+        //consulta path de administracion de facturacion        
+            try{
+                $api_sql = "SELECT `value` AS bill_api_path FROM api_config WHERE `name` = 'path_facturacion'";
+                $api_stm = $link->query( $api_sql );
+                $api_row = $api_stm->fetch(PDO::FETCH_ASSOC);
+                $bill_api_path = $api_row['bill_api_path'];
+            }catch( PDOException $e ){
+                $response->getBody()->write( json_encode( array( "status"=>400, "message"=>"Error al consultar el path de API : {$sql} : {$e}" ) ) );
+                return $response;
+            }
+        //consume API de facturacion para enviar la venta a su RS
+            $RS_resp = "";
+            $post_data = json_encode( array( "sale_folio"=>$sale_folio ) );
+            $crl = curl_init( "{$bill_api_path}/rest/inserta_venta_sistema_facturacion" );
+            curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+            curl_setopt($crl, CURLOPT_POST, true);
+            curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+            curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+            curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json' )
+            );
+            $RS_resp = curl_exec($crl);//envia peticion
+            curl_close($crl);
+            $json_resp = json_decode( $RS_resp );
+//error_log( "URL : {$bill_api_path}/rest/inserta_venta_sistema_facturacion");
+//error_log( "POST DATA : {$post_data}");
+//error_log( "Respuesta al subir nota en efectivo : {$RS_resp}");
+        }
     //consulta si ya tiene una solicitud de factura 
         $id_solicitud_factura = null;
         $id_intento_solicitud_factura = null;
@@ -42,7 +74,8 @@
                     try{
                         $sql = "UPDATE ec_pedidos 
                                 SET uso_cfdi = {$cfdi_use}, 
-                                id_razon_factura = (SELECT id_cliente_facturacion FROM vf_clientes_razones_sociales WHERE rfc = '{$sale_costumer}' LIMIT 1)
+                                id_razon_factura = (SELECT id_cliente_facturacion FROM vf_clientes_razones_sociales WHERE rfc = '{$sale_costumer}' LIMIT 1), 
+                                id_cliente = (SELECT id_cliente_facturacion FROM vf_clientes_razones_sociales WHERE rfc = '{$sale_costumer}' LIMIT 1)
                                 WHERE id_pedido = {$sale_header['id_pedido']}";
                         $stm_2 = $link->query( $sql );
                     }catch(PDOException $e){
@@ -94,7 +127,8 @@
         $post_data = json_encode( array( 
             "sale_folio"=>$sale_folio, 
             "costumer_rfc"=>$sale_costumer,
-            "cfdi_use"=>$cfdi_use
+            "cfdi_use"=>$cfdi_use,
+            "payment_type"=>$payment_type
         ) );
         //echo "{$api_path}/inserta_venta";
         //public function sendPetition( $url, $post_data ){
@@ -111,20 +145,36 @@
 			);
 			$resp = curl_exec($crl);//envia peticion
 			curl_close($crl);
+            $json_response = json_decode( $resp );
         //actualiza el registro de intento de facturacion
             try{
+                $resp = str_replace("'", "\'", $resp );
                 $sql = "UPDATE peticiones_solicitud_factura SET respuesta = '{$resp}', detalle_respuesta = '{$resp}' WHERE id_peticion_solicitud_factura = {$id_intento_solicitud_factura}";
-                $stm = $link->query( $sql ) or die( "Error al" );
+                $stm = $link->query( $sql );
             }catch(PDOException $e){
                 error_log( "Error al actualizar intento de solicitud de factura : {$sql} : {$e}" );
                 die( "Error al actualizar intento de solicitud de factura : {$sql} : {$e}" );
             }
-            //var_dump($resp);
-            //die('here : ' . " {$url} " . $resp);
-            //$resp = json_decode( $Routes->sendPetition( $api_path, "inserta_venta", $post_data ) );
-			//return $resp;
-		//}
-       // var_dump( $resp );
+        if( $json_response->status == 200 ){
+        //actualiza el status de la nota de venta
+            try{
+                $sql = "UPDATE ec_pedidos SET id_status_facturacion = 8 WHERE folio_nv = '{$sale_folio}'";
+                $stm = $link->query( $sql ) or die( "Error al actualizar el status de la nota de venta : {$sql}" );
+            //valida si fue facturada
+                if(isset($json_response->files_url)){
+                    try{
+                        $sql = "UPDATE ec_pedidos SET url_descarga_archivos_facturacion = '{$json_response->files_url}/code/ajax/fElectronica/zip.php?id_venta={$json_response->bill_system_id}'";
+                        $stm = $link->query( $sql );
+                    }catch(PDOException $error){
+                        die( "Error al actualizar el url de descarga de archivos de la nota de venta : {$sql} : {$error->getMessage()}" );
+                    }
+                }
+
+            }catch(PDOException $e){
+                error_log( "Error al actualizar el status de la nota de venta : {$sql} : {$e}" );
+                die( "Error al actualizar el status de la nota de venta : {$sql} : {$e}" );
+            }
+        }
         $response->getBody()->write( $resp );
         return $response;
 

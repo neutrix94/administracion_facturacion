@@ -16,6 +16,11 @@
                 $folio = ( isset( $_POST['limit'] ) ? $_POST['limit'] : $_GET['limit'] );
                 echo $SalesDB->getSales( '', $start, $limit, 'DESC' );//fl=&folio=${text}&start=${start_position}&limit=${limit}
             break;
+
+            case 'getSpecificSale' :
+                $sale_id = ( isset( $_POST['sale_id'] ) ? $_POST['sale_id'] : $_GET['sale_id'] );
+                echo $SalesDB->getSpecificSale($sale_id);
+            break;
             
             default:
                 die( "Permission denied on : '{$action}'." );
@@ -40,13 +45,17 @@
                     ON p.id_sucursal = s.id_sucursal
                     WHERE 1";
             $sql .= ( $folio == '' ? "" : " AND p.folio_nv LIKE '%{$folio}%'" );
+            $sql .= " ORDER BY p.id_pedido ";
             if( $start != 0 ){
                 $sql .= " LIMIT {$start}, $limit";
             }else{
                 $sql .= " LIMIT $limit";
             }
-            $sql .= "ORDER BY p.id_pedido ";
-            $stm = $this->link->query( $sql ) or die( "Error al consultar la venta  : {$sql} : {$this->link->error}" );
+            try{
+                $stm = $this->link->query( $sql ) or die( "Error al consultar la venta  : {$sql} : {$this->link->error}" );
+            }catch( PDOException $e ){
+                die( "Error al consultar las notas de venta : {$sql} : {$e}" );
+            }
             $c = 0;
             if( $stm->rowCount() <= 0 ){
                 return "<tr><td colspan=\"10\" class=\"text-center\">Sin resultados.</td></tr>";
@@ -74,7 +83,55 @@
                     >
                         <i class=\"icon-eye\"></i>
                     </button>
-                </td>
+                </td>";
+            $resp .= '</tr>'; 
+            return $resp;
+        }
+    //consulta detalle de una venta en especifico
+        public function getSpecificSale($sale_id){
+            $sale = array();
+            $detail_smt = null;
+            try{
+                $sql = "SELECT
+                            p.id_pedido,
+                            p.folio_nv,
+                            IF( p.id_cliente < 10000, 'Sin Asignar', crs.rfc ) AS id_cliente,
+                            p.fecha_alta,
+                            p.subtotal,
+                            p.total,
+                            vc.nombre AS uso_cfdi,
+                            esf.nombre_status AS id_status_facturacion,
+                            rs.nombre AS id_razon_social
+                        FROM ec_pedidos p
+                        LEFT JOIN vf_clientes_razones_sociales crs
+                        ON crs.id_cliente_facturacion = p.id_cliente
+                        LEFT JOIN vf_cfdi vc
+                        ON vc.id_cfdi = p.uso_cfdi
+                        LEFT JOIN ec_status_facturacion esf
+                        ON esf.id_status_facturacion = p.id_status_facturacion
+                        LEFT JOIN razones_sociales rs
+                        ON rs.id_equivalente = p.id_razon_social
+                        WHERE p.id_pedido = {$sale_id}";
+                $stm = $this->link->query($sql);
+                if($stm->rowCount() > 0){
+                    $sale = $stm->fetch(PDO::FETCH_ASSOC);
+                }
+                $sql = "SELECT
+                            id_producto,
+                            cantidad,
+                            precio,
+                            monto,
+                            folio_unico
+                        FROM ec_pedidos_detalle
+                        WHERE id_pedido = {$sale_id}";
+                $detail_smt = $this->link->query($sql);
+            }catch(PDOException $error){
+                die("Error al consultar información de la venta : {$sql} : {$error}");
+            }
+            include( '../include/forms/formularioVentas.php' );
+        }
+    }
+    /*
                 <td class=\"text-center\">
                     <button
                         type=\"button\"
@@ -92,10 +149,6 @@
                     >
                         <i class=\"icon-cancel\"></i>
                     </button>
-                </td>";
-            $resp .= '</tr>'; 
-            return $resp;
-        }
-    }
-    
+                </td>
+    */
 ?>

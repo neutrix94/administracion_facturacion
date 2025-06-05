@@ -42,7 +42,7 @@
 	<link href="css/icons/css/fontello.css" rel="stylesheet" type="text/css"  media="all" />
 	
 	<style type="text/css">
-		#global{position: absolute;padding: 0;top:0;left:0;width: 100%;height: 100%;}/*background-image: url('img/bg8.jpg');*/
+		#global{position: absolute;padding: 0;top:0;left:0;width: 100%;height: 100%; min-width: 100% !important; background-image: url('img/bg8.jpg');}/*background-image: url('img/bg8.jpg');*/
 		.titulo{font-size: 30px;top:10%;position: absolute;color: black;}
 		#mnu{background:#556B2F; width: 97%;left:1%;position: relative;padding: 0px;color: white;height: 38px;}
 		.opc{text-decoration: none;padding: 0;height:35px;text-align: center;font-size: 20px;}
@@ -85,6 +85,11 @@
     <div id="alert">
         <div id="alert_content"></div>
     </div>
+	
+	<div id="emergente">
+		<div id="contenido_emergente">
+		</div>
+	</div>
 
 	<div id="global">
 	<!--Menu-->
@@ -131,21 +136,20 @@
 </body>
 </html>
 <style>
-
-#alert{
+	#alert{
         position : fixed;
         top : 0;
         height: 100%;
         left : 0;
         width: 100%;
-        background : rgba( 0, 0, 0, .5 );
+        background : rgba( 0, 0, 0, .7 );
         z-index: 100;
         display : none;
     }
     #alert_content{
         position: relative;
-        width : 80%;
-        left : 10%;
+        width : 95%;
+        left : 2.5%;
         min-height: 30%;
         max-height: 80%;
 		overflow: auto;
@@ -153,7 +157,31 @@
         background : white;
         box-shadow: 3px 3px 15px rgba( 0, 0, 0, .5 );
         padding: 20px;
+		border-radius: 10px;
     }
+	#emergente{
+		position: fixed;
+		z-index: 200;
+		width: 100%;
+		height: 100%;
+		top:0;left:0; 
+		background: rgba(0,0,0,.4);
+		display: none;
+	}
+	#contenido_emergente{
+		position: absolute;
+		width: 95%;
+		left:2.5%;
+		/*border:2px solid white;*/
+		top:10%;
+		height:80%;
+		/*border-radius: 2%;*/
+		overflow:auto;
+		background : white;
+		/*background: rgba(0,0,0,.5);*/
+		z-index: 200;
+		box-shadow: 4px 4px 15px rgba( 0,0,0,.5 );
+	}
 </style>
 <script type="text/javascript">
 

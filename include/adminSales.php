@@ -36,7 +36,7 @@
             <div class="col-6">
                 <b>
                     <p class="subtitulo" align="left" style="position : sticky; top: 0; background-color : white;">
-                        <i class="icon-money-1">Administración de Ventas 2024</i> 
+                        <i class="icon-money-1">Administración de Ventas 2025</i> 
                     </p>
                 </b>
             </div>
@@ -69,8 +69,8 @@
 						<th width="15%" class="text-center">Cliente</th>
 						<th width="15%" class="text-center">Monto</th>
 						<th width="10%" class="text-center">Ver</th>
-						<th width="10%" class="text-center">Editar</th>
-						<th width="10%" class="text-center">Eliminar</th>
+						<!--th width="10%" class="text-center">Editar</th>
+						<th width="10%" class="text-center">Eliminar</th-->
 					</tr>
 				</thead>
 				<tbody style="max-height : 200px; overflow:auto;" id="SalesListContent">
@@ -88,33 +88,12 @@
 						<button
 							type=\"button\"
 							class=\"btn\"
-							onclick=\"muestra_datos_RS( {$r['id_pedido']} , 0 );\"
+							onclick=\"saleDetail( {$r['id_pedido']} , 0 );\"
 						>
 							<i class=\"icon-eye\"></i>
 						</button>
-					</td>
-					<td class=\"text-center\">
-						<button
-							type=\"button\"
-							class=\"btn\"
-							onclick=\"muestra_datos_RS( {$r['id_pedido']} , 2 );\"
-						>
-							<i class=\"icon-pencil\"></i>
-						</button>
-					</td>
-					<td class=\"text-center\">
-						<button
-							type=\"button\"
-							class=\"btn\"
-							onclick=\"muestra_datos_RS( {$r['id_pedido']} , 3 );\"
-						>
-							<i class=\"icon-cancel\"></i>
-						</button>
 					</td>";
-				echo '</tr>'; 
-					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',1);"><img src="img/ver.png" width="30px"></a></td>';
-					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',2);"><img src="img/editar.png" width="30px"></a></td>';
-					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',3);"><img src="img/eliminar.png" width="30px"></a></td>';
+//				echo '</tr>';
 				echo '</tr>'; 
 			}//fin de while
 			?>
@@ -148,7 +127,7 @@
         </tfoot>
     </table>
 
-	<div class="form_emergente" id="emergente_RS" style="display:none;">
+	<!--div class="form_emergente" id="emergente_RS" style="display:none;">
 		<div style="position:absolute;top:10%;width:80%;left:10%;">
 			<button class="cierra_emergente" onclick="cierra_emergente('emergente_RS');">X</button>
 				<table width="100%" border="0" cellspacing="10px" cellpadding="10px;" style="background:#B0C4DE;border-radius:15px;">
@@ -191,14 +170,11 @@
 				</table>
 
 		</div>
-	</div>
+	</div-->
 
 <script>
 var id_rg,nombre,ruta,nom_db,rfc,ruta_link,orden,pss_db,host,user_db,nom_db,estado,obs;
-	function guarda_RS(id_reg,flag){/*/
-		if(id_reg==null||id_reg==''){
-			$("#guardar_rs").attr('onclick',);
-		}*/
+	/*function guarda_RS(id_reg,flag){
 	//extraemos datos del formulario
 		id_rg=$("#id_razon_social").val();
 		nombre=$("#nombre").val();
@@ -241,42 +217,20 @@ var id_rg,nombre,ruta,nom_db,rfc,ruta_link,orden,pss_db,host,user_db,nom_db,esta
 				}
 			}
 		});
-	} 
+	}*/
 
-	function muestra_datos_RS(id,flag){
-        alert();
-        $("#emergente_RS").css("display","block");
-		if(flag==0){
-			$("#guardar_rs").attr('onclick','guarda_RS(0,'+flag+')');
-		}else{
-		//enviamos datos por ajax
-			$.ajax({
-				type:'post',
-				url:'ajax/rS.php',
-				cache:false,
-				data:{fl:flag,id_reg:id},
-				success:function(dat){
-					alert('dat:'+dat);
-					var aux=dat.split("|");
-					if(aux[0]!='ok'){
-						alert("Error!!!"+dat);
-					}else{
-						$("#id_razon_social").val(aux[1]);
-						$("#nombre").val(aux[2]);
-						$("#ruta").val(aux[3]);
-						$("#usuario_db").val(aux[4]);
-						$("#contrasena_db").val(aux[5]);
-						$("#rfc").val(aux[6]);
-						$("#link").val(aux[7]);
-						$("#orden").val(aux[8]);
-						$("#usuario_db").val(aux[9]);
-						$("#observaciones").val(aux[10]);
-						$("#activo").val(aux[11]);
-					}//fin de else
-				}
-			});//fin de ajax
-			$("#emergente_RS").css("display","block");
-		}//fin de else
+	function saleDetail(id,flag){
+	//envia datos por ajax
+		$.ajax({
+			type:'post',
+			url:'ajax/SalesDB.php',
+			cache:false,
+			data:{fl : 'getSpecificSale', sale_id : id},
+			success:function(dat){//alert(dat);
+				$( '#alert_content' ).html( dat );
+				$( '#alert' ).css( 'display', 'block' );
+			}
+		});//fin de ajax
 	}//fin de funcion que carga datos
 
 var resaltada=0;
@@ -288,7 +242,7 @@ var resaltada=0;
 	}
 
 	function quita_resaltado(num){
-		$("#fila_"+num).css("background","white");		
+		$("#fila_"+num).css("background","white");
 	}
     function getSales( start_position = 0, limit = 30 ){
     //manda a buscar venta
@@ -310,7 +264,9 @@ var resaltada=0;
         }
     //manda a buscar venta
         var url = `ajax/SalesDB.php?fl=seekSaleByFolio&folio=${text}`;
+//alert(url);
         var resp = ajaxR( url );
+//alert(resp);
         $( '#SalesListContent' ).html( resp );
     }
 

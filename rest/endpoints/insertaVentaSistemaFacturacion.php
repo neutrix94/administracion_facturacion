@@ -5,26 +5,14 @@
         include( '../include/db.php' );
         $db = new db();
         $link = $db->conectDB();
-        //include include( '../php/routes.php' );
-        //$Routes = new Routes();
-       /*if( ! include( 'utils/SynchronizationManagmentLog.php' ) ){
-            die( "No se incluyó : SynchronizationManagmentLog.php" );
-        }
-        if( ! include( 'utils/facturacion.php' ) ){
-            die( "No se incluyó : facturacion.php" );
-        }*/
         $body = $request->getBody();
         $req = json_decode($body, true);
         $sale_folio = $req['sale_folio'];
-/*Estos se tiene que actualizar al solicitar la factura*/
-//$sale_costumer = $req['sale_costumer'];
-//$cfdi_use = $req['cfdi_use'];
-/**/
     //consulta el status de la venta
         $sql = "SELECT 
                     p.id_status_facturacion, 
                     rs.url_api,
-                    p.id_razon_social 
+                    p.id_razon_social
                 FROM ec_pedidos p 
                 LEFT JOIN razones_sociales rs
                 ON rs.id_equivalente = p.id_razon_social
@@ -47,6 +35,7 @@
                     id_cliente, 
                     fecha_alta, 
                     subtotal, 
+                    descuento, 
                     iva, 
                     total, 
                     id_sucursal, 
@@ -69,9 +58,10 @@
         $sql = "SELECT 
                     id_producto, 
                     cantidad, 
-                    precio, 
-                    monto,
-                    folio_unico 
+                    precio_facturacion AS precio, 
+                    monto_facturacion AS monto,
+                    folio_unico,
+                    folio_facturacion
                 FROM ec_pedidos_detalle 
                 WHERE id_pedido = {$sale_header['id_pedido']}";
         $stm = $link->query( $sql ) or die( "Error al consultar detalle de la nota de venta : {$sql}" );
@@ -91,7 +81,7 @@
                     fecha, 
                     hora, 
                     folio_unico, 
-                    IF( id_forma_pago = 1, 1, 14 ) AS id_forma_pago,
+                    IF( id_tipo_pago = 1, 1, IF( id_tipo_pago = 8, 9, IF( id_tipo_pago = 2, 17, 14 ) ) ) AS id_forma_pago,
                     id_cajero_cobro 
                 FROM ec_cajero_cobros 
                 WHERE id_pedido = {$sale_header['id_pedido']}";
@@ -109,14 +99,33 @@
         $stm = $link->query( $sql )or die( "Error al consultar api de sistema destino de facturacion : {$sql}" );//die($sql);
         $row = $stm->fetch(PDO::FETCH_ASSOC);
         $api_path = $row['url_api'];
+    //tipo de pago
+        $payment_type = 1;//efectivo por default
+        try{
+            $sql = "SELECT
+                        id_tipo_pago
+                    FROM ec_cajero_cobros
+                    WHERE id_pedido = {$sale_header['id_pedido']}";
+            $stm = $link->query($sql);
+            if($stm->rowCount() == 1){
+                $row = $stm->fetch(PDO::FETCH_ASSOC);
+                $payment_type = ($row['id_tipo_pago'] == 1 ? 1 : ($row['id_tipo_pago'] == 8 ? 9 : ( $row['id_tipo_pago'] == 2 ? 17 : 14) ) );
+                $row['id_tipo_pago'] = ($row['id_tipo_pago'] == 1 ? 1 : ($row['id_tipo_pago'] == 8 ? 9 : ( $row['id_tipo_pago'] == 2 ? 17 : 14) ) );
+            }else if($stm->rowCount() > 1){
+                $payment_type = 17;
+            }
+        }catch(PDOException $error){
+            die("Error al consultar los tipos de pagos : {$sql} : {$error}");
+        }
+        $sale_header['payment_type'] = $payment_type; 
+    //Forma json para la peticion
         $post_data = json_encode( array( 
             "sale_header"=>$sale_header, 
             "sale_products"=>$sale_products, 
             "sale_payments"=>$sale_payments,
             "costumer_rfc"=>"Mostrador"
         ) );
-        //echo "{$api_path}/inserta_venta";
-        //public function sendPetition( $url, $post_data ){
+        
         $resp = "";
         $crl = curl_init( "{$api_path}/api/facturacion/inserta_venta" );
         curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
@@ -130,29 +139,20 @@
         );
         $resp = curl_exec($crl);//envia peticion
         curl_close($crl);
-error_log( "Resp FACT_RS : {$resp}" );
+//error_log( "Resp FACT_RS : {$resp}" );
         $resp_decode = json_decode( $resp, true );
-    
-        if( isset($resp_decode['status']) && $resp_decode['status'] == 200 ){//si la insercion es exitosa actualiza a status 5 la nota de venta
+        if( isset($resp_decode['status']) && $resp_decode['status'] != 200 ){
+        //inserta el error en la tabla de errores
             try{
-                $sql = "UPDATE ec_pedidos SET id_status_facturacion = 5 WHERE folio_nv = '{$sale_folio}'";
-                $stm = $link->query( $sql );
-            }catch( PDOException $e ){
-                $response->getBody()->write( json_encode( array( "status"=>400, "Message"=>"Error al actualizar status de venta en sistema de administracion_facturacion : {$sql} : {$e}" ) ) );
-                return $response;
+                $resp = str_replace("'", "\'", $resp);
+                $sql = "INSERT INTO ec_pedidos_error_envio_rs( id_pedido_error_envio_rs, id_pedido, contenido_respuesta, fecha_alta, omitir ) 
+                    VALUES ( NULL, '{$sale_header['id_pedido']}', '{$resp}', NOW(), '0' )";
+                $link->query($sql);
+            }catch(PDOException $error){
+                die("Error al insertar el error de envio a Razon Social : {$sql} : {$error}");
             }
-        }
-            
+        }   
         $response->getBody()->write( $resp );
         return $response;
-
-        /*$response->getBody()->write(
-            json_encode( 
-                array( 
-                    "respuesta"=>$resp 
-                ) 
-            )
-        );
-        return $response;*/
     });
 ?>

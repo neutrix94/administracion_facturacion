@@ -1,13 +1,15 @@
-<i?php
+<?php
 	//session_start();
 	//$_SESSION['current_view'] = $_POST['action'];
 ?>
 <style type="text/css">
-	#form_log{width:30%;left:0;position:relative;top:70%;border:3px;border-radius:15px;padding: 10px;font-size: 20px;border:3px solid gray;}
+	#form_log{width:30%;left:35%;position:absolute;top:90%;border:3px;border-radius:15px;padding: 10px;font-size: 20px;box-shadow: 2px 2px 5px rgba(0,0,0,0.5);}
 </style>
 <br><br><br><br><br><br>
-<div id="form_log" class="bg-primary"><br><br>
-	<b class="text-light">Inicio de sesión</b><br><br>
+<div id="form_log" class="bg-light text-center"><br>
+	<h3>Administración de Facturación</h3>
+	<img src="img/Logo.png" width="40%"><br>
+	<b class="text-center">Inicio de sesión</b><br><br>
 	<div>
 		<input type="text" id="user" class="form-control" placeholder="Usuario" tabindex="1">
 	</div>
@@ -24,8 +26,8 @@
 	</div>
 	<br>
 	<div class="text-center">
-		<button onclick="valida_log();" tabindex="3" class="btn btn-success">
-			Acceder
+		<button onclick="valida_log();" tabindex="3" class="btn btn-success form-control">
+			<i class="icon-key">Acceder</i>
 		</button>
 	</div>
 	<br>

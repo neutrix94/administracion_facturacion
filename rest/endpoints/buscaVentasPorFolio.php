@@ -14,7 +14,9 @@
                     folio_nv AS folio, 
                     total AS sale_ammount, 
                     id_sucursal AS store_id,
-                    folio_unico AS unique_folio 
+                    folio_unico AS unique_folio,
+                    id_status_facturacion,
+                    url_descarga_archivos_facturacion
                 FROM ec_pedidos 
                 WHERE folio_nv = '{$sale_folio}'";
         $stm = $link->query( $sql ) or die( "Error al consultar si la venta existe : {$sql}" );

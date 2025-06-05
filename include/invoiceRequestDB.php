@@ -17,13 +17,23 @@
                 echo $InvoiceRequestDB->getInvoiceRequests( $seeker_text, $store_filter, $social_reason_filter, $status, $limit, $page_since, $page_to );
             break;
 
-            case "getRowsCounter" :
+            case "getRowsCounter":
                 $factor = ( isset( $_POST['factor'] ) ? $_POST['factor'] : ( isset( $_GET['factor'] ) ? $_GET['factor'] : 50 ) );
                 echo json_encode( $InvoiceRequestDB->getRowsCounter( $factor ) );
             break;
             
-            default:
-                die( "Permission deniedn on '{$action}'." );
+            case 'sendBillPetition':
+                $sale_id = ( isset( $_GET['sale_id'] ) ? $_GET['sale_id'] : $_POST['sale_id'] );
+                echo $InvoiceRequestDB->sendBillPetition( $sale_id );
+            break;
+
+            case 'showBillPetitionDetail':
+                $sale_id = ( isset( $_GET['sale_id'] ) ? $_GET['sale_id'] : $_POST['sale_id'] );
+                echo json_encode( $InvoiceRequestDB->showBillPetitionDetail( $sale_id ) );
+            break;
+
+            default :
+                die( "Permission denied on '{$action}'." );
             break;
         }
     }
@@ -33,6 +43,92 @@
             $this->link = $connection;
         }
 
+        public function showBillPetitionDetail( $sale_id ){
+            $resp = array();
+        //consulta datos de la nota de venta
+            $sql = "SELECT 
+                        folio_nv
+                    FROM ec_pedidos
+                    WHERE id_pedido = {$sale_id}";
+            $stm = $this->link->query( $sql ) or die( "Error al consultar el folio" );
+            $row = $stm->fetch( PDO::FETCH_ASSOC );
+            $sale_folio = $row['folio_nv'];
+        //consulta cabeceras de solicitudes de factura
+            $sql = "SELECT 
+                        sf.id_solicitud_factura, 
+                        rs.nombre, 
+                        sf.fecha_alta 
+                    FROM solicitudes_factura sf
+                    LEFT JOIN razones_sociales rs
+                    ON sf.id_razon_social = rs.id_razon_social
+                    WHERE sf. folio_venta = '{$sale_folio}'";
+            $stm = $this->link->query( $sql ) or die( "Error al consultar la cabecera de solicitud de factura : {$sql} : {$this->link->error}" );
+            while( $row = $stm->fetch( PDO::FETCH_ASSOC ) ){
+                $row['detail'] = array();
+            //consulta detalles de solicitudes de factura
+                $sql = "SELECT 
+                            id_peticion_solicitud_factura,
+                            respuesta,
+                            detalle_respuesta,
+                            fecha_alta 
+                        FROM peticiones_solicitud_factura 
+                        WHERE id_solicitud_factura = {$row['id_solicitud_factura']}";
+                $stm_2 = $this->link->query( $sql ) or die( "Error al consultar detalle de solicitud de factura : {$sql} : {$this->link->error}" );
+                while( $row2 = $stm_2->fetch( PDO::FETCH_ASSOC ) ){
+                    array_push( $row['detail'], $row2 );
+                }
+                array_push( $resp, $row );
+            }
+            return $resp;
+        }
+
+        public function sendBillPetition( $sale_id ){
+        //consulta datos de la nota de venta
+            $sql = "SELECT 
+                        folio_nv,
+                        uso_cfdi,
+                        id_razon_factura,
+                        ( SELECT `value` FROM `api_config` WHERE `key` = 'facturacion' ) AS api_url
+                    FROM ec_pedidos
+                    WHERE id_pedido = {$sale_id}";
+            $stm = $this->link->query( $sql ) or die( "Error al consultar el folio de venta : {$sql} : {$this->link->error}" );
+        //
+            $row = $stm->fetch( PDO::FETCH_ASSOC );
+            $sale_folio = $row['folio_nv'];
+            $cfdi_use = $row['uso_cfdi'];
+            $sale_costumer = $row['id_razon_factura'];
+            $url = "{$row['api_url']}/rest/solicitud_factura";
+            $payment_type = 7;
+        //forma peticion
+            $post_data = json_encode( array( "sale_folio"=>$sale_folio, "cfdi_use"=>$cfdi_use,
+            "sale_costumer"=>$sale_costumer, "payment_type"=>$payment_type ) );
+//echo( $post_data . " : " . $url );
+        //consume api
+            $resp = $this->sendPetition( $url, $post_data );
+            $resp_json = json_decode( $resp );
+            if( trim( $resp_json->message ) == 'La nota de venta ya habia sido facturada.' ){
+                $sql = "UPDATE ec_pedidos SET id_status_facturacion = IF( id_status_facturacion <= 8, 8, id_status_facturacion ) WHERE folio_nv = '{$sale_folio}'";
+                $stm = $this->link->query( $sql ) or die( "Error al actualizar status de la venta en administracion de facturacion : {$sql}" );
+            }
+            return $resp;
+        }
+        public function sendPetition( $url, $post_data, $token = "" ){
+			$resp = "";
+			$crl = curl_init( $url );
+			curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+			curl_setopt($crl, CURLOPT_POST, true);
+			curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+			//curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+		    curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+			curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+			  'Content-Type: application/json',
+			  'token: ' . $token)
+			);
+			$resp = curl_exec($crl);//envia peticion
+			curl_close($crl);
+			return $resp;
+        }
         public function getRowsCounter( $factor, $seeker_text = null, $store_filter = -1, $social_reason_filter = -1, $status = -1 ){
             $sql = "SELECT
                         COUNT( p.id_pedido ) AS counter_rows
@@ -63,7 +159,9 @@
                 p.total AS sale_ammount,
                 p.fecha_alta AS sale_date_time,
                 st.nombre_status AS status_name
-            FROM ec_pedidos p
+            FROM solicitudes_factura sf
+            LEFT JOIN ec_pedidos p
+            ON p.folio_nv = sf.folio_venta
             LEFT JOIN sys_sucursales s
             ON s.id_sucursal = p.id_sucursal
             LEFT JOIN razones_sociales rs
@@ -117,6 +215,24 @@
 						<td>{$r['sale_ammount']}</td>
 						<td>{$r['sale_date_time']}</td>
 						<td>{$r['status_name']}</td>
+						<td align=\"center\">
+							<button 
+								type=\"button\"
+								class=\"btn\"
+								onclick=\"show_bill_petition_detail( {$r['sale_id']} );\"
+							>
+								<i class=\"icon-list\"></i>
+							</button>
+						</td>
+						<td align=\"center\">
+							<button 
+								type=\"button\"
+								class=\"btn\"
+								onclick=\"bill_petition( {$r['sale_id']} );\"
+							>
+								<i class=\"icon-bell-5\"></i>
+							</button>
+						</td>
 						<td align=\"center\">
 							<button 
 								type=\"button\"

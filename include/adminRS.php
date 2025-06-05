@@ -128,7 +128,7 @@ var id_rg,nombre,ruta,nom_db,rfc,ruta_link,orden,pss_db,host,user_db,nom_db,esta
 	//enviamos datos por ajax
 		$.ajax({
 			type:'post',
-			url:'ajax/rS.php',
+			url:'ajax/razonesSocialesBD.php',
 			cache:false,
 			data:{
 					fl:flag,
@@ -177,7 +177,7 @@ var id_rg,nombre,ruta,nom_db,rfc,ruta_link,orden,pss_db,host,user_db,nom_db,esta
 		//enviamos datos por ajax
 			$.ajax({
 				type:'post',
-				url:'ajax/rS.php',
+				url:'ajax/razonesSocialesBD.php',
 				cache:false,
 				data:{fl:flag,id_reg:id},
 				success:function(dat){

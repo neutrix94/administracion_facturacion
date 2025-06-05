@@ -16,6 +16,10 @@
 //consulta las status para los filtros
     $status = $InvoiceRequestDB->getStatus();
 ?>
+<!-- libreria para dar formato a jsons -->
+	<script src="./js/highlight/highlight.min.js"></script>
+	<link rel="stylesheet" href="./js/highlight/styles/default.min.css">
+    <script>hljs.highlightAll();</script>
 	<div style="width:90%;height:500px;">
 		<br>
 		<b>
@@ -56,6 +60,7 @@
                 <button
                     type="button"
                     class="btn btn-success"
+                    onclick="filter();"
                 >
                     <i class="icon-search"></i>
                 </button>
@@ -71,16 +76,18 @@
 						<th class="text-center" width="10%">Sucursal</th>
 						<th class="text-center" width="10%">Razon Social Emisor</th>
 						<th class="text-center" width="10%">RFC Cliente</th>
-						<th class="text-center" width="10%">Monto</th>
-						<th class="text-center" width="10%">Fecha</th>
+						<th class="text-center" width="5%">Monto</th>
+						<th class="text-center" width="5%">Fecha</th>
 						<th class="text-center" width="10%">Status</th>
+						<th class="text-center" width="5%">Detalle</th>
+						<th class="text-center" width="5%">Facturar</th>
 						<th class="text-center" width="5%">Imprimir</th>
 						<th class="text-center" width="5%">Correo</th>
 					</tr>
 				</thead>
 				<tbody id="invoiceRequestList">
 			<?php
-                echo $InvoiceRequestDB->getInvoiceRequests();
+                echo $InvoiceRequestDB->getInvoiceRequests( null,  -1, -1, -1, 50 );
 			?>
 				</tbody>
 			</table>
@@ -176,6 +183,106 @@
             $('#current_page').val( next_page );
         }
         //filter();
+    }
+
+    function bill_petition( sale_id ){
+    //consume api de facturacion
+        var url = `include/invoiceRequestDB.php?action_fl=sendBillPetition&sale_id=${sale_id}`;
+        var resp = ajaxR( url );
+        var json = JSON.parse( resp );
+        var content = `<br><br><br>
+        <h2 style="font-size : 300%;" class="text-center">${json.message}</h2>
+            <div class="text-center">
+                <br>
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    onclick="close_emergent();"
+                >
+                    <i>Aceptar y cerrar</i>
+                </button>
+            </div>`;
+        $( '#contenido_emergente' ).html( content );
+        $( '#emergente' ).css( "display", "block" );
+        //alert(resp);
+    }
+
+    function show_bill_petition_detail( sale_id ){
+        var url = `include/invoiceRequestDB.php?action_fl=showBillPetitionDetail&sale_id=${sale_id}`;
+        var resp = ajaxR( url );
+        var content = ``;
+        var json = JSON.parse( resp );
+        content += `<table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Razon Social</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        for (var i in json) {        
+            content += `<tr>
+                <td>${json[i].nombre}</td>
+                <td>${json[i].fecha_alta}</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="col-2">Fecha</th>
+                            <th class="col-5">Respuesta</th>
+                            <th class="col-5">Detalle Respuesta</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+            for (var j in json[i].detail ) {
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`\r\n\t\t\t\t\t`, `\n`);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`\r\n\t\t\t\t`, `\n`);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`\r\n\t\t\t`, `\n`);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`\\t`, `    `);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`\\r\\n`, `\n`);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`,"`, `,\n"`);
+                json[i].detail[j].respuesta = json[i].detail[j].respuesta.replaceAll(`,{`, `,\n{`);
+
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`\r\n\t\t\t\t\t`, `\n`);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`\r\n\t\t\t\t`, `\n`);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`\r\n\t\t\t`, `\n`);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`\\t`, `    `);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`\\r\\n`, `\n`);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`,"`, `,\n"`);
+                json[i].detail[j].detalle_respuesta = json[i].detail[j].detalle_respuesta.replaceAll(`,{`, `,\n{`);
+                content += `<tr>
+                    <td>${json[i].detail[j].fecha_alta}</td>
+                    <td><pre><code class="json">${json[i].detail[j].respuesta}</code></pre></td>
+                    <td><pre><code class="json">${json[i].detail[j].detalle_respuesta}</code></pre></td>
+                </tr>`;  
+            }
+            content += `</tbody>
+                    </table>
+                </td>
+            </tr>`;
+        }
+        content += `</tbody>
+        </table>
+        <br><br>
+        <div class="text-center">
+            <button
+                type="button"
+                class="btn btn-success"
+                onclick="close_emergent();"
+            >
+                <i>Aceptar y cerrar</i>
+            </button>
+        </div>`;
+        $( '#contenido_emergente' ).html( content );
+        $( '#emergente' ).css( "display", "block" );
+        hljs.highlightAll();
+    }
+
+    function close_emergent(){
+        $( '#contenido_emergente' ).html( '' );
+        $( '#emergente' ).css( "display", "none" );
     }
 </script>
 

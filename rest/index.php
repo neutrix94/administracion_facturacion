@@ -24,19 +24,22 @@ $app->get('/example', function (Request $request, Response $response, $args) {
     require __DIR__  . '/endpoints/insertaVentaSistemaFacturacion.php';
   //Ejecutar consultas en el servidor
     require __DIR__  . '/endpoints/ejecuta_consulta_en_servidor.php';
+    require __DIR__  . '/endpoints/obtener_clientes_pendientes.php';
 
 /*******************************************Endpoints cliente para consumir apis*******************************************/
   //clientes
     require __DIR__  . '/endpoints/envia_cliente_facturacion.php';
   //ventas
     require __DIR__  . '/endpoints/enviaFacturaCorreo.php';
-   // require __DIR__  . '/endpoints/insertaVentaFacturacion.php';
+    require __DIR__  . '/endpoints/insertaVentaFacturacion.php';
+    require __DIR__  . '/endpoints/devolucion.php';//edicion de devolucion de ventas
     require __DIR__  . '/endpoints/insertaVentaFacturacionPorLote.php';
     require __DIR__  . '/endpoints/barrido_ventas_por_lote.php';
 
 //solicitud de factura 
     require __DIR__ . '/endpoints/solicitud_factura.php';
-
+//previo de barrido de ventas
+    require __DIR__  . '/endpoints/barridoVentasPrevio.php';
 /*Deshabilitados*/
     //require __DIR__  . '/endpoints/prueba.php';
     //require __DIR__  . '/endpoints/insertarClienteFacturacion.php';

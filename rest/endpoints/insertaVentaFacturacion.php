@@ -12,9 +12,16 @@
             $response->getBody()->write(json_encode( array( "status"=>"400", "message"=>"Error : No llego ninguna venta; Se necesita una venta para continuar." ) ));
             return $response;
         }
-        //var_dump( $req );//die('');//ode($body, true);
+        $venta = $req['venta'];
+    //consulta si la venta ya exista
+        $sql = "SELECT id_pedido FROM ec_pedidos WHERE folio_nv = '{$venta['folio_nv']}'";
+        $stm = $link->query( $sql ) or die( "Error al consultar si la venta ya exista : {$sql} : {$link->error}" );
+        if( $stm->rowCount() > 0 ){
+            $response->getBody()->write(json_encode( array( "status"=>"400", "message"=>"La venta ya existe en la administracion de la facturacion." ) ));
+            return $response;
+        }
+    //comienza transacción
         $link->beginTransaction();
-        $venta = $req['venta'];//`dias_proximo`'{$venta['dias_proximo']}',`id_razon_factura`,'{$venta['id_razon_factura']}',
     //inserta la cabecera del movimiento de almacen `fecha_factura`,'{$venta['fecha_factura']}',  `ultima_sincronizacion`, '{$venta['ultima_sincronizacion']}',
         //`id_direccion`,'{$venta['id_direccion']}',  `direccion`,'{$venta['direccion']}',
         $sql = "INSERT INTO ec_pedidos ( `folio_pedido`, `folio_nv`, `folio_factura`, `folio_cotizacion`, `id_cliente`, `id_estatus`, `id_moneda`, 
@@ -43,11 +50,11 @@
     //inserta el detalle de la venta
         $detalles = $req['venta_detalle'];
         foreach ($detalles as $key => $detalle) {
-            $sql = "INSERT INTO ec_pedidos_detalle ( `id_pedido`, `id_producto`, `cantidad`, `precio`, `monto`, `iva`, `ieps`, `cantidad_surtida`, 
-					`descuento`, `modificado`, `es_externo`, `id_precio`, `folio_unico` )
-                VALUES ( {$sale_id}, '{$detalle['id_producto']}', '{$detalle['cantidad']}', '{$detalle['precio']}', '{$detalle['monto']}', '{$detalle['iva']}', 
-                '{$detalle['ieps']}', '{$detalle['cantidad_surtida']}', '{$detalle['descuento']}', '{$detalle['modificado']}', '{$detalle['es_externo']}', 
-                '{$detalle['id_precio']}', '{$detalle['folio_unico']}' )";
+            $sql = "INSERT INTO ec_pedidos_detalle ( `id_pedido`, `id_producto`, `cantidad`, `precio`, `monto`, `precio_facturacion`, `monto_facturacion`, `iva`, `ieps`, `cantidad_surtida`, 
+					`descuento`, `modificado`, `es_externo`, `id_precio`, `folio_unico`, folio_facturacion )
+                VALUES ( {$sale_id}, '{$detalle['id_producto']}', '{$detalle['cantidad']}', '{$detalle['precio']}', '{$detalle['monto']}', '{$detalle['precio_facturacion']}', 
+                '{$detalle['monto_facturacion']}', '{$detalle['iva']}', '{$detalle['ieps']}', '{$detalle['cantidad_surtida']}', '{$detalle['descuento']}', '{$detalle['modificado']}', 
+                '{$detalle['es_externo']}', '{$detalle['id_precio']}', '{$detalle['folio_unico']}', '{$detalle['folio_facturacion']}' )";
             $stm = $link->query( $sql ) or die( "Error al insertar detalle de venta : {$sql}" );
         }
     //inserta cobros de la venta
@@ -59,9 +66,9 @@
                 VALUES ( '{$cobro['id_sucursal']}', {$sale_id}, '{$cobro['id_devolucion']}', '{$cobro['id_cajero']}', '{$cobro['id_sesion_caja']}', 
                 '{$cobro['id_afiliacion']}', '{$cobro['id_terminal']}', '{$cobro['id_banco']}', '{$cobro['id_tipo_pago']}', '{$cobro['monto']}', 
                 '{$cobro['fecha']}', '{$cobro['hora']}', '{$cobro['observaciones']}', '{$cobro['cobro_cancelado']}', '{$cobro['folio_unico']}', 
-                IF( '{$cobro['id_forma_pago']}' = '1', 1, 14 ), 1 )";
+                IF( '{$cobro['id_tipo_pago']}' = '1', 1, IF( '{$cobro['id_tipo_pago']}' = '2', 17, 14) ), 1 )";//IF( '{$cobro['id_forma_pago']}' = '1', 1, IF( '{$cobro['id_forma_pago']}' = '2', 17, 14) )
             $stm = $link->query( $sql ) or die( "Error al insertar cobro de venta : {$sql}" );
-            if( $cobro['id_tipo_pago'] == 7 ){//si encuentra pago con tarjeta
+            if( $cobro['id_tipo_pago'] == 7 || $cobro['id_tipo_pago'] == 8 ){//si encuentra pago con tarjeta
                 $enviar_facturacion_directo = true;
             }
         }
@@ -78,24 +85,52 @@
             $stm = $link->query( $sql ) or die( "Error al insertar pagos de venta : {$sql}" );
         }
         $link->commit();
+        $status_update = 5;
     //envia la nota de venta a la razon social para su facturacion
         if( $enviar_facturacion_directo == true ){
-            $bill_api_path = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-            $bill_api_path = str_replace( '/inserta_venta_facturacion', '', $bill_api_path );     
-            $resp = "";
-            $post_data = json_encode( array( "sale_folio"=>$venta['folio_nv'] ) );
-            $crl = curl_init( "{$bill_api_path}/inserta_venta_sistema_facturacion" );
-            curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($crl, CURLINFO_HEADER_OUT, true);
-            curl_setopt($crl, CURLOPT_POST, true);
-            curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
-            //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-            curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
-            curl_setopt($crl, CURLOPT_HTTPHEADER, array(
-                'Content-Type: application/json' )
-            );
-            $resp = curl_exec($crl);//envia peticion
-            curl_close($crl);
+        //consulta si hay que enviar directo
+            $sql = "SELECT
+                rs.enviar_venta_a_rs
+            FROM ec_pedidos p 
+            LEFT JOIN razones_sociales rs
+            ON rs.id_equivalente = p.id_razon_social
+            WHERE p.folio_nv = '{$venta['folio_nv']}'";
+            $stm_send = $link->query( $sql ) or die( "Error al consultar si la venta se manda directo" );
+            $row_send = $stm_send->fetch( PDO::FETCH_ASSOC );
+            if( $row_send['enviar_venta_a_rs'] == 1 ){//si esta activo el envio automatico
+                $bill_api_path = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+                $bill_api_path = str_replace( '/inserta_venta_facturacion', '', $bill_api_path );     
+                $resp = "";
+                $post_data = json_encode( array( "sale_folio"=>$venta['folio_nv'] ) );
+                $crl = curl_init( "{$bill_api_path}/inserta_venta_sistema_facturacion" );
+                curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+                curl_setopt($crl, CURLOPT_POST, true);
+                curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+                //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+                curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+                curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json' )
+                );
+                $resp = curl_exec($crl);//envia peticion
+                curl_close($crl);
+                $json_resp = json_decode( $resp );
+                if( isset($resp_decode['status']) && $resp_decode['status'] == 200 ){//si la insercion es exitosa actualiza a status 5 la nota de venta
+                    $status_update = 5;//insertado en RS
+                }else{
+                    $status_update = 4;//enviado a RS pero no se inserta
+                }
+            }
+        }else{
+            $status_update = 3;//insertado en administracion de facturacion
+        }
+    //actualiza el status de la nota de venta
+        try{
+            $sql = "UPDATE ec_pedidos SET id_status_facturacion = {$status_update} WHERE folio_nv = '{$venta['folio_nv']}'";
+            $stm = $link->query( $sql );
+        }catch( PDOException $e ){
+            $response->getBody()->write( json_encode( array( "status"=>400, "Message"=>"Error al actualizar status de venta en sistema de administracion_facturacion : {$sql} : {$e}" ) ) );
+            return $response;
         }
         $response->getBody()->write(json_encode( array( "status"=>"200" ) ));
         return $response;

@@ -41,7 +41,7 @@
 				c.UltimaActualizacion
 			FROM clientes c
             left join cat_Tipo_Persona tp on tp.idTipoPersona = c.idTipoPersona
-			WHERE c.id_cliente > 0";
+			WHERE c.id_cliente >= 10000";
 	//var_dump( $conexion->execQuery( $sql, "", "SELECT" ) );
 	echo '<br><div class="container_list">' . build_list( $link->query( $sql ) ) . '</div>';
 	echo '<br><div class="row">'
