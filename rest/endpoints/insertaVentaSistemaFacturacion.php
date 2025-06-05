@@ -110,6 +110,7 @@
             if($stm->rowCount() == 1){
                 $row = $stm->fetch(PDO::FETCH_ASSOC);
                 $payment_type = ($row['id_tipo_pago'] == 1 ? 1 : ($row['id_tipo_pago'] == 8 ? 9 : ( $row['id_tipo_pago'] == 2 ? 17 : 14) ) );
+                $row['id_tipo_pago'] = ($row['id_tipo_pago'] == 1 ? 1 : ($row['id_tipo_pago'] == 8 ? 9 : ( $row['id_tipo_pago'] == 2 ? 17 : 14) ) );
             }else if($stm->rowCount() > 1){
                 $payment_type = 17;
             }
