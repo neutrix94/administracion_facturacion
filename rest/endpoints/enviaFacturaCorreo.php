@@ -25,7 +25,7 @@
 
         //public function sendPetition( $url, $post_data ){
 			$resp = "";
-			$crl = curl_init( "{$api_path}/envia_correo_factura" );
+			$crl = curl_init( "{$api_path}/api/facturacion/envia_correo_factura" );
 			curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($crl, CURLINFO_HEADER_OUT, true);
 			curl_setopt($crl, CURLOPT_POST, true);

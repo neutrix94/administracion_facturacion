@@ -5,21 +5,9 @@
         include( '../include/db.php' );
         $db = new db();
         $link = $db->conectDB();
-        //include include( '../php/routes.php' );
-        //$Routes = new Routes();
-       /*if( ! include( 'utils/SynchronizationManagmentLog.php' ) ){
-            die( "No se incluyó : SynchronizationManagmentLog.php" );
-        }
-        if( ! include( 'utils/facturacion.php' ) ){
-            die( "No se incluyó : facturacion.php" );
-        }*/
         $body = $request->getBody();
         $req = json_decode($body, true);
         $sale_folio = $req['sale_folio'];
-/*Estos se tiene que actualizar al solicitar la factura*/
-//$sale_costumer = $req['sale_costumer'];
-//$cfdi_use = $req['cfdi_use'];
-/**/
     //consulta el status de la venta
         $sql = "SELECT 
                     p.id_status_facturacion, 
@@ -93,7 +81,7 @@
                     fecha, 
                     hora, 
                     folio_unico, 
-                    IF( id_tipo_pago = 1, 1, IF( id_tipo_pago = 8, 9, 14) ) AS id_forma_pago,
+                    IF( id_tipo_pago = 1, 1, IF( id_tipo_pago = 8, 9, IF( id_tipo_pago = 2, 17, 14 ) ) ) AS id_forma_pago,
                     id_cajero_cobro 
                 FROM ec_cajero_cobros 
                 WHERE id_pedido = {$sale_header['id_pedido']}";
@@ -121,7 +109,8 @@
             $stm = $link->query($sql);
             if($stm->rowCount() == 1){
                 $row = $stm->fetch(PDO::FETCH_ASSOC);
-                $payment_type = ($row['id_tipo_pago'] == 1 ? 1 : ($row['id_tipo_pago'] == 8 ? 9 : 14) );
+                $payment_type = ($row['id_tipo_pago'] == 1 ? 1 : ($row['id_tipo_pago'] == 8 ? 9 : ( $row['id_tipo_pago'] == 2 ? 17 : 14) ) );
+                $row['id_tipo_pago'] = ($row['id_tipo_pago'] == 1 ? 1 : ($row['id_tipo_pago'] == 8 ? 9 : ( $row['id_tipo_pago'] == 2 ? 17 : 14) ) );
             }else if($stm->rowCount() > 1){
                 $payment_type = 17;
             }
@@ -136,8 +125,7 @@
             "sale_payments"=>$sale_payments,
             "costumer_rfc"=>"Mostrador"
         ) );
-        //echo "{$api_path}/inserta_venta";
-        //public function sendPetition( $url, $post_data ){
+        
         $resp = "";
         $crl = curl_init( "{$api_path}/api/facturacion/inserta_venta" );
         curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
@@ -163,48 +151,8 @@
             }catch(PDOException $error){
                 die("Error al insertar el error de envio a Razon Social : {$sql} : {$error}");
             }
-        }
-/*    
-        if( isset($resp_decode['status']) && $resp_decode['status'] == 200 ){//si la insercion es exitosa actualiza a status 5 la nota de venta
-            try{
-                $sql = "UPDATE ec_pedidos SET id_status_facturacion = 5 WHERE folio_nv = '{$sale_folio}'";
-                $stm = $link->query( $sql );
-            }catch( PDOException $e ){
-                $response->getBody()->write( json_encode( array( "status"=>400, "Message"=>"Error al actualizar status de venta en sistema de administracion_facturacion : {$sql} : {$e}" ) ) );
-                return $response;
-            }
-        }
-*/      
+        }   
         $response->getBody()->write( $resp );
         return $response;
-
-        /*$response->getBody()->write(
-            json_encode( 
-                array( 
-                    "respuesta"=>$resp 
-                ) 
-            )
-        );
-        return $response;*/
     });
-
-/*    function getPaymentType($sale_id, $link){
-        $payment_type = 1;//efectivo por default
-        try{
-            $sql = "SELECT
-                        id_forma_pago
-                    FROM ec_cajero_cobros
-                    WHERE id_pedido = {$sale_id}";
-            $stm = $link->query($sql);
-            if($stm->rowCount() == 1){
-                $row = $stm->fetch(PDO::FETCH_ASSOC);
-                $payment_type = $row['id_forma_pago'];
-            }else if($stm->rowCount() > 1){
-                $payment_type = 17;
-            }
-        }catch(PDOException $error){
-            die("Error al consultar los tipos de pagos : {$sql} : {$error}");
-        }
-        return $payment_type;
-    }*/
 ?>
