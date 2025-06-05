@@ -81,7 +81,7 @@
                     fecha, 
                     hora, 
                     folio_unico, 
-                    IF( id_tipo_pago = 1, 1, IF( id_tipo_pago = 8, 9, 14) ) AS id_forma_pago,
+                    IF( id_tipo_pago = 1, 1, IF( id_tipo_pago = 8, 9, IF( id_tipo_pago = 2, 17, 14 ) ) ) AS id_forma_pago,
                     id_cajero_cobro 
                 FROM ec_cajero_cobros 
                 WHERE id_pedido = {$sale_header['id_pedido']}";
