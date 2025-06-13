@@ -14,6 +14,7 @@
         $cfdi_use = $req['cfdi_use'];
         $sale_costumer = $req['sale_costumer'];
         $payment_type = $req['payment_type'];
+        $contact_id = $req['contact_id'];
     //consulta informacion de nota de venta
         $sql = "SELECT 
                     p.id_status_facturacion, 
@@ -128,7 +129,8 @@
             "sale_folio"=>$sale_folio, 
             "costumer_rfc"=>$sale_costumer,
             "cfdi_use"=>$cfdi_use,
-            "payment_type"=>$payment_type
+            "payment_type"=>$payment_type,
+            "contact_id"=>$contact_id
         ) );
         //echo "{$api_path}/inserta_venta";
         //public function sendPetition( $url, $post_data ){
