@@ -5,6 +5,8 @@
 	include('./db.php');
 	$db = new db();
 	$link = $db->conectDB();
+	include('../ajax/CustomersDB.php');
+	$CustomersDB = new CustomersDB( $link );
 //consulta el numero de registros entre el numero de pagina
     $sql = "SELECT
                 COUNT(*) AS pages_limit
@@ -13,16 +15,8 @@
 	$eje=$link->query( $sql )or die("Error al listar las razones sociales : {$sql}");
     $row = $eje->fetch( PDO::FETCH_ASSOC );
     $pages_limit = ROUND( $row['pages_limit'] / 20 );
-	$sql="SELECT 
-            id_cliente_facturacion, 
-            rfc, 
-            razon_social, 
-            cp 
-        FROM vf_clientes_razones_sociales
-        WHERE id_cliente_facturacion >= 10000 
-        ORDER BY id_cliente_facturacion DESC
-        LIMIT 20";
-	$eje=$link->query( $sql )or die("Error al listar las razones sociales : {$sql}");
+
+	$customers = $CustomersDB->getCustomers();
 ?>
 	<div style="width:90%;heigth:450px;">
 		<br>
@@ -30,15 +24,16 @@
             <div class="col-6">
                 <b>
                     <p class="subtitulo" align="left" style="position : sticky; top: 0; background-color : white;">
-                        Administración de Clientes 2024
+                        Administración de Clientes 2025
                     </p>
                 </b>
             </div>
             <div class="col-6 input-group">
-                <input type="text" class="form-control" placeholder="Buscar por RFC">
+                <input type="text" class="form-control" placeholder="Buscar por RFC" onkeyup="customerSeeker(event);" id="customer_seeker">
                 <button
                     type="button"
                     class="btn btn-primary"
+					onclick="customerSeeker('intro');"
                 >
                     <i class="icon-search"></i>
                 </button>
@@ -57,12 +52,14 @@
 						<th width="10%" class="text-center">Eliminar</th>
 					</tr>
 				</thead>
-				<tbody style="max-height : 200px; overflow:auto;">
+				<tbody style="max-height : 200px; overflow:auto;" id="customersList">
 			<?php
 			$c=0;//inicaimos el contador en cero
-			while( $r = $eje->fetch( PDO::FETCH_ASSOC ) ){
+			foreach ($customers as $key => $r) {
+			//while( $r = $eje->fetch( PDO::FETCH_ASSOC ) ){
 				$c++;//incrementamos contador
-				echo '<tr id="fila_'.$c.'" tabindex="'.$c.'" onfocus="resalta('.$c.');" onclick="resalta('.$c.');" onblur="quita_resaltado('.$c.');">';
+				echo $CustomersDB->build_row_ceil( $r, $c );
+				/*echo '<tr id="fila_'.$c.'" tabindex="'.$c.'" onfocus="resalta('.$c.');" onclick="resalta('.$c.');" onblur="quita_resaltado('.$c.');">';
 					echo '<td>'.$r['id_cliente_facturacion'].'</td>';
 					echo '<td>'.$r['rfc'].'</td>';
 					echo '<td>'.$r['razon_social'].'</td>';
@@ -98,7 +95,7 @@
 					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',1);"><img src="img/ver.png" width="30px"></a></td>';
 					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',2);"><img src="img/editar.png" width="30px"></a></td>';
 					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',3);"><img src="img/eliminar.png" width="30px"></a></td>';
-				echo '</tr>'; 
+				echo '</tr>'; */
 			}//fin de while
 			?>
 				</tbody>
@@ -176,10 +173,22 @@
 
 <script>
 var id_rg,nombre,ruta,nom_db,rfc,ruta_link,orden,pss_db,host,user_db,nom_db,estado,obs;
-	function guarda_RS(id_reg,flag){/*/
-		if(id_reg==null||id_reg==''){
-			$("#guardar_rs").attr('onclick',);
-		}*/
+			function customerSeeker(e){
+				if(e.keyCode != 13 && e != 'intro'){
+					return false;
+				}
+				var txt = $('#customer_seeker').val();
+				/*if(txt.length <= 0 ){
+					alert("El buscador no puede ir vacio.");
+					return false;
+				}else{//envia peticion a la busqueda*/
+					var url = `ajax/customersDB.php?fl=getSpecificCustomer&text=${txt}`;
+					var resp = ajaxR(url);
+					$('#customersList').empty();
+					$('#customersList').html(resp);
+				//}
+			}
+	/*function guarda_RS(id_reg,flag){
 	//extraemos datos del formulario
 		id_rg=$("#id_razon_social").val();
 		nombre=$("#nombre").val();
@@ -258,7 +267,7 @@ var id_rg,nombre,ruta,nom_db,rfc,ruta_link,orden,pss_db,host,user_db,nom_db,esta
 			});//fin de ajax
 			$("#emergente_RS").css("display","block");
 		}//fin de else
-	}//fin de funcion que carga datos
+	}//fin de funcion que carga datos*/
 
 var resaltada=0;
 	function resalta(num){
