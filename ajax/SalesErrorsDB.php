@@ -145,7 +145,7 @@
                     <button
                         type=\"button\"
                         class=\"btn\"
-                        onclick=\"showErrorDetail( {$c} );\"
+                        onclick=\"showErrorDetail( {$c}, {$r['id_pedido']} );\"
                     >
                         <i class=\"icon-eye\"></i>
                     </button>
