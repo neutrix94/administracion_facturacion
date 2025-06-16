@@ -5,7 +5,7 @@
 	include('./db.php');
 	$db = new db();
 	$link = $db->conectDB();
-	include('../ajax/CustomersDB.php');
+	include('../ajax/customersDB.php');
 	$CustomersDB = new CustomersDB( $link );
 //consulta el numero de registros entre el numero de pagina
     $sql = "SELECT
