@@ -336,7 +336,7 @@ fclose($file);
 						$stm = $this->link->query( $sql ) or die( "Error al actualizar el contacto : {$sql}" );
 					}
 				}else{
-					die(json_encode(array("satus"=>302, "message"=>"El contacto {$costumer['detail'][$key]['nombre']} ya existe para el clinete, los contacctos no se pueden repetir, verifica y vuelve a intentar.")));
+					die(json_encode(array("satus"=>"contacto_repetido", "message"=>"El contacto {$costumer['detail'][$key]['nombre']} ya existe para el cliente, los contactos no se pueden repetir, verifica y vuelve a intentar.")));
 				}
 $file = fopen("log_inserta_cliente.txt", "a");
 fwrite($file, "Detalle contactos cliente : {$sql}" . PHP_EOL);
