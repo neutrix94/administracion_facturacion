@@ -32,7 +32,7 @@
         $sale_tmp = $stm->fetch();
 
     //validacion de diferencia de meses 
-        if($sale['months_difference'] > 0){
+        if($sale_tmp['months_difference'] > 0){
             $response->getBody()->write(json_encode( array( "status"=>"200", "was_found"=>"invalid_month", 
             "message"=>"<div class=\"text-center\"><h3 class=\"text-center\">Lo sentimos</h3><h5>Su solicitud ha sido rechazada que que la venta '{$sale_folio}' no corresponde al mes de la solicitud.<h5></div>" )));
             return $response;
