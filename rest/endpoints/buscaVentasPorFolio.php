@@ -18,7 +18,9 @@
                     folio_unico AS unique_folio,
                     id_status_facturacion,
                     url_descarga_archivos_facturacion,
-                    TIMESTAMPDIFF(MONTH, fecha_alta, DATE(NOW())), fecha_alta, NOW() AS months_difference
+                    IF(YEAR(fecha_alta) != YEAR(NOW()) OR MONTH(fecha_alta) != MONTH(NOW()), 1, 0) AS months_difference, 
+                    fecha_alta AS saleDate, 
+                    NOW() AS currentDate
                 FROM ec_pedidos 
                 WHERE folio_nv = '{$sale_folio}'";
         $stm = $link->query( $sql ) or die( "Error al consultar si la venta existe : {$sql}" );
