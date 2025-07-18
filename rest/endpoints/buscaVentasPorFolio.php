@@ -1,4 +1,5 @@
 <?php
+/*Version Oscar 2025-07-15 para validar que la factura que se solicita no sea de otro mes*/
     use Psr\Http\Message\ResponseInterface as Response;
     use Psr\Http\Message\ServerRequestInterface as Request;
     $app->post('/busca_ventas_por_folio', function (Request $request, Response $response, $args) {
@@ -16,7 +17,10 @@
                     id_sucursal AS store_id,
                     folio_unico AS unique_folio,
                     id_status_facturacion,
-                    url_descarga_archivos_facturacion
+                    url_descarga_archivos_facturacion,
+                    IF(YEAR(fecha_alta) != YEAR(NOW()) OR MONTH(fecha_alta) != MONTH(NOW()), 1, 0) AS months_difference, 
+                    fecha_alta AS saleDate, 
+                    NOW() AS currentDate
                 FROM ec_pedidos 
                 WHERE folio_nv = '{$sale_folio}'";
         $stm = $link->query( $sql ) or die( "Error al consultar si la venta existe : {$sql}" );
@@ -26,6 +30,14 @@
         }
         $sale = array();
         $sale_tmp = $stm->fetch();
+
+    //validacion de diferencia de meses 
+        if($sale_tmp['months_difference'] > 0){
+            $response->getBody()->write(json_encode( array( "status"=>"200", "was_found"=>"invalid_month", 
+            "message"=>"<div class=\"text-center\"><h3 class=\"text-center\">Lo sentimos</h3><h5>Su solicitud ha sido rechazada que que la venta '{$sale_folio}' no corresponde al mes de la solicitud.<h5></div>" )));
+            return $response;
+        }
+        
         foreach ($sale_tmp as $key => $value) {
             if( ! is_numeric( $key ) ){
                 $sale[$key] = $value;

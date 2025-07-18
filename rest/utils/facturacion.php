@@ -302,34 +302,41 @@ fwrite($file, "Cabecera cliente : {$sql}" . PHP_EOL);
 fclose($file);
 		//procesa el detalle
 			foreach ( $costumer['detail'] as $key => $contact ) {
-				$sql = ( $costumer['detail'][$key]['id_cliente_contacto'] == "" || $costumer['detail'][$key]['id_cliente_contacto'] == "0" ? "INSERT INTO" : "UPDATE" );
-				$costumer['detail'][$key]['id_cliente_facturacion'] = $costumer['id_cliente_facturacion'];
-				$sql .= " vf_clientes_contacto SET 
-							id_cliente_facturacion = '{$costumer['detail'][$key]['id_cliente_facturacion']}',
-							nombre = '{$costumer['detail'][$key]['nombre']}', 
-							telefono = '{$costumer['detail'][$key]['telefono']}',
-							celular = '{$costumer['detail'][$key]['celular']}', 
-							correo = '{$costumer['detail'][$key]['correo']}', 
-							uso_cfdi = '{$costumer['detail'][$key]['uso_cfdi']}', 
-							fecha_ultima_actualizacion = NOW(), 
-							sincronizar = '1'";
-				if( $costumer['detail'][$key]['id_cliente_contacto'] == "" || $costumer['detail'][$key]['id_cliente_contacto'] == "0" ){
-						
-						$stm = $this->link->query( $sql ) or die( "Error al insertar el nuevo contacto : {$sql}" );
-						$sql = "SELECT LAST_INSERT_ID() AS last_id";
-						$stm2 = $this->link->query( $sql ) or die( "Error al consultar id de nuevo cliente : {$sql}" );
-						$row_insert = $stm2->fetch( PDO::FETCH_ASSOC );//die( "{$row_insert['last_id']}" );
-						$costumer['detail'][$key]['id_cliente_contacto'] = $row_insert['last_id'];
+				$sql = "SELECT id_cliente_contacto FROM vf_clientes_contacto WHERE id_cliente_facturacion = '{$costumer['detail'][$key]['id_cliente_facturacion']}' AND (nombre = '{$costumer['detail'][$key]['nombre']}' 
+						AND telefono = '{$costumer['detail'][$key]['telefono']}' AND celular = '{$costumer['detail'][$key]['celular']}' AND correo = '{$costumer['detail'][$key]['correo']}')";
+				$stm_aux = $this->link->query($sql);
+				if($stm_aux->rowCount() <= 0){
+					$sql = ( $costumer['detail'][$key]['id_cliente_contacto'] == "" || $costumer['detail'][$key]['id_cliente_contacto'] == "0" ? "INSERT INTO" : "UPDATE" );
+					$costumer['detail'][$key]['id_cliente_facturacion'] = $costumer['id_cliente_facturacion'];
+					$sql .= " vf_clientes_contacto SET 
+								id_cliente_facturacion = '{$costumer['detail'][$key]['id_cliente_facturacion']}',
+								nombre = '{$costumer['detail'][$key]['nombre']}', 
+								telefono = '{$costumer['detail'][$key]['telefono']}',
+								celular = '{$costumer['detail'][$key]['celular']}', 
+								correo = '{$costumer['detail'][$key]['correo']}', 
+								uso_cfdi = '{$costumer['detail'][$key]['uso_cfdi']}', 
+								fecha_ultima_actualizacion = NOW(), 
+								sincronizar = '1'";
+					if( $costumer['detail'][$key]['id_cliente_contacto'] == "" || $costumer['detail'][$key]['id_cliente_contacto'] == "0" ){
+							
+							$stm = $this->link->query( $sql ) or die( "Error al insertar el nuevo contacto : {$sql}" );
+							$sql = "SELECT LAST_INSERT_ID() AS last_id";
+							$stm2 = $this->link->query( $sql ) or die( "Error al consultar id de nuevo cliente : {$sql}" );
+							$row_insert = $stm2->fetch( PDO::FETCH_ASSOC );//die( "{$row_insert['last_id']}" );
+							$costumer['detail'][$key]['id_cliente_contacto'] = $row_insert['last_id'];
+							$costumer['detail'][$key]['folio_unico'] = "CONTACTO_{$costumer['detail'][$key]['id_cliente_contacto']}";
+						//actualiza el folio unico
+							$sql = "UPDATE vf_clientes_contacto 
+										SET folio_unico = '{$costumer['detail'][$key]['folio_unico']}' 
+									WHERE id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}";//die($sql);
+							$stm = $this->link->query( $sql ) or die( "Error al actualizar el folio unico del nuevo cliente : {$sql}" );
+					}else{
 						$costumer['detail'][$key]['folio_unico'] = "CONTACTO_{$costumer['detail'][$key]['id_cliente_contacto']}";
-					//actualiza el folio unico
-						$sql = "UPDATE vf_clientes_contacto 
-									SET folio_unico = '{$costumer['detail'][$key]['folio_unico']}' 
-								WHERE id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}";//die($sql);
-						$stm = $this->link->query( $sql ) or die( "Error al actualizar el folio unico del nuevo cliente : {$sql}" );
+						$sql .= " WHERE id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}";
+						$stm = $this->link->query( $sql ) or die( "Error al actualizar el contacto : {$sql}" );
+					}
 				}else{
-					$costumer['detail'][$key]['folio_unico'] = "CONTACTO_{$costumer['detail'][$key]['id_cliente_contacto']}";
-					$sql .= " WHERE id_cliente_contacto = {$costumer['detail'][$key]['id_cliente_contacto']}";
-					$stm = $this->link->query( $sql ) or die( "Error al actualizar el contacto : {$sql}" );
+					die(json_encode(array("status"=>"contacto_repetido", "message"=>"El contacto {$costumer['detail'][$key]['nombre']} ya existe para el cliente, los contactos no se pueden repetir, verifica y vuelve a intentar.")));
 				}
 $file = fopen("log_inserta_cliente.txt", "a");
 fwrite($file, "Detalle contactos cliente : {$sql}" . PHP_EOL);
