@@ -50,7 +50,7 @@ $app->post('/sets/prefijos', function (Request $request, Response $response){
             return $response;
         }
             $sql = "";
-            if($stm2->num_rows() > 0){
+            if($stm2->num_rows > 0){
                 $sql = "UPDATE {$row['nombre_db']}.ec_prefijos_sets 
                             SET nombre = '{$set_prefix['']}', habilitado = '{$set_prefix['']}', fecha_alta = '{$set_prefix['']}' 
                         WHERE id_prefijo_set = '{$set_prefix['id_prefijo_set']}'";
