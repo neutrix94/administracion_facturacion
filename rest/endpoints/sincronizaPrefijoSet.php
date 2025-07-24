@@ -41,18 +41,24 @@ $app->post('/sets/prefijos', function (Request $request, Response $response){
     $stm = $link->query( $sql );// or die( "Error al consultar las bases de datos de facturacion : {$link->error}" );
     while( $row = $stm->fetch( PDO::FETCH_ASSOC ) ) {
     //consulta si existe
-        $sql = "SELECT id_prefijo_set FROM {$row['nombre_db']}.ec_prefijos_sets WHERE id_prefijo_set = {$set_prefix['id_prefijo_set']}";
-        $stm2 = $linkFact->query($sql);
-        $sql = "";
-        if($stm2->rowCount() > 0){
-            $sql = "UPDATE {$row['nombre_db']}.ec_prefijos_sets 
-                        SET nombre = '{$set_prefix['']}', habilitado = '{$set_prefix['']}', fecha_alta = '{$set_prefix['']}' 
-                    WHERE id_prefijo_set = '{$set_prefix['id_prefijo_set']}'";
-        }else{
-            $sql = "INSERT INTO {$row['nombre_db']}.ec_prefijos_sets (id_prefijo_set, nombre, habilitado, fecha_alta) 
-                    VALUES ('{$set_prefix['id_prefijo_set']}', '{$set_prefix['nombre']}', '{$set_prefix['habilitado']}', '{$set_prefix['fecha_alta']}')";
+        try{
+            $sql = "SELECT id_prefijo_set FROM {$row['nombre_db']}.ec_prefijos_sets WHERE id_prefijo_set = {$set_prefix['id_prefijo_set']}";
+            $stm2 = $linkFact->query($sql);
+        }catch(PDOException $error){
+            $resp = array( "status"=>"302", "message"=>"Error al consultar si el prefijo ya existe.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}" );
+            $response->getBody()->write(json_encode( $resp ));
+            return $response;
         }
-        $linkFact->query($sql);
+            $sql = "";
+            if($stm2->rowCount() > 0){
+                $sql = "UPDATE {$row['nombre_db']}.ec_prefijos_sets 
+                            SET nombre = '{$set_prefix['']}', habilitado = '{$set_prefix['']}', fecha_alta = '{$set_prefix['']}' 
+                        WHERE id_prefijo_set = '{$set_prefix['id_prefijo_set']}'";
+            }else{
+                $sql = "INSERT INTO {$row['nombre_db']}.ec_prefijos_sets (id_prefijo_set, nombre, habilitado, fecha_alta) 
+                        VALUES ('{$set_prefix['id_prefijo_set']}', '{$set_prefix['nombre']}', '{$set_prefix['habilitado']}', '{$set_prefix['fecha_alta']}')";
+            }
+            $linkFact->query($sql);
     }
     $resp = array( "status"=>"200", "message"=>"ok" );
     $response->getBody()->write(json_encode( $resp ));
