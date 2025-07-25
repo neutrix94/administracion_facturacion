@@ -101,7 +101,7 @@
             //consulta la url del api
                 $bill_api_path = "";
                 try{
-                    $sql = "SELECT `value` AS api_path FROM api_config WHERE `name` = ''";
+                    $sql = "SELECT `value` AS api_path FROM api_config WHERE `name` = 'path_facturacion'";
                     $api_stm = $link->query($sql);
                     $api_row = $api_stm->fetch(PDO::FETCH_ASSOC);
                     $bill_api_path = "{$api_row['api_path']}/rest/inserta_venta_sistema_facturacion";
