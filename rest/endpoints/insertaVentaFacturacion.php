@@ -98,11 +98,21 @@
             $stm_send = $link->query( $sql ) or die( "Error al consultar si la venta se manda directo" );
             $row_send = $stm_send->fetch( PDO::FETCH_ASSOC );
             if( $row_send['enviar_venta_a_rs'] == 1 ){//si esta activo el envio automatico
-                $bill_api_path = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-                $bill_api_path = str_replace( '/inserta_venta_facturacion', '', $bill_api_path );     
+            //consulta la url del api
+                $bill_api_path = "";
+                try{
+                    $sql = "SELECT `value` AS api_path FROM api_config WHERE `name` = ''";
+                    $api_stm = $link->query($sql);
+                    $api_row = $api_stm->fetch(PDO::FETCH_ASSOC);
+                    $bill_api_path = "{$api_row['api_path']}/rest/inserta_venta_sistema_facturacion";
+                }catch(PDOException $error){
+                    $payload = array("status"=>"302", "Error al consultar path de api de administracion facturacion.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}");            
+                    $response->getBody()->write(json_encode( array( "status"=>"200" ) ));
+                    return $response;
+                }
                 $resp = "";
                 $post_data = json_encode( array( "sale_folio"=>$venta['folio_nv'] ) );
-                $crl = curl_init( "{$bill_api_path}/inserta_venta_sistema_facturacion" );
+                $crl = curl_init( "{$bill_api_path}" );
                 curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($crl, CURLINFO_HEADER_OUT, true);
                 curl_setopt($crl, CURLOPT_POST, true);
