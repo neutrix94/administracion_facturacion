@@ -52,11 +52,11 @@ $app->post('/sets/prefijos', function (Request $request, Response $response){
             $sql = "";
             if($stm2->num_rows > 0){
                 $sql = "UPDATE {$row['nombre_db']}.ec_prefijos_sets 
-                            SET nombre = '{$set_prefix['']}', habilitado = '{$set_prefix['']}', fecha_alta = '{$set_prefix['']}' 
+                            SET nombre = '{$set_prefix['nombre']}', habilitado = '{$set_prefix['habilitado']}' 
                         WHERE id_prefijo_set = '{$set_prefix['id_prefijo_set']}'";
             }else{
                 $sql = "INSERT INTO {$row['nombre_db']}.ec_prefijos_sets (id_prefijo_set, nombre, habilitado, fecha_alta) 
-                        VALUES ('{$set_prefix['id_prefijo_set']}', '{$set_prefix['nombre']}', '{$set_prefix['habilitado']}', '{$set_prefix['fecha_alta']}')";
+                        VALUES ('{$set_prefix['id_prefijo_set']}', '{$set_prefix['nombre']}', '{$set_prefix['habilitado']}', NOW())";
             }
             $linkFact->query($sql);
     }
