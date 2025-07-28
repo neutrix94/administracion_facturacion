@@ -100,7 +100,7 @@
                     }
                 }
                 $post_data = array("set_prefix"=>array("id_prefijo_set"=>"{$set_prefix_id}", "nombre"=>"{$set_prefix_name}", "habilitado"=>"{$set_prefix_status}" ));
-                setPetition();
+                $set_synchronization = $this->sets_prefixes_sincronization($post_data);
             }catch(PDOException $error){
                 die(json_encode(array("status"=>"302", "message"=>"Error al insertar / actualizar prefijo de set", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}")));
             }
@@ -179,15 +179,15 @@
         function sets_prefixes_sincronization($post_data){
         //consulta URL de sistema de administracion facturacion
             $url = "";
+			$resp = "";
             try{
                 $sql = "SELECT `value` AS api_path FROM api_config WHERE `name` = 'path_facturacion'";
                 $stm = $this->link->query($sql);
                 $row = $stm->fetch(PDO::FETCH_ASSOC);
-                $url = "{$row['api_path']}/rest/";
+                $url = "{$row['api_path']}/rest/sets/prefijos";
             }catch(PDOException $error){
                 die("Error al consultar URL de api del set : {$sql} : {$error->getMessage()}");
             }
-			$resp = "";
 			$crl = curl_init( $url );
 			curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($crl, CURLINFO_HEADER_OUT, true);
