@@ -302,8 +302,15 @@ fwrite($file, "Cabecera cliente : {$sql}" . PHP_EOL);
 fclose($file);
 		//procesa el detalle
 			foreach ( $costumer['detail'] as $key => $contact ) {
-				$sql = "SELECT id_cliente_contacto FROM vf_clientes_contacto WHERE id_cliente_facturacion = '{$costumer['detail'][$key]['id_cliente_facturacion']}' AND (nombre = '{$costumer['detail'][$key]['nombre']}' 
-						AND telefono = '{$costumer['detail'][$key]['telefono']}' AND celular = '{$costumer['detail'][$key]['celular']}' AND correo = '{$costumer['detail'][$key]['correo']}')";
+				$sql = "SELECT 
+							id_cliente_contacto 
+						FROM vf_clientes_contacto 
+						WHERE id_cliente_facturacion = '{$costumer['detail'][$key]['id_cliente_facturacion']}'
+						AND (nombre = '{$costumer['detail'][$key]['nombre']}' 
+						AND telefono = '{$costumer['detail'][$key]['telefono']}' 
+						AND celular = '{$costumer['detail'][$key]['celular']}'
+						AND correo = '{$costumer['detail'][$key]['correo']}')";
+				$sql .= ((isset($costumer['detail'][$key]['id_cliente_contacto']) && $costumer['detail'][$key]['id_cliente_contacto'] != null && $costumer['detail'][$key]['id_cliente_contacto'] != '') ? " AND id_cliente_contacto != {$costumer['detail'][$key]['id_cliente_contacto']}" : '');
 				$stm_aux = $this->link->query($sql);
 				if($stm_aux->rowCount() <= 0){
 					$sql = ( $costumer['detail'][$key]['id_cliente_contacto'] == "" || $costumer['detail'][$key]['id_cliente_contacto'] == "0" ? "INSERT INTO" : "UPDATE" );
