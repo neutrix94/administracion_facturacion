@@ -1,32 +1,33 @@
-<br><br>
-<div class="text-end">
+<div class="" style="text-align:right !important;">
     <button
         type="button"
+        class="btn"
+        onclick="location.reload();"
     >
-        X
+        <b class="text-danger">X</b>
     </button>
 </div>
 <h3 class="text-center">Prefijos de SET</h3>
 <div class="row p-3">
     <div class="col-6">
         <div class="row p-1">
-            <div class="col-4">ID</div>
+            <div class="col-4">ID : </div>
             <div class="col-8">
-                <input type="text" id="set_prefix_id" class="form-control bg-light" value="<?php echo( isset( $prefix_row['id_prefijo_set'] ) ? $prefix_row['id_prefijo_set'] : '' )?>" readonly>
+                <input type="text" id="set_prefix_id" class="form-control" value="<?php echo( isset( $prefix_row['id_prefijo_set'] ) ? $prefix_row['id_prefijo_set'] : '' )?>" readonly>
             </div>
         </div>
     </div>
     <div class="col-6">
         <div class="row p-1">
-            <div class="col-4">Nombre</div>
+            <div class="col-4">Nombre : </div>
             <div class="col-8">
-                <input type="text" id="set_prefix_name" class="form-control bg-light" value="<?php echo( isset( $prefix_row['nombre'] ) ? $prefix_row['nombre'] : '' )?>">
+                <input type="text" id="set_prefix_name" class="form-control bg-white" value="<?php echo( isset( $prefix_row['nombre'] ) ? $prefix_row['nombre'] : '' )?>">
             </div>
         </div>
     </div>
     <div class="col-6">
         <div class="row p-1">
-            <div class="col-4">Habilitado</div>
+            <div class="col-4">Habilitado : </div>
             <div class="col-8">
                 <input type="checkbox" id="set_prefix_status" <?php echo( isset( $prefix_row['habilitado'] ) ? ($prefix_row['habilitado'] == 1 ? 'checked' : '') : 'checked' )?>>
             </div>

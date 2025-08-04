@@ -134,8 +134,11 @@
                     >
                         <i class=\"icon-pencil\"></i>
                     </button>
-                </td>
-                <td class=\"text-center\">
+                </td>";
+            $resp .= '</tr>'; 
+            return $resp;
+        }
+         /*       <td class=\"text-center\">
                     <button
                         type=\"button\"
                         class=\"btn\"
@@ -143,10 +146,7 @@
                     >
                         <i class=\"icon-cancel\"></i>
                     </button>
-                </td>";
-            $resp .= '</tr>'; 
-            return $resp;
-        }
+                </td>*/
     //consulta detalle de una venta en especifico
         public function seekCustomers($search){
             $results = $this->getCustomers('', 0, 30, "ASC", $search);//echo json_encode($CustomersDB->getCustomers('', 0, 30, "ASC", $search));
