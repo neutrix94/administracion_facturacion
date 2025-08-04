@@ -32,8 +32,8 @@
                 $set_prefix_id = (isset($_GET['set_prefix_id']) ? $_GET['set_prefix_id'] : $_POST['set_prefix_id']);
                 $set_prefix_name = (isset($_GET['set_prefix_name']) ? $_GET['set_prefix_name'] : $_POST['set_prefix_name']);
                 $set_prefix_status = (isset($_GET['set_prefix_status']) ? $_GET['set_prefix_status'] : $_POST['set_prefix_status']);
-                $set_prefix_date = (isset($_GET['set_prefix_date']) ? $_GET['set_prefix_date'] : $_POST['set_prefix_date']);
-                echo json_encode( $SetsPrefixesDB->saveSetPrefix($set_prefix_id, $set_prefix_name, $set_prefix_status, $set_prefix_date) );
+                //$set_prefix_date = (isset($_GET['set_prefix_date']) ? $_GET['set_prefix_date'] : $_POST['set_prefix_date']);
+                echo json_encode( $SetsPrefixesDB->saveSetPrefix($set_prefix_id, $set_prefix_name, $set_prefix_status) );
             break;
             
             default:
@@ -77,7 +77,7 @@
             return $resp;
         }
 
-        function saveSetPrefix($set_prefix_id, $set_prefix_name, $set_prefix_status, $set_prefix_date){
+        function saveSetPrefix($set_prefix_id, $set_prefix_name, $set_prefix_status){
             $sql = "";
             $action = "";
             if( $set_prefix_id != '' && $set_prefix_id != null && $set_prefix_id != NULL){
@@ -99,12 +99,13 @@
                         die(json_encode(array("status"=>"302", "message"=>"Error al recuperar el id del prefijo de set", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}")));
                     }
                 }
-                $post_data = array("set_prefix"=>array("id_prefijo_set"=>"{$set_prefix_id}", "nombre"=>"{$set_prefix_name}", "habilitado"=>"{$set_prefix_status}" ));
+                $post_data = json_encode(array("set_prefix"=>array("id_prefijo_set"=>"{$set_prefix_id}", "nombre"=>"{$set_prefix_name}", "habilitado"=>"{$set_prefix_status}" )));
                 $set_synchronization = $this->sets_prefixes_sincronization($post_data);
+//die("Repuesta servicio : {$set_synchronization}");
             }catch(PDOException $error){
                 die(json_encode(array("status"=>"302", "message"=>"Error al insertar / actualizar prefijo de set", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}")));
             }
-            return array("status"=>"200","action"=>"{$action}", "id"=>"{$set_prefix_id}");
+            return array("status"=>"200","action"=>"{$action}", "message"=>"Set {$action} exitosamente.", "id"=>"{$set_prefix_id}");
         }
 
         public function build_row_ceil( $r, $c ){
@@ -185,6 +186,8 @@
                 $stm = $this->link->query($sql);
                 $row = $stm->fetch(PDO::FETCH_ASSOC);
                 $url = "{$row['api_path']}/rest/sets/prefijos";
+//echo $url;
+//echo $post_data;
             }catch(PDOException $error){
                 die("Error al consultar URL de api del set : {$sql} : {$error->getMessage()}");
             }

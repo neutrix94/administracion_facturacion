@@ -136,9 +136,22 @@
         var set_prefix_name = $('#set_prefix_name').val();
         var set_prefix_status = ($('#set_prefix_status').prop('checked') ? '1' : '0');
         var set_prefix_date = $('#set_prefix_date').val();
-        var url = `ajax/prefixesDB.php?fl=getSpecificSetPrefix&id=${set_prefix_id}&set_prefix_name=${set_prefix_name}&set_prefix_status=${set_prefix_status}&set_prefix_date=${set_prefix_date}`;
+        var url = `ajax/prefixesDB.php?fl=saveSetPrefix&set_prefix_id=${set_prefix_id}&set_prefix_name=${set_prefix_name}&set_prefix_status=${set_prefix_status}`;
         var resp = ajaxR(url);
-        alert(resp);
+        json = JSON.parse(resp);
+        var content = `<div class="text-center">
+            <br><br>
+            <h3 class="text-center">${json.message}</h3>
+            <br><br>
+            <button
+                class="btn btn-success"
+                onclick="location.reload();"
+            >
+                <i class="icon-ok-circled">Aceptar</i>
+            </button>
+        </div>`;
+        $('#contenido_emergente').html(content);
+        $('#emergente').css('display', 'block');
     }
 
     var resaltada=0;
