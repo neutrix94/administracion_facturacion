@@ -93,7 +93,7 @@ $app->post('/inserta_cliente_directo', function (Request $request, Response $res
 //  echo $post_data;return '';
 //var_dump( $result_1 );//die("{$api_path}/rest/clientes/envia_cliente_facturacion");
     if( $result_json['status'] != 200 ){//&& trim( $result_json['status'] ) != '200'trim($result_1) != 'ok'
-        die( "Error al insertar registros en facturacion : {$result_1}" );
+        die( "Error al insertar registros en facturacion en /inserta_cliente_directo: {$result_1}" );
     }else{
     //actualiza el status de sincronizacion del registros de razones sociales 
         /*$sql = "UPDATE sys_sincronizacion_registros_facturacion 
