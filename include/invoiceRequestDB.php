@@ -60,7 +60,7 @@
                         sf.fecha_alta 
                     FROM solicitudes_factura sf
                     LEFT JOIN razones_sociales rs
-                    ON sf.id_razon_social = rs.id_razon_social
+                    ON sf.id_razon_social = rs.id_equivalente
                     WHERE sf. folio_venta = '{$sale_folio}'";
             $stm = $this->link->query( $sql ) or die( "Error al consultar la cabecera de solicitud de factura : {$sql} : {$this->link->error}" );
             while( $row = $stm->fetch( PDO::FETCH_ASSOC ) ){
