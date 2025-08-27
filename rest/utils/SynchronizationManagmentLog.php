@@ -60,6 +60,11 @@
 			curl_setopt($crl, CURLINFO_HEADER_OUT, true);
 			curl_setopt($crl, CURLOPT_POST, true);
 			curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+
++           curl_setopt($crl, CURLOPT_SSL_VERIFYPEER, false);
++           curl_setopt($crl, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+
 			//curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
 		    curl_setopt($crl, CURLOPT_TIMEOUT, 10000);
 			curl_setopt($crl, CURLOPT_HTTPHEADER, array(
