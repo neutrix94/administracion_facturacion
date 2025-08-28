@@ -88,7 +88,7 @@ $app->post('/verifica_clientes', function (Request $request, Response $response)
     $result_json = json_decode($result_1, true);
     //var_dump(  );
     if( trim( $result_json['status'] ) != '200' ){
-        die( "Error al insertar registros en facturacion : {$result_1}" );
+        die( "Error al insertar registros en facturacion en /verifica_clientes: {$result_1}" );
     }else{
     //actualiza el status de sincronizacion del registros de razones sociales 
         $sql = "UPDATE sys_sincronizacion_registros_facturacion 

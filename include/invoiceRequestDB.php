@@ -60,7 +60,7 @@
                         sf.fecha_alta 
                     FROM solicitudes_factura sf
                     LEFT JOIN razones_sociales rs
-                    ON sf.id_razon_social = rs.id_razon_social
+                    ON sf.id_razon_social = rs.id_equivalente
                     WHERE sf. folio_venta = '{$sale_folio}'";
             $stm = $this->link->query( $sql ) or die( "Error al consultar la cabecera de solicitud de factura : {$sql} : {$this->link->error}" );
             while( $row = $stm->fetch( PDO::FETCH_ASSOC ) ){
@@ -87,8 +87,9 @@
             $sql = "SELECT 
                         folio_nv,
                         uso_cfdi,
-                        id_razon_factura,
-                        ( SELECT `value` FROM `api_config` WHERE `key` = 'facturacion' ) AS api_url
+                        (SELECT rfc FROM vf_clientes_razones_sociales WHERE id_cliente_facturacion = id_razon_factura ) AS rfc,
+                        ( SELECT `value` FROM `api_config` WHERE `key` = 'facturacion' ) AS api_url,
+                        id_contacto
                     FROM ec_pedidos
                     WHERE id_pedido = {$sale_id}";
             $stm = $this->link->query( $sql ) or die( "Error al consultar el folio de venta : {$sql} : {$this->link->error}" );
@@ -96,12 +97,13 @@
             $row = $stm->fetch( PDO::FETCH_ASSOC );
             $sale_folio = $row['folio_nv'];
             $cfdi_use = $row['uso_cfdi'];
-            $sale_costumer = $row['id_razon_factura'];
+            $sale_costumer = $row['rfc'];
             $url = "{$row['api_url']}/rest/solicitud_factura";
             $payment_type = 7;
+            $contact_id = $row['id_contacto'];
         //forma peticion
             $post_data = json_encode( array( "sale_folio"=>$sale_folio, "cfdi_use"=>$cfdi_use,
-            "sale_costumer"=>$sale_costumer, "payment_type"=>$payment_type ) );
+            "sale_costumer"=>$sale_costumer, "payment_type"=>$payment_type, "contact_id"=>$contact_id ) );
 //echo( $post_data . " : " . $url );
         //consume api
             $resp = $this->sendPetition( $url, $post_data );
@@ -165,7 +167,7 @@
             LEFT JOIN sys_sucursales s
             ON s.id_sucursal = p.id_sucursal
             LEFT JOIN razones_sociales rs
-            ON rs.id_razon_social = p.id_razon_social
+            ON rs.id_equivalente = p.id_razon_social
             LEFT JOIN vf_clientes_razones_sociales crs
             ON crs.id_cliente_facturacion = p.id_razon_factura
             LEFT JOIN ec_status_facturacion st
