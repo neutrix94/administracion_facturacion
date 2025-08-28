@@ -103,7 +103,7 @@
             $contact_id = $row['id_contacto'];
         //forma peticion
             $post_data = json_encode( array( "sale_folio"=>$sale_folio, "cfdi_use"=>$cfdi_use,
-            "sale_costumer"=>$sale_costumer, "payment_type"=>$payment_type, ""=>$contact_id ) );
+            "sale_costumer"=>$sale_costumer, "payment_type"=>$payment_type, "contact_id"=>$contact_id ) );
 //echo( $post_data . " : " . $url );
         //consume api
             $resp = $this->sendPetition( $url, $post_data );
