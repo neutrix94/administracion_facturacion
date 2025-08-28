@@ -87,7 +87,7 @@
             $sql = "SELECT 
                         folio_nv,
                         uso_cfdi,
-                        id_razon_factura,
+                        (SELECT rfc FROM vf_clientes_razones_sociales WHERE id_cliente_facturacion = id_razon_factura ) AS rfc,
                         ( SELECT `value` FROM `api_config` WHERE `key` = 'facturacion' ) AS api_url,
                         id_contacto
                     FROM ec_pedidos
@@ -97,7 +97,7 @@
             $row = $stm->fetch( PDO::FETCH_ASSOC );
             $sale_folio = $row['folio_nv'];
             $cfdi_use = $row['uso_cfdi'];
-            $sale_costumer = $row['id_razon_factura'];
+            $sale_costumer = $row['rfc'];
             $url = "{$row['api_url']}/rest/solicitud_factura";
             $payment_type = 7;
             $contact_id = $row['id_contacto'];
