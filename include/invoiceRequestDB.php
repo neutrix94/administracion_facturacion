@@ -88,7 +88,8 @@
                         folio_nv,
                         uso_cfdi,
                         id_razon_factura,
-                        ( SELECT `value` FROM `api_config` WHERE `key` = 'facturacion' ) AS api_url
+                        ( SELECT `value` FROM `api_config` WHERE `key` = 'facturacion' ) AS api_url,
+                        id_contacto
                     FROM ec_pedidos
                     WHERE id_pedido = {$sale_id}";
             $stm = $this->link->query( $sql ) or die( "Error al consultar el folio de venta : {$sql} : {$this->link->error}" );
@@ -99,9 +100,10 @@
             $sale_costumer = $row['id_razon_factura'];
             $url = "{$row['api_url']}/rest/solicitud_factura";
             $payment_type = 7;
+            $contact_id = $row['id_contacto'];
         //forma peticion
             $post_data = json_encode( array( "sale_folio"=>$sale_folio, "cfdi_use"=>$cfdi_use,
-            "sale_costumer"=>$sale_costumer, "payment_type"=>$payment_type ) );
+            "sale_costumer"=>$sale_costumer, "payment_type"=>$payment_type, ""=>$contact_id ) );
 //echo( $post_data . " : " . $url );
         //consume api
             $resp = $this->sendPetition( $url, $post_data );
