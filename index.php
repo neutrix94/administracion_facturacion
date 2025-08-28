@@ -1,6 +1,10 @@
 <?php
+	//ini_set('session.gc_probability', 1);
+	//ini_set('session.gc_divisor', 1);
+	ini_set('session.gc_maxlifetime', 86400);      // Tiempo de vida en el servidor
+	ini_set('session.cookie_lifetime', 86400);     // Tiempo de vida de la cookie en el navegador
 	session_start();
-	if( !isset($_SESSION['current_view']) ){
+	if( !isset($_SESSION['current_view']) ){//die("here");
 		$_SESSION['current_view'] = '';
 	}
 	//include('include/conexion.php');
@@ -17,9 +21,9 @@
 		session_destroy();
 		echo "<script>location.href=\"./#{$_SESSION['current_view']}\";</script>";
 		//die('here_2');
-	}	
+	}
 	$log = ( isset($_SESSION['log']) ? $_SESSION['log'] : '' );
-	//die( $_SESSION['current_view'] );	
+	//die( "SESSION_LOG : " . $_SESSION['log'] );	
 ?>
 <!DOCTYPE html>
 <html>
