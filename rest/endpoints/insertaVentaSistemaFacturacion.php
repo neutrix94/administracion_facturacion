@@ -161,7 +161,7 @@
                 $post_data = json_encode(array("id_modulo"=>"3", 
                     "mensaje"=>"Error al subir la venta '{$sale_header['folio_nv']}' a Razon Social; respuesta : {$resp}\n")
                 );
-                $curl_resp = $this->sendPetition($url, $post_data, '');
+                $curl_resp = $this->sendPetition($api_url, $post_data, '');
             }catch(PDOException $error){
                 die( "Error al consultar URL API sistema general : {$sql} : {$error->getMessage()}" );
             }
