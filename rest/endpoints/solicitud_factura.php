@@ -189,7 +189,7 @@
                     "mensaje"=>"Error al timbrar la venta '{$sale_folio}' en Razon Social; respuesta : {$resp}\n")
                 );
                 //$curl_resp = $this->sendPetition($url, $post_data, '');
-                $crl = curl_init( "{$$api_url}" );
+                $crl = curl_init( "{$api_url}" );
                 curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($crl, CURLINFO_HEADER_OUT, true);
                 curl_setopt($crl, CURLOPT_POST, true);
