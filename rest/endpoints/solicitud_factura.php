@@ -188,7 +188,19 @@
                 $post_data = json_encode(array("id_modulo"=>"4", 
                     "mensaje"=>"Error al timbrar la venta '{$sale_folio}' en Razon Social; respuesta : {$resp}\n")
                 );
-                $curl_resp = $this->sendPetition($url, $post_data, '');
+                //$curl_resp = $this->sendPetition($url, $post_data, '');
+                $crl = curl_init( "{$$api_url}" );
+                curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+                curl_setopt($crl, CURLOPT_POST, true);
+                curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+                //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+                curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+                curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json' )
+                );
+                $resp = curl_exec($crl);//envia peticion
+                curl_close($crl);
             }catch(PDOException $error){
                 die( "Error al consultar URL API sistema general : {$sql} : {$error->getMessage()}" );
             }
