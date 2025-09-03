@@ -151,6 +151,21 @@
             }catch(PDOException $error){
                 die("Error al insertar el error de envio a Razon Social : {$sql} : {$error}");
             }
+		//implementacion Oscar 2025-09-03 para enviar error por Telegram
+            $api_url = "";
+            try{
+                $sql = "SELECT `value` AS api_path FROM api_config WHERE `key` = 'api'";
+                $stm = $this->link->query($sql);
+                $row = $stm->fetch(PDO::FETCH_ASSOC);
+                $api_url = "{$row['api_path']}/rest_v2/telegram/send_message";
+                $post_data = json_encode(array("id_modulo"=>"3", 
+                    "mensaje"=>"Error al subir la venta '{$sale_header['folio_nv']}' a Razon Social; respuesta : {$resp}\n")
+                );
+                $curl_resp = $this->sendPetition($url, $post_data, '');
+            }catch(PDOException $error){
+                die( "Error al consultar URL API sistema general : {$sql} : {$error->getMessage()}" );
+            }
+		//fin de cambio Oscar 2025-09-03
         }   
         $response->getBody()->write( $resp );
         return $response;
