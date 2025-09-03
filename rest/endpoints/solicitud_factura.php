@@ -177,6 +177,22 @@
                 error_log( "Error al actualizar el status de la nota de venta : {$sql} : {$e}" );
                 die( "Error al actualizar el status de la nota de venta : {$sql} : {$e}" );
             }
+        }else{
+		//implementacion Oscar 2025-09-03 para enviar error por Telegram
+            $api_url = "";
+            try{
+                $sql = "SELECT `value` AS api_path FROM api_config WHERE `key` = 'api'";
+                $stm = $this->link->query($sql);
+                $row = $stm->fetch(PDO::FETCH_ASSOC);
+                $api_url = "{$row['api_path']}/rest_v2/telegram/send_message";
+                $post_data = json_encode(array("id_modulo"=>"4", 
+                    "mensaje"=>"Error al timbrar la venta '{$sale_folio}' en Razon Social; respuesta : {$resp}\n")
+                );
+                $curl_resp = $this->sendPetition($url, $post_data, '');
+            }catch(PDOException $error){
+                die( "Error al consultar URL API sistema general : {$sql} : {$error->getMessage()}" );
+            }
+		//fin de cambio Oscar 2025-09-03
         }
         $response->getBody()->write( $resp );
         return $response;
