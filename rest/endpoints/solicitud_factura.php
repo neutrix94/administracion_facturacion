@@ -199,7 +199,7 @@
                 curl_setopt($crl, CURLOPT_HTTPHEADER, array(
                 'Content-Type: application/json' )
                 );
-                $resp = curl_exec($crl);//envia peticion
+                $resp_curl = curl_exec($crl);//envia peticion
                 curl_close($crl);
             }catch(PDOException $error){
                 die( "Error al consultar URL API sistema general : {$sql} : {$error->getMessage()}" );
