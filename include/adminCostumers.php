@@ -1,7 +1,6 @@
 <?php
 	session_start();
 	$_SESSION['current_view'] = $_POST['action'];
-	//include('conexion.php');
 	include('./db.php');
 	$db = new db();
 	$link = $db->conectDB();
@@ -47,56 +46,15 @@
 						<th width="20%" class="text-center">RFC</th>
 						<th width="15%" class="text-center">Razon Social</th>
 						<th width="15%" class="text-center">C.P.</th>
-						<th width="10%" class="text-center">Ver</th>
-						<th width="10%" class="text-center">Editar</th>
-						<th width="10%" class="text-center">Eliminar</th>
 					</tr>
 				</thead>
 				<tbody style="max-height : 200px; overflow:auto;" id="customersList">
 			<?php
-			$c=0;//inicaimos el contador en cero
+			$c=0;
 			foreach ($customers as $key => $r) {
-			//while( $r = $eje->fetch( PDO::FETCH_ASSOC ) ){
-				$c++;//incrementamos contador
+				$c++;
 				echo $CustomersDB->build_row_ceil( $r, $c );
-				/*echo '<tr id="fila_'.$c.'" tabindex="'.$c.'" onfocus="resalta('.$c.');" onclick="resalta('.$c.');" onblur="quita_resaltado('.$c.');">';
-					echo '<td>'.$r['id_cliente_facturacion'].'</td>';
-					echo '<td>'.$r['rfc'].'</td>';
-					echo '<td>'.$r['razon_social'].'</td>';
-					echo '<td class="text-center">'.$r['cp'].'</td>';
-					echo "<td class=\"text-center\">
-						<button
-							type=\"button\"
-							class=\"btn\"
-							onclick=\"muestra_datos_RS( {$r['id_cliente_facturacion']} , 0 );\"
-						>
-							<i class=\"icon-eye\"></i>
-						</button>
-					</td>
-					<td class=\"text-center\">
-						<button
-							type=\"button\"
-							class=\"btn\"
-							onclick=\"muestra_datos_RS( {$r['id_cliente_facturacion']} , 2 );\"
-						>
-							<i class=\"icon-pencil\"></i>
-						</button>
-					</td>
-					<td class=\"text-center\">
-						<button
-							type=\"button\"
-							class=\"btn\"
-							onclick=\"muestra_datos_RS( {$r['id_cliente_facturacion']} , 3 );\"
-						>
-							<i class=\"icon-cancel\"></i>
-						</button>
-					</td>";
-				echo '</tr>'; 
-					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',1);"><img src="img/ver.png" width="30px"></a></td>';
-					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',2);"><img src="img/editar.png" width="30px"></a></td>';
-					//echo '<td align="center"><a href="javascript:muestra_datos_RS('.$r[0].',3);"><img src="img/eliminar.png" width="30px"></a></td>';
-				echo '</tr>'; */
-			}//fin de while
+			}
 			?>
 				</tbody>
 			</table>
@@ -173,103 +131,19 @@
 
 <script>
 var id_rg,nombre,ruta,nom_db,rfc,ruta_link,orden,pss_db,host,user_db,nom_db,estado,obs;
-			function customerSeeker(e){
-				if(e.keyCode != 13 && e != 'intro'){
-					return false;
-				}
-				var txt = $('#customer_seeker').val();
-				/*if(txt.length <= 0 ){
-					alert("El buscador no puede ir vacio.");
-					return false;
-				}else{//envia peticion a la busqueda*/
-					var url = `ajax/customersDB.php?fl=getSpecificCustomer&text=${txt}`;
-					var resp = ajaxR(url);
-					$('#customersList').empty();
-					$('#customersList').html(resp);
-				//}
-			}
-	/*function guarda_RS(id_reg,flag){
-	//extraemos datos del formulario
-		id_rg=$("#id_razon_social").val();
-		nombre=$("#nombre").val();
-		ruta=$("#ruta").val();
-		nom_db=$("#usuario_db").val();
-		rfc=$("#rfc").val();
-		ruta_link=$("#link").val();
-		orden=$("#orden").val();
-		pss_db=$("#contrasena_db").val();
-		user_db=$("#usuario_db").val();
-		obs=$("#observaciones").val();
-		estado=$("#activo").val();
-	//enviamos datos por ajax
-		$.ajax({
-			type:'post',
-			url:'ajax/rS.php',
-			cache:false,
-			data:{
-					flag:flag,
-					id_registro:id_rg,
-					nom_rs:nombre,
-					server:host,
-					nombre_base_datos:nom_db,
-					rfc:rfc,
-					enlace:ruta_link,
-					ord:orden,
-					pass_base_datos:pss_db,
-					usuario_base_datos:user_db,
-					activo:estado,
-					observ:obs
-				},
-				success:function(dat){
-					var aux=dat.split("|");
-					if(aux[0]!='ok'){
-						alert("Error!!!\n\n"+dat);
-						return false;
-					}else{
-						alert(aux[1]);
-						return true;
-				}
-			}
-		});
-	} 
+var resaltada = 0;
 
-	function muestra_datos_RS(id,flag){
-        alert();
-        $("#emergente_RS").css("display","block");
-		if(flag==0){
-			$("#guardar_rs").attr('onclick','guarda_RS(0,'+flag+')');
-		}else{
-		//enviamos datos por ajax
-			$.ajax({
-				type:'post',
-				url:'ajax/rS.php',
-				cache:false,
-				data:{fl:flag,id_reg:id},
-				success:function(dat){
-					alert('dat:'+dat);
-					var aux=dat.split("|");
-					if(aux[0]!='ok'){
-						alert("Error!!!"+dat);
-					}else{
-						$("#id_razon_social").val(aux[1]);
-						$("#nombre").val(aux[2]);
-						$("#ruta").val(aux[3]);
-						$("#usuario_db").val(aux[4]);
-						$("#contrasena_db").val(aux[5]);
-						$("#rfc").val(aux[6]);
-						$("#link").val(aux[7]);
-						$("#orden").val(aux[8]);
-						$("#usuario_db").val(aux[9]);
-						$("#observaciones").val(aux[10]);
-						$("#activo").val(aux[11]);
-					}//fin de else
-				}
-			});//fin de ajax
-			$("#emergente_RS").css("display","block");
-		}//fin de else
-	}//fin de funcion que carga datos*/
+	function customerSeeker(e){
+		if(e.keyCode != 13 && e != 'intro'){
+			return false;
+		}
+		var txt = $('#customer_seeker').val();
+		var url = `ajax/customersDB.php?fl=getSpecificCustomer&text=${txt}`;
+		var resp = ajaxR(url);
+		$('#customersList').empty();
+		$('#customersList').html(resp);
+	}
 
-var resaltada=0;
 	function resalta(num){
 		if(resaltada!=0){
 			quita_resaltado(resaltada);

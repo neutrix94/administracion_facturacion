@@ -64,76 +64,14 @@
                 die(json_encode( array("status"=>302, "message"=>"Error al listar las razones sociales.", "query"=>$sql, "error_detail"=>"{$error->getMessage()}")));
             }
             return $resp;
-            /*$sql = "SELECT 
-                        p.id_pedido, 
-                        s.nombre AS store_name,
-                        p.folio_nv, 
-                        p.id_cliente,
-                        p.total
-                    FROM ec_pedidos p
-                    LEFT JOIN sys_sucursales s
-                    ON p.id_sucursal = s.id_sucursal
-                    WHERE 1";
-            $sql .= ( $folio == '' ? "" : " AND p.folio_nv LIKE '%{$folio}%'" );
-            $sql .= " ORDER BY p.id_pedido ";
-            if( $start != 0 ){
-                $sql .= " LIMIT {$start}, $limit";
-            }else{
-                $sql .= " LIMIT $limit";
-            }
-            try{
-                $stm = $this->link->query( $sql ) or die( "Error al consultar la venta  : {$sql} : {$this->link->error}" );
-            }catch( PDOException $e ){
-                die( "Error al consultar las notas de venta : {$sql} : {$e}" );
-            }
-            $c = 0;
-            if( $stm->rowCount() <= 0 ){
-                return "<tr><td colspan=\"10\" class=\"text-center\">Sin resultados.</td></tr>";
-            }
-            while( $r = $stm->fetch( PDO::FETCH_ASSOC ) ){
-                $c ++;
-                $resp .= $this->build_row_ceil( $r, $c );
-            }
-            return $resp;*/
         }
 
         public function build_row_ceil( $r, $c ){
-            //$c++;//incrementamos contador
-            $resp = "";
-				//$c++;//incrementamos contador
-            $resp .= '<tr id="fila_'.$c.'" tabindex="'.$c.'" onfocus="resalta('.$c.');" onclick="resalta('.$c.');" onblur="quita_resaltado('.$c.');">';
+            $resp = '<tr id="fila_'.$c.'" tabindex="'.$c.'" onfocus="resalta('.$c.');" onclick="resalta('.$c.');" onblur="quita_resaltado('.$c.');">';
                 $resp .= '<td>'.$r['id_cliente_facturacion'].'</td>';
                 $resp .= '<td>'.$r['rfc'].'</td>';
                 $resp .= '<td>'.$r['razon_social'].'</td>';
                 $resp .= '<td class="text-center">'.$r['cp'].'</td>';
-                $resp .= "<td class=\"text-center\">
-                    <button
-                        type=\"button\"
-                        class=\"btn\"
-                        onclick=\"muestra_datos_RS( {$r['id_cliente_facturacion']} , 0 );\"
-                    >
-                        <i class=\"icon-eye\"></i>
-                    </button>
-                </td>
-                <td class=\"text-center\">
-                    <button
-                        type=\"button\"
-                        class=\"btn\"
-                        onclick=\"muestra_datos_RS( {$r['id_cliente_facturacion']} , 2 );\"
-                    >
-                        <i class=\"icon-pencil\"></i>
-                    </button>
-                </td>
-                <td class=\"text-center\">
-                    <button
-                        type=\"button\"
-                        class=\"btn\"
-                        onclick=\"muestra_datos_RS( {$r['id_cliente_facturacion']} , 3 );\"
-                    >
-                        <i class=\"icon-cancel\"></i>
-                    </button>
-                </td>";
-            $resp .= '</tr>'; 
             return $resp;
         }
     //consulta detalle de una venta en especifico
@@ -148,24 +86,4 @@
             return $resp;
         }
     }
-    /*
-                <td class=\"text-center\">
-                    <button
-                        type=\"button\"
-                        class=\"btn\"
-                        onclick=\"muestra_datos_RS( {$r['id_pedido']} , 2 );\"
-                    >
-                        <i class=\"icon-pencil\"></i>
-                    </button>
-                </td>
-                <td class=\"text-center\">
-                    <button
-                        type=\"button\"
-                        class=\"btn\"
-                        onclick=\"muestra_datos_RS( {$r['id_pedido']} , 3 );\"
-                    >
-                        <i class=\"icon-cancel\"></i>
-                    </button>
-                </td>
-    */
 ?>
