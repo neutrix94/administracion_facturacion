@@ -177,6 +177,34 @@
                 error_log( "Error al actualizar el status de la nota de venta : {$sql} : {$e}" );
                 die( "Error al actualizar el status de la nota de venta : {$sql} : {$e}" );
             }
+        }else{
+		//implementacion Oscar 2025-09-03 para enviar error por Telegram
+            $api_url = "";
+            try{
+                $sql = "SELECT `value` AS api_path FROM api_config WHERE `key` = 'api'";
+                $stm = $link->query($sql);
+                $row = $stm->fetch(PDO::FETCH_ASSOC);
+                $api_url = "{$row['api_path']}/rest_v2/telegram/send_message";
+                $post_data = json_encode(array("id_modulo"=>"4", 
+                    "mensaje"=>"Error al timbrar la venta '{$sale_folio}' en Razon Social; respuesta : {$resp}\n")
+                );
+                //$curl_resp = $this->sendPetition($url, $post_data, '');
+                $crl = curl_init( "{$api_url}" );
+                curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+                curl_setopt($crl, CURLOPT_POST, true);
+                curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+                //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
+                curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+                curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json' )
+                );
+                $resp_curl = curl_exec($crl);//envia peticion
+                curl_close($crl);
+            }catch(PDOException $error){
+                die( "Error al consultar URL API sistema general : {$sql} : {$error->getMessage()}" );
+            }
+		//fin de cambio Oscar 2025-09-03
         }
         $response->getBody()->write( $resp );
         return $response;
