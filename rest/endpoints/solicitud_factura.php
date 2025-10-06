@@ -48,7 +48,7 @@
             curl_setopt($crl, CURLINFO_HEADER_OUT, true);
             curl_setopt($crl, CURLOPT_POST, true);
             curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
-            curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+            curl_setopt($crl, CURLOPT_TIMEOUT, 10);
             curl_setopt($crl, CURLOPT_HTTPHEADER, array(
                 'Content-Type: application/json' )
             );
@@ -142,7 +142,7 @@
 			curl_setopt($crl, CURLOPT_POST, true);
 			curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
 			//curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-		    curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+		    curl_setopt($crl, CURLOPT_TIMEOUT, 10);
 			curl_setopt($crl, CURLOPT_HTTPHEADER, array(
 			  'Content-Type: application/json' )
 			);
@@ -195,8 +195,8 @@
                 curl_setopt($crl, CURLOPT_POST, true);
                 curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
                 //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-                curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
-                curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+                curl_setopt($crl, CURLOPT_TIMEOUT, 10);
+                curl_setopt($crl, CURLOPT_HTTPHEADER, value: array(
                 'Content-Type: application/json' )
                 );
                 $resp_curl = curl_exec($crl);//envia peticion
