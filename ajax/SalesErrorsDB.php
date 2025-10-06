@@ -107,15 +107,16 @@
                     ON peer.id_pedido = p.id_pedido
                     LEFT JOIN sys_sucursales s
                     ON p.id_sucursal = s.id_sucursal
-                    WHERE 1
-                    GROUP BY p.id_pedido";
+                    WHERE 1";
             $sql .= ( $folio == '' ? "" : " AND p.folio_nv LIKE '%{$folio}%'" );
-            $sql .= " ORDER BY p.id_pedido ";
             if( $start != 0 ){
             //    $sql .= " LIMIT {$start}, $limit";
             }else{
             //    $sql .= " LIMIT $limit";
             }
+            $sql .= " GROUP BY p.id_pedido";
+            $sql .= " ORDER BY p.id_pedido ";
+            //die("SQL : {$sql}");
             try{
                 $stm = $this->link->query( $sql ) or die( "Error al consultar la venta  : {$sql} : {$this->link->error}" );
             }catch( PDOException $e ){
