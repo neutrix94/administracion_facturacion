@@ -11,6 +11,14 @@
                 echo $SalesDB->getSales( $folio );
             break;
 
+            case 'getPagesSales' : 
+                $limit = ( isset( $_POST['limit'] ) ? $_POST['limit'] : (isset($_GET['limit']) ? $_GET['limit'] : 20) );
+                $since = ( isset( $_POST['since'] ) ? $_POST['since'] : (isset($_GET['since']) ? $_GET['since'] : 0) );
+                $to = ( isset( $_POST['to'] ) ? $_POST['to'] : (isset($_GET['to']) ? $_GET['to'] : 20) );
+                $current_page = ( isset( $_POST['current_page'] ) ? $_POST['current_page'] : (isset($_GET['current_page']) ? $_GET['current_page'] : 0) );
+                echo json_encode($SalesDB->getPagesSales( $limit, $current_page));
+            break;
+
             case 'getSales':
                 $start = ( isset( $_POST['start'] ) ? $_POST['start'] : $_GET['start'] );
                 $folio = ( isset( $_POST['limit'] ) ? $_POST['limit'] : $_GET['limit'] );
@@ -32,7 +40,56 @@
         public function __construct( $connection ) {
             $this->link = $connection;
         }
-        public function getSales( $folio = '', $start = 0, $limit = 30, $order_by = 'ASC' ){
+
+        public function getPagesInfo($limit, $current_page){
+            $paginator = array();
+            try{
+                $sql = "SELECT
+                    COUNT(*) AS rows_counter
+                FROM ec_pedidos
+                WHERE id_pedido > 0";
+                $eje = $this->link->query( $sql );
+                $row = $eje->fetch( PDO::FETCH_ASSOC );
+                $pages_counter = CEIL( $row['rows_counter'] / $limit );
+                $paginator['rows_counter'] = $row['rows_counter'];
+                $paginator['pages_counter'] = $pages_counter;
+                $paginator['limit'] = $limit;
+                $paginator['current_page'] = $current_page;
+                return $paginator;
+            }catch(PDOException $error){
+                return array("status"=>"302", "message"=>"Error al calcular paginador.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}");
+            }
+        }
+
+        public function getPagesSales( $limit = 20, $current_page = 1){
+            $sales = array();
+            $paginator = $this->getPagesInfo($limit, $current_page);
+            try{
+                $sql = "SELECT 
+                    p.id_pedido, 
+                    s.nombre AS store_name,
+                    p.folio_nv, 
+                    IF(p.id_razon_factura < 10000, 'Sin Asignar', crs.rfc ) AS id_cliente,
+                    p.total
+                FROM ec_pedidos p
+                LEFT JOIN sys_sucursales s
+                ON p.id_sucursal = s.id_sucursal
+                LEFT JOIN vf_clientes_razones_sociales crs
+                ON p.id_razon_factura = crs.id_cliente_facturacion
+                WHERE 1 
+                ORDER BY id_pedido DESC";
+                $offset = ($current_page - 1) * $limit;
+                $sql .= " LIMIT {$offset}, $limit";
+                $stm = $this->link->query($sql);
+                while($row = $stm->fetch(PDO::FETCH_ASSOC)){
+                    $sales[] = $row;
+                }
+                return array("paginator"=>$paginator,"sales"=>$sales);
+            }catch(PDOException $error){
+                return array("status"=>"302", "message"=>"Error al consultar las notas de venta.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}");
+            }
+        }
+        public function getSales( $folio = '', $start = 0, $limit = 20, $order_by = 'ASC' ){
             $resp = "";
             $sql = "SELECT 
                         p.id_pedido, 
@@ -95,7 +152,7 @@
                 $sql = "SELECT
                             p.id_pedido,
                             p.folio_nv,
-                            IF( p.id_cliente < 10000, 'Sin Asignar', crs.rfc ) AS id_cliente,
+                            IF(p.id_razon_factura < 10000, 'Sin Asignar', CONCAT(crs.rfc, ' - ', crs.razon_social) ) AS id_cliente,
                             p.fecha_alta,
                             p.subtotal,
                             p.total,
@@ -104,7 +161,7 @@
                             rs.nombre AS id_razon_social
                         FROM ec_pedidos p
                         LEFT JOIN vf_clientes_razones_sociales crs
-                        ON crs.id_cliente_facturacion = p.id_cliente
+                        ON crs.id_cliente_facturacion = p.id_razon_factura
                         LEFT JOIN vf_cfdi vc
                         ON vc.id_cfdi = p.uso_cfdi
                         LEFT JOIN ec_status_facturacion esf
@@ -131,24 +188,4 @@
             include( '../include/forms/formularioVentas.php' );
         }
     }
-    /*
-                <td class=\"text-center\">
-                    <button
-                        type=\"button\"
-                        class=\"btn\"
-                        onclick=\"muestra_datos_RS( {$r['id_pedido']} , 2 );\"
-                    >
-                        <i class=\"icon-pencil\"></i>
-                    </button>
-                </td>
-                <td class=\"text-center\">
-                    <button
-                        type=\"button\"
-                        class=\"btn\"
-                        onclick=\"muestra_datos_RS( {$r['id_pedido']} , 3 );\"
-                    >
-                        <i class=\"icon-cancel\"></i>
-                    </button>
-                </td>
-    */
 ?>
