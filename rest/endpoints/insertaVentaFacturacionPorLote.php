@@ -324,7 +324,7 @@
                     curl_setopt($crl, CURLOPT_POST, true);
                     curl_setopt($crl, CURLOPT_POSTFIELDS, json_encode($arrayVentasParaRazonesSociales));
                     //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-                    curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+                    curl_setopt($crl, CURLOPT_TIMEOUT, 200);
                     curl_setopt($crl, CURLOPT_HTTPHEADER, array(
                     'Content-Type: application/json' )
                     );
