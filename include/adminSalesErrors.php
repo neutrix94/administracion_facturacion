@@ -23,7 +23,8 @@
             p.folio_nv,
             p.total,
             GROUP_CONCAT(peer.contenido_respuesta SEPARATOR '\n') AS contenido_respuesta,
-            peer.omitir
+            peer.omitir,
+            p.id_status_facturacion
         FROM ec_pedidos_error_envio_rs peer
         LEFT JOIN ec_pedidos p
         ON peer.id_pedido = p.id_pedido
@@ -85,8 +86,12 @@
 			<?php
 			$c=0;//inicaimos el contador en cero
 			while( $r = $eje->fetch( PDO::FETCH_ASSOC ) ){
+                $row_class = "";
+                if($r['id_status_facturacion'] >= 5){
+                    $row_class = "bg-success";
+                }
 				$c++;//incrementamos contador
-				echo '<tr id="fila_'.$c.'" tabindex="'.$c.'" class="row_item">';
+				echo '<tr id="fila_'.$c.'" tabindex="'.$c.'" class="row_item '. $row_class . '">';
 					echo '<td class="text-center">'.$r['id_pedido'].'</td>';
 					echo '<td class="text-center">'.$r['store_name'].'</td>';
 					echo '<td class="text-center">'.$r['folio_nv'].'</td>';
