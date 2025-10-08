@@ -30,8 +30,8 @@
             <div class="col-4">
                 <label for="store_filter">Sucursal : </label>
                 <br>
-                <select class="form-control" id="store_filter" onchange="filter();">
-                    <option value="-1">Todas</option>
+                <select class="form-control" id="store_filter" onchange="getInvoiceRequests();">
+                    <option value="0">Todas</option>
                     <?php echo $stores;?>
                 </select>
                 <br>
@@ -39,16 +39,16 @@
             <div class="col-4">
                 <label for="rss_filter">Razon Social : </label>
                 <br>
-                <select class="form-control" id="rss_filter" onchange="filter();">
-                    <option value="-1">Todas</option>
+                <select class="form-control" id="rss_filter" onchange="getInvoiceRequests();">
+                    <option value="0">Todas</option>
                     <?php echo $rss;?>
                 </select>
             </div>
             <div class="col-4 text-end">
                 <label for="status_filter">Status : </label>
                 <br>
-                <select class="form-control" id="status_filter" onchange="filter();">
-                    <option value="-1">Todos</option>
+                <select class="form-control" id="status_filter" onchange="getInvoiceRequests();">
+                    <option value="0">Todos</option>
                     <?php echo $status;?>
                 </select>
             </div>
@@ -87,7 +87,7 @@
 				</thead>
 				<tbody id="invoiceRequestList">
 			<?php
-                echo $InvoiceRequestDB->getInvoiceRequests( null,  -1, -1, -1, 50 );
+               // echo $InvoiceRequestDB->getInvoiceRequests( null,  -1, -1, -1, 50 );
 			?>
 				</tbody>
 			</table>
@@ -100,7 +100,7 @@
                         <button
                             class="btn btn-primary"
                             style="box-shadow : 1px 10px 10px rgba( 0,0,0,.4 );"
-                            onclick="move_page( -1 );"
+                            onclick="paginator(-1);"
                         >
                             <i class="icon-left-open"></i>
                         </button>
@@ -116,7 +116,7 @@
                         <button
                             class="btn btn-primary"
                             style="box-shadow : 1px 10px 10px rgba( 0,0,0,.4 );"
-                            onclick="move_page( 1 );"
+                            onclick="paginator(1);"
                         >
                             <i class="icon-right-open"></i>
                         </button>
@@ -125,9 +125,108 @@
             </tfoot>
         </table>
 	</div>
-
 <script>
-    function filter( type = null ){
+    function getInvoiceRequests( start_position = 0, limit = 20, page = 1 ){//buscar venta
+        var url = `include/invoiceRequestDB.php?action_fl=getInvoiceRequests&limit=${limit}&current_page=${page}`;//&folio=${text}&start=${start_position}
+        var store_filter = $('#store_filter').val();
+        if( store_filter != 0){
+            url += `&store=${store_filter}`;
+        }
+        var status_filter = $('#status_filter').val();
+        if( status_filter != 0){
+            url += `&status=${status_filter}`;
+        }//alert(url);
+
+        var rs_id = $('#rss_filter').val();
+        if( rs_id != 0){
+            url += `&rs_id=${rs_id}`;
+        }//alert(url);
+        var resp = ajaxR( url );//alert(resp);
+		var json = JSON.parse(resp);
+//console.log(json.errors);
+		var content = buildInvoiceRequest(json.invoiceRequests);
+        $( '#invoiceRequestList' ).html( resp );
+		
+		$('#invoiceRequestList').empty();
+		$('#invoiceRequestList').html(content);
+		$('#current_page').html(json.paginator.current_page);
+		$('#pages_limit').html(json.paginator.pages_limit);
+	}
+
+    function buildInvoiceRequest(json){//alert(json);
+        var content = ``;
+        var c = 0;
+        for (const key in json) {
+            var row_class = "bg-danger text-white";
+            if(json[key]['status_name'] == "Facturada"){
+                row_class = "";
+            }
+            c++;//incrementamos contador
+            content += `<tr tabindex="${c}" class="${row_class}">
+                    <td>${json[key]['sale_folio']}</td>
+                    <td>${json[key]['store_name']}</td>
+                    <td>${json[key]['reason_name']}</td>
+                    <td>${json[key]['costumer_rfc']}</td>
+                    <td>${json[key]['sale_ammount']}</td>
+                    <td>${json[key]['sale_date_time']}</td>
+                    <td>${json[key]['status_name']}</td>
+                    <td align="center">
+                        <button 
+                            type="button"
+                            class="btn"
+                            onclick="show_bill_petition_detail(${json[key]['sale_id']});"
+                        >
+                            <i class="icon-list"></i>
+                        </button>
+                    </td>
+                    <td align="center">
+                        <button 
+                            type="button"
+                            class="btn"
+                            onclick="bill_petition( ${json[key]['sale_id']} );"
+                        >
+                            <i class="icon-bell-5"></i>
+                        </button>
+                    </td>
+                    <td align="center">
+                        <button 
+                            type="button"
+                            class="btn"
+                            onclick="muestra_datos_RS( ${json[key]['sale_id']}, 1 );"
+                        >
+                            <i class="icon-print"></i>
+                        </button>
+                    </td>
+                    <td align="center">
+                        <button 
+                            type="button"
+                            class="btn"
+                            onclick="muestra_datos_RS( ${json[key]['sale_folio']}, 2 );"
+                        >
+                            <i class="icon-email"></i>
+                        </button>
+                    </td>
+                </tr>`; 
+        }
+        return content;
+    }
+    
+    function paginator(action){
+	//consulta pagina actual
+		var current_page = parseInt($('#current_page').val().trim());
+		var pages_limit = parseInt($('#pages_limit').val().trim());
+		current_page += parseInt(action);
+		if(current_page < 1){
+			alert("No hay mas paginas hacia atras.");
+			return false;
+		}else if(current_page > pages_limit){
+			alert("No hay mas paginas hacia adelante.");
+			return false;
+		}
+		getInvoiceRequests( 0, 20, current_page );
+	}
+
+    /*function filter( type = null ){
 //recolecta informacion de los filtros
        // var store_filter = $( '#store_filter' ).val();  
        // var rs_filter = $( '#rss_filter' ).val();  
@@ -183,7 +282,7 @@
             $('#current_page').val( next_page );
         }
         //filter();
-    }
+    }*/
 
     function bill_petition( sale_id ){
     //consume api de facturacion
@@ -306,3 +405,7 @@ input[type=number] { -moz-appearance:textfield; }
         color :blue;
     }
 </style>
+
+<script>
+    getInvoiceRequests();
+</script>
