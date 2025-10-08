@@ -7,14 +7,13 @@
     include( './invoiceRequestDB.php' );
     $InvoiceRequestDB = new InvoiceRequestDB( $link );
     //$pages_limit = $InvoiceRequestDB->getPagesLimit();
-    $pages_limit = 50;
+    $pages_limit = 20;
 	$_SESSION['current_view'] = $_POST['action'];
-//consulta las sucursales para los filtros
-    $stores = $InvoiceRequestDB->getStores();
-//consulta las razones sociales para los filtros
-    $rss = $InvoiceRequestDB->getSocialReasons();
-//consulta las status para los filtros
+    
+    $stores = $InvoiceRequestDB->getStores();//consulta las razones sociales para los filtros
+    $rss = $InvoiceRequestDB->getSocialReasons();//consulta las status para los filtros
     $status = $InvoiceRequestDB->getStatus();
+	$paginator = $InvoiceRequestDB->getPagesInfo(20, 1);
 ?>
 <!-- libreria para dar formato a jsons -->
 	<script src="./js/highlight/highlight.min.js"></script>
@@ -106,11 +105,11 @@
                         </button>
                     </th>
                     <th class="text-center">
-                        Página <input type="number" id="current_page" value="1" class="paginator_input" onkeyup="filter();"> de 
-                        <input type="number" id="pages_stop" value="<?php echo $pages_limit;?>" class="paginator_input" disabled>
+                        Página <input type="number" id="current_page" value="<?php echo $paginator['current_page'];?>" class="paginator_input" onkeyup="filter();"> de 
+                        <input type="number" id="pages_limit" value="<?php echo $paginator['pages_counter'];?>" class="paginator_input" disabled>
                         <br>
-                        <b class="rows_per_page_text">Registros por página : </b>
-                        <input type="number" id="pages_limit" value="<?php echo $pages_limit;?>" onblur="change_rows_per_page();" class="paginator_input rows_per_page_text">
+                        <!--b class="rows_per_page_text">Registros por página : </b>
+                        <input type="number" id="pages_limit" value="<?php //echo $paginator['pages_counter'];?>" onblur="change_rows_per_page();" class="paginator_input rows_per_page_text"-->
                     </th>
                     <th class="text-center">
                         <button
@@ -149,8 +148,8 @@
 		
 		$('#invoiceRequestList').empty();
 		$('#invoiceRequestList').html(content);
-		$('#current_page').html(json.paginator.current_page);
-		$('#pages_limit').html(json.paginator.pages_limit);
+		$('#current_page').val(json.paginator.current_page);
+		$('#pages_limit').val(json.paginator.pages_counter);
 	}
 
     function buildInvoiceRequest(json){//alert(json);
@@ -214,7 +213,7 @@
     function paginator(action){
 	//consulta pagina actual
 		var current_page = parseInt($('#current_page').val().trim());
-		var pages_limit = parseInt($('#pages_limit').val().trim());
+		var pages_limit = parseInt($('#pages_limit').val().trim());//alert(pages_limit);
 		current_page += parseInt(action);
 		if(current_page < 1){
 			alert("No hay mas paginas hacia atras.");
