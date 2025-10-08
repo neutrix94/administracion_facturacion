@@ -14,7 +14,9 @@
             case 'getPagesSalesErrors':
                 $limit = ( isset( $_POST['limit'] ) ? $_POST['limit'] : (isset($_GET['limit']) ? $_GET['limit'] : 20) );
                 $current_page = ( isset( $_POST['current_page'] ) ? $_POST['current_page'] : (isset($_GET['current_page']) ? $_GET['current_page'] : 0) );
-                echo json_encode($SalesDB->getPagesSalesErrors($limit, $current_page));//fl=&folio=${text}&start=${start_position}&limit=${limit}
+                $store = ( isset( $_POST['store'] ) ? $_POST['store'] : (isset($_GET['store']) ? $_GET['store'] : 0) );
+                $status = ( isset( $_POST['status'] ) ? $_POST['status'] : (isset($_GET['status']) ? $_GET['status'] : 0) );
+                echo json_encode($SalesDB->getPagesSalesErrors($limit, $current_page, $store, $status));
             break;
 
             case 'getSpecificSale' :
@@ -99,23 +101,10 @@
             }
         }
         
-        public function getPagesSalesErrors( $limit = 20, $current_page = 1){
+        public function getPagesSalesErrors( $limit = 20, $current_page = 1, $store = 0, $status = 0){
             $sales = array();
             $paginator = $this->getPagesInfo($limit, $current_page);
             try{
-                /*$sql = "SELECT 
-                    p.id_pedido, 
-                    s.nombre AS store_name,
-                    p.folio_nv, 
-                    IF(p.id_razon_factura < 10000, 'Sin Asignar', crs.rfc ) AS id_cliente,
-                    p.total
-                FROM ec_pedidos p
-                LEFT JOIN sys_sucursales s
-                ON p.id_sucursal = s.id_sucursal
-                LEFT JOIN vf_clientes_razones_sociales crs
-                ON p.id_razon_factura = crs.id_cliente_facturacion
-                WHERE 1 
-                ORDER BY id_pedido DESC";*/
                 $sql = "SELECT 
                         p.id_pedido, 
                         s.nombre AS store_name,
@@ -129,8 +118,14 @@
                     ON peer.id_pedido = p.id_pedido
                     LEFT JOIN sys_sucursales s
                     ON p.id_sucursal = s.id_sucursal
-                    WHERE 1
-                    GROUP BY p.id_pedido
+                    WHERE 1";
+                if($store != 0 ){
+                    $sql .= " AND p.id_sucursal = {$store}";
+                }
+                if($status != 0 ){
+                    $sql .= " AND p.id_status_facturacion = {$status}";
+                }
+                $sql .= " GROUP BY p.id_pedido
                     ORDER BY p.id_pedido DESC";
                 $offset = ($current_page - 1) * $limit;
                 $sql .= " LIMIT {$offset}, $limit";

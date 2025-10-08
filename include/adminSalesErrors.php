@@ -19,7 +19,7 @@
     $row = $eje->fetch( PDO::FETCH_ASSOC );
     $pages_limit = ceil( $row['pages_limit'] / 20 );
     //$pages_limit //die("PAGES : {$pages_limit}  : {$row['pages_limit']} / 20");
-	$sql = "SELECT 
+	/*$sql = "SELECT 
             p.id_pedido, 
             s.nombre AS store_name,
             p.folio_nv,
@@ -34,8 +34,8 @@
         ON p.id_sucursal = s.id_sucursal
         WHERE 1 
         GROUP BY p.id_pedido
-        ORDER BY id_pedido DESC/*LIMIT 20*/";
-	$eje = $link->query( $sql )or die("Error al listar las razones sociales : {$sql}");
+        ORDER BY id_pedido DESCLIMIT 20";
+	$eje = $link->query( $sql )or die("Error al listar las razones sociales : {$sql}");*/
     $stores = $SalesDB->getStores();
     $status = $SalesDB->getStatus();
 	$paginator = $SalesDB->getPagesInfo(20, 1);
@@ -55,24 +55,24 @@
                     </p>
                 </b>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-6" onchange="getSalesErrors();">
                         Sucursal
                         <select class="form-control" name="" id="store_filter">
                             <option value="0">--Todas--</option>
                     <?php
                         foreach ($stores as $key => $store) {
-                            echo "<option {$store['id_sucursal']}>{$store['nombre']}</option>";
+                            echo "<option value=\"{$store['id_sucursal']}\">{$store['nombre']}</option>";
                         }
                     ?>
                         </select>
                     </div>
                     <div class="col-6">
                         Status
-                        <select class="form-control" name="" id="status_filter">
+                        <select class="form-control" name="" id="status_filter" onchange="getSalesErrors();">
                             <option value="0">--Todas--</option>
                     <?php
                         foreach ($status as $key => $st) {
-                            echo "<option {$st['id_status_facturacion']}>{$st['nombre_status']}</option>";
+                            echo "<option value=\"{$st['id_status_facturacion']}\">{$st['nombre_status']}</option>";
                         }
                     ?>
                         </select>
@@ -203,15 +203,24 @@
     
     function getSalesErrors( start_position = 0, limit = 20, page = 1 ){//buscar venta
         var url = `ajax/SalesErrorsDB.php?fl=getPagesSalesErrors&limit=${limit}&current_page=${page}`;//&folio=${text}&start=${start_position}
+        var store_filter = $('#store_filter').val();
+        if( store_filter != 0){
+            url += `&store=${store_filter}`;
+        }
+        var status_filter = $('#status_filter').val();
+        if( status_filter != 0){
+            url += `&status=${status_filter}`;
+        }//alert(url);
         var resp = ajaxR( url );//alert(resp);
 		var json = JSON.parse(resp);
-        console.log(json.errors);
+//console.log(json.errors);
 		var content = buildSaleRows(json.errors);
         $( '#SalesListContent' ).html( resp );
 		
 		$('#SalesListContent').empty();
 		$('#SalesListContent').html(content);
 		$('#current_page').html(json.paginator.current_page);
+		$('#pages_limit').html(json.paginator.pages_limit);
 	}
     
 
