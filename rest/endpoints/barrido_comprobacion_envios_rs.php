@@ -31,6 +31,7 @@
         }
     //consulta los folios de la venta que estan es status de enviada a RS
         $pending_sales = array();
+        $ok_sales = array();
         try{
             $sql = "SELECT
                         folio_nv
@@ -46,8 +47,10 @@
                 $resp_decode = json_decode( $petition_rs, true );
                 if( isset($resp_decode['status']) && $resp_decode['status'] == 200 ){//si la insercion es exitosa actualiza a status 5 la nota de venta
                     $status_update = 5;//insertado en RS
+                    $pending_sales[] = $row;
                 }else{
                     $status_update = 4;//enviado a RS pero no se inserta
+                    $ok_sales[] = $row;
                 }
                 try{
                     $sql = "UPDATE ec_pedidos SET id_status_facturacion = {$status_update} WHERE folio_nv = '{$row['folio_nv']}'";
@@ -73,6 +76,7 @@
             $response->getBody()->write($payload);
             return $response;
         }
+        $resp = array("ok_sales"=>$ok_sales, "pending_sales"=>"{$pending_sales}");
         $payload = json_encode($pending_sales);
         $response->getBody()->write($payload);
         return $response;
