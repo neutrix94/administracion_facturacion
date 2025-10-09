@@ -91,6 +91,10 @@
         );
         $resp = curl_exec($crl);//envia peticion
         curl_close($crl);
+$myfile = fopen("barrido_comprobacion_envios_rs.txt", "a") or die("Unable to open file!");
+$txt = "\nURL : {$url}\nPOST_DATA : {$post_data}\nRESPONSE : {$resp}";
+fwrite($myfile, $txt);
+fclose($myfile);
         return $resp;
     }
 ?>
