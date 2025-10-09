@@ -43,7 +43,7 @@
                 $url = "{$api_path}/rest/inserta_venta_sistema_facturacion";
                 $petition_rs = sendPetition($url, $post_data);//$pending_sales[] = $row;
 
-                $json_resp = json_decode( $petition_rs );
+                $resp_decode = json_decode( $petition_rs );
                 if( isset($resp_decode['status']) && $resp_decode['status'] == 200 ){//si la insercion es exitosa actualiza a status 5 la nota de venta
                     $status_update = 5;//insertado en RS
                 }else{
