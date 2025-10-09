@@ -77,7 +77,7 @@
             return $response;
         }
         $resp = array("ok_sales"=>$ok_sales, "pending_sales"=>"{$pending_sales}");
-        $payload = json_encode($pending_sales);
+        $payload = json_encode($resp);
         $response->getBody()->write($payload);
         return $response;
     });
