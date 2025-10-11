@@ -21,6 +21,9 @@
                 $rs_id = ( isset( $_GET['rs_id'] ) ? $_GET['rs_id'] : $_POST['rs_id'] );
                 echo $salesVerificationDB->sendSales( $date_since, $date_to, $rs_id );
             break;
+            case 'sales_sweep' :
+                echo $salesVerificationDB->salesSweep();
+            break;
             default :
                 die( "Permission denied on : '{$action}'" );
             break;
@@ -31,6 +34,17 @@
         private $link;
         public function __construct( $connection ) {
             $this->link = $connection;
+        }
+    //barrido de ventas
+        public function salesSweep(){
+            $sql = "SELECT `value` FROM api_config WHERE `name` = 'path_facturacion'";
+            $stm = $this->link->query( $sql );
+            $row = $stm->fetch( PDO::FETCH_ASSOC );
+            $billing_path = "{$row['value']}";
+            //$post_data = json_encode( array( "date_since"=>$date_since, "date_to"=>$date_to, "rs_id"=>$rs_id, "url"=>$billing_path ) );
+            $resp = $this->sendPetition( "{$billing_path}/rest/barrido_comprobacion_envios_rs", "", "" );
+            return $resp;
+            //die( $resp );
         }
     //previo
         public function getPrevious( $date_since, $date_to, $rs_id, $token = "" ){
