@@ -30,6 +30,8 @@ $app->get('/example', function (Request $request, Response $response, $args) {
   //Ejecutar consultas en el servidor
     require __DIR__ . '/endpoints/ejecuta_consulta_en_servidor.php';
     require __DIR__ . '/endpoints/obtener_clientes_pendientes.php';
+  //
+    require __DIR__ . '/endpoints/barrido_comprobacion_envios_rs.php';
 
 /*******************************************Endpoints cliente para consumir apis*******************************************/
   //clientes

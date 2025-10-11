@@ -3,10 +3,9 @@
 	include('./db.php');
 	$db = new db();
 	$link = $db->conectDB();
-//instancia clase de solicitudes de factura
+    
     include( './invoiceRequestDB.php' );
-    $InvoiceRequestDB = new InvoiceRequestDB( $link );
-    //$pages_limit = $InvoiceRequestDB->getPagesLimit();
+    $InvoiceRequestDB = new InvoiceRequestDB( $link );//instancia clase de solicitudes de factura
     $pages_limit = 20;
 	$_SESSION['current_view'] = $_POST['action'];
     
@@ -71,7 +70,6 @@
 				<thead class="bg-primary text-light" style="position : sticky; top :0;">
 					<tr>
 						<th class="text-center" width="10%">Folio Nota</th>
-						<!--th width="20%">Link acceso</th-->
 						<th class="text-center" width="10%">Sucursal</th>
 						<th class="text-center" width="10%">Razon Social Emisor</th>
 						<th class="text-center" width="10%">RFC Cliente</th>
@@ -85,10 +83,7 @@
 					</tr>
 				</thead>
 				<tbody id="invoiceRequestList">
-			<?php
-               // echo $InvoiceRequestDB->getInvoiceRequests( null,  -1, -1, -1, 50 );
-			?>
-				</tbody>
+                </tbody>
 			</table>
 		</div>
 
@@ -108,8 +103,6 @@
                         Página <input type="number" id="current_page" value="<?php echo $paginator['current_page'];?>" class="paginator_input" onkeyup="filter();"> de 
                         <input type="number" id="pages_limit" value="<?php echo $paginator['pages_counter'];?>" class="paginator_input" disabled>
                         <br>
-                        <!--b class="rows_per_page_text">Registros por página : </b>
-                        <input type="number" id="pages_limit" value="<?php //echo $paginator['pages_counter'];?>" onblur="change_rows_per_page();" class="paginator_input rows_per_page_text"-->
                     </th>
                     <th class="text-center">
                         <button
@@ -225,64 +218,6 @@
 		getInvoiceRequests( 0, 20, current_page );
 	}
 
-    /*function filter( type = null ){
-//recolecta informacion de los filtros
-       // var store_filter = $( '#store_filter' ).val();  
-       // var rs_filter = $( '#rss_filter' ).val();  
-       // var status_filter = $( '#status_filter' ).val();  
-        var url, seeker_text, store_filter, social_reason_filter;
-        var status, limit, page_since, status_filter;//, page_to;
-        
-        url = `./include/invoiceRequestDB.php?action_fl=getInvoiceRequests`;
-        limit = parseInt( $( "#pages_limit" ).val().trim() );
-        var page = parseInt( $( '#current_page' ).val().trim() );
-        if( page > 1 ){
-            page_since = ( page * limit ) -2;
-        }else{
-            page_since = 0;
-        }
-        url += `&page_since=${page_since}&limit=${limit}`;
-        url+= `&store_filter=` + $('#store_filter').val();
-        url+= `&social_reason_filter=` + $('#rss_filter').val();
-        url+= `&status_filter=` + $('#status_filter').val();
-        if( $( '#seeker_input' ).val().trim().length > 0 ){
-            url += "&seeker_text=" + $( '#seeker_input' ).val().trim();
-        }
-        var resp = ajaxR( url );//alert(url);
-        $( '#invoiceRequestList' ).empty();
-        $( '#invoiceRequestList' ).html(resp);
-    }
-
-    function change_rows_per_page(){
-        var factor = parseInt( $( '#pages_limit' ).val().trim() );
-        if( factor <= 0 ){
-            alert( "El mínimo de registros por pagina es 1." );
-            $( '#pages_limit' ).val(1);
-            $( '#pages_limit' ).select();
-            return false;
-        }
-        var url = `include/invoiceRequestDB.php?action_fl=getRowsCounter&factor=${factor}`;
-        var resp = ajaxR( url );
-        var json = JSON.parse( resp );
-        $( '#pages_stop' ).val( json.pages_number );
-        $( '#current_page' ).val( 1 );
-        setTimeout( function(){
-            filter();
-        }, 300 );
-        //alert( json.pages_number + " " + json.counter_rows );
-    }
-
-    function move_page( type ){
-        var next_page = parseInt( $('#current_page').val().trim() );
-        next_page += parseInt( type );
-        if( next_page <=0 ){
-            return false;
-        }else{
-            $('#current_page').val( next_page );
-        }
-        //filter();
-    }*/
-
     function bill_petition( sale_id ){
     //consume api de facturacion
         var url = `include/invoiceRequestDB.php?action_fl=sendBillPetition&sale_id=${sale_id}`;
@@ -302,7 +237,6 @@
             </div>`;
         $( '#contenido_emergente' ).html( content );
         $( '#emergente' ).css( "display", "block" );
-        //alert(resp);
     }
 
     function show_bill_petition_detail( sale_id ){
