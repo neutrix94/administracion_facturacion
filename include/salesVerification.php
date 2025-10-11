@@ -20,15 +20,27 @@
 <div id="emergent">
     <div id="emergent_content">
         <h2 class="text-center"><br><br>Cargando ...</h2>
+        <div class="text-center">
+            <img src="img/load.gif" alt="">
+        </div>
     </div>
 </div>
 
 <div class="row" style="width:97% !important;">
-    <div class="col-4">
+    <div class="col-12 p-4">
+        <button
+            type="button"
+            class="btn btn-warning form-control"
+            onclick="barrido_ventas();"
+        >
+            Ejecutar Barrido de ventas
+        </button>
+    </div>
+    <!--div class="col-4">
         <p>Razon Social :</p>
         <select class="form-control" id="rs_id">
             <option value="-1">Todas</option>
-            <?php echo "{$rs_options}";?>
+            <?php //echo "{$rs_options}";?>
         </select>
     </div>
     <div class="col-4">
@@ -39,13 +51,13 @@
         <p>Fecha hasta :</p>
         <input type="date" class="form-control" id="date_to">
     </div>
-    <br>
+    <br-->
 </div>
 <div id="table_content">
     
 </div>
 <br><br>
-<div class="row" style="width:97% !important;">
+<!--div class="row" style="width:97% !important;">
     <button
         type="button"
         class="form-control btn btn-info"
@@ -62,9 +74,37 @@
     >
         Enviar Ventas
     </button>
-</div>
+</div-->
 
 <script>
+    function barrido_ventas(){
+        $( '#emergent' ).css( "display", "block" );
+        $.ajax({
+			type : 'post',
+			url : 'include/ajax/salesVerificationDB.php',
+			cache : false,
+			data : { fl : 'sales_sweep' },
+		    success:function(dat){
+                var content = `<div class="row">
+                    <div>
+                        ${dat}
+                    </div>
+                    <div>
+                        <button
+                            class="btn btn-success"
+                            onclick="location.reload();"
+                        >
+                            Aceptar y cerrar
+                        </button>
+                    </div>
+                </div>`;
+                $('#emergent_content').html(content);
+                //$( '#emergent' ).css( "display", "none" );
+			}
+		});
+    }
+
+
     function salesVerification( send = false ){
         var flag = ( ( send == true ) ? "send" : "makePrevious" );
         var date_since = $( "#date_since" ).val();
