@@ -8,6 +8,7 @@
         $body = $request->getBody();
         $req = json_decode($body, true);
         $sale_folio = $req['sale_folio'];
+        $custom_email = $req['custom_email'];
     //consulta el apath del api de acuerdo a la razon social
         $sql = "SELECT 
                     rs.url_api
@@ -21,7 +22,7 @@
         }
         $row = $stm->fetch(PDO::FETCH_ASSOC);
         $api_path = $row['url_api'];
-        $post_data = json_encode( array( "sale_folio"=>$sale_folio ) );
+        $post_data = json_encode( array( "sale_folio"=>$sale_folio, "custom_email"=>$custom_email ) );
 
         //public function sendPetition( $url, $post_data ){
 			$resp = "";
