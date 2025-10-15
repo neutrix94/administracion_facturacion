@@ -132,12 +132,12 @@
                 $resp .= '<td>'.$r['total'].'</td>';
                 $resp .= "<td class=\"text-center\">
                     <button
-                        type=\"button\"
-                        class=\"btn\"
-                        onclick=\"muestra_datos_RS( {$r['id_pedido']} , 0 );\"
-                    >
-                        <i class=\"icon-eye\"></i>
-                    </button>
+						type=\"button\"
+						class=\"btn\"
+						onclick=\"saleDetail( {$r['id_pedido']} , 0 );\"
+					>
+						<i class=\"icon-eye\"></i>
+					</button>
                 </td>";
             $resp .= '</tr>'; 
             return $resp;
