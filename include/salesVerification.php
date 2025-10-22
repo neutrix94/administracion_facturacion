@@ -27,6 +27,14 @@
 </div>
 
 <div class="row" style="width:97% !important;">
+    <div class="col-6">
+        <h4>Fecha desde : </h4>
+        <input type="date" id="date_since" class="form-control">
+    </div>
+    <div class="col-6">
+        <h4>Fecha hasta : </h4>
+        <input type="date" id="date_to" class="form-control">
+    </div>
     <div class="col-12 p-4">
         <button
             type="button"
@@ -78,12 +86,25 @@
 
 <script>
     function barrido_ventas(){
+        var date_since, date_to;
+        date_since = $('#date_since').val();
+        if(date_since.length <= 0){
+            alert("La fecha desde es requerida.");
+            $('#date_since').focus();
+            return false;
+        }
+        date_to = $('#date_to').val();
+        if(date_to.length <= 0){
+            alert("La fecha hasta es requerida.");
+            $('#date_to').focus();
+            return false;
+        }
         $( '#emergent' ).css( "display", "block" );
         $.ajax({
 			type : 'post',
 			url : 'include/ajax/salesVerificationDB.php',
 			cache : false,
-			data : { fl : 'sales_sweep' },
+			data : { fl : 'sales_sweep', date_since : date_since, date_to : date_to },
 		    success:function(dat){
                 var content = `<div class="row">
                     <div>

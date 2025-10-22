@@ -22,7 +22,15 @@
                 echo $salesVerificationDB->sendSales( $date_since, $date_to, $rs_id );
             break;
             case 'sales_sweep' :
-                echo $salesVerificationDB->salesSweep();
+                $date_since = (isset($_POST['date_since']) ? $_POST['date_since'] : (isset($_GET['date_since']) ? $_GET['date_since'] : null));
+                if($date_since == null){
+                    die(json_encode(array("status"=>"302", "message"=>"La fecha desde no puede enviarse vacia.")));
+                }
+                $date_to = (isset($_POST['date_to']) ? $_POST['date_to'] : (isset($_GET['date_to']) ? $_GET['date_to'] : null));
+                if($date_to == null){
+                    die(json_encode(array("status"=>"302", "message"=>"La fecha hasta no puede enviarse vacia.")));
+                }
+                echo $salesVerificationDB->salesSweep($date_since, $date_to);
             break;
             default :
                 die( "Permission denied on : '{$action}'" );
@@ -36,13 +44,21 @@
             $this->link = $connection;
         }
     //barrido de ventas
-        public function salesSweep(){
+        public function salesSweep($date_since, $date_to){
             $sql = "SELECT `value` FROM api_config WHERE `name` = 'path_facturacion'";
             $stm = $this->link->query( $sql );
             $row = $stm->fetch( PDO::FETCH_ASSOC );
             $billing_path = "{$row['value']}";
-            //$post_data = json_encode( array( "date_since"=>$date_since, "date_to"=>$date_to, "rs_id"=>$rs_id, "url"=>$billing_path ) );
-            $resp = $this->sendPetition( "{$billing_path}/rest/barrido_comprobacion_envios_rs", "", "" );
+            $date_since = (isset($_POST['date_since']) ? $_POST['date_since'] : (isset($_GET['date_since']) ? $_GET['date_since'] : null));
+            if($date_since == null){
+                die(json_encode(array("status"=>"302", "message"=>"La fecha desde no puede enviarse vacia.")));
+            }
+            $date_to = (isset($_POST['date_to']) ? $_POST['date_to'] : (isset($_GET['date_to']) ? $_GET['date_to'] : null));
+            if($date_to == null){
+                die(json_encode(array("status"=>"302", "message"=>"La fecha hasta no puede enviarse vacia.")));
+            }
+            $post_data = json_encode( array( "fecha_desde"=>$date_since, "fecha_hasta"=>$date_to ) );
+            $resp = $this->sendPetition( "{$billing_path}/rest/barrido_comprobacion_envios_rs", $post_data, "" );
             return $resp;
             //die( $resp );
         }

@@ -5,10 +5,30 @@
         include( '../include/db.php' );
         $db = new db();
         $link = $db->conectDB();
-        $body = $request->getBody();
         $pending_sales = array();
         $current_year = "";
         $api_path = "";
+        
+        $body = $request->getBody();
+        $params = json_decode( $body, true);
+        $date_since = ( isset($params['fecha_desde']) ? $params['fecha_desde'] : null );//$request->getParam( "store_id" );
+        if($date_since == null){
+            $resp = array();
+            $resp['status'] = "302";
+            $resp['message'] = "El parametro fecha_desde es obligatorio.";
+            $payload = json_encode($resp);
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+        $date_to = ( isset($params['fecha_hasta']) ? $params['fecha_hasta'] : null );//$request->getParam( "store_id" );
+        if($date_to == null){
+            $resp = array();
+            $resp['status'] = "302";
+            $resp['message'] = "El parametro fecha_hasta es obligatorio.";
+            $payload = json_encode($resp);
+            $response->getBody()->write($payload);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
     //consulta el año actual
         try{
             $sql = "SELECT
@@ -37,7 +57,7 @@
                         folio_nv
                     FROM ec_pedidos p
                     WHERE id_status_facturacion IN(4)
-                    AND fecha_alta LIKE '%{$current_year}%'";
+                    AND ( fecha_alta BETWEEN '{$date_since} 00:00:01' AND '{$date_to} 23:59:59' )";
             $stm = $link->query($sql);
             while($row = $stm->fetch(PDO::FETCH_ASSOC)){
                 $post_data = json_encode( array( "sale_folio"=>$row['folio_nv'] ) );
