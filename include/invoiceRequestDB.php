@@ -7,14 +7,21 @@
         $action = ( isset( $_POST['action_fl'] ) ? $_POST['action_fl'] : $_GET['action_fl'] );
         switch ($action) {
             case 'getInvoiceRequests':
-                $seeker_text = ( isset( $_POST['seeker_text'] ) ? $_POST['seeker_text'] : ( isset( $_GET['seeker_text'] ) ? $_GET['seeker_text'] : NULL ) );
+                /*$seeker_text = ( isset( $_POST['seeker_text'] ) ? $_POST['seeker_text'] : ( isset( $_GET['seeker_text'] ) ? $_GET['seeker_text'] : NULL ) );
                 $store_filter = ( isset( $_POST['store_filter'] ) ? $_POST['store_filter'] : ( isset( $_GET['store_filter'] ) ? $_GET['store_filter'] : -1 ) );
                 $social_reason_filter = ( isset( $_POST['social_reason_filter'] ) ? $_POST['social_reason_filter'] : ( isset( $_GET['social_reason_filter'] ) ? $_GET['social_reason_filter'] : -1 ) );
                 $status = ( isset( $_POST['status'] ) ? $_POST['status'] : ( isset( $_GET['status'] ) ? $_GET['status'] : -1 ) );
                 $limit = ( isset( $_POST['limit'] ) ? $_POST['limit'] : ( isset( $_GET['limit'] ) ? $_GET['limit'] : 50 ) );                
                 $page_since = ( isset( $_POST['page_since'] ) ? $_POST['page_since'] : ( isset( $_GET['page_since'] ) ? $_GET['page_since'] : NULL ) );
-                $page_to = ( isset( $_POST['page_to'] ) ? $_POST['page_to'] : ( isset( $_GET['page_to'] ) ? $_GET['page_to'] : NULL ) );
-                echo $InvoiceRequestDB->getInvoiceRequests( $seeker_text, $store_filter, $social_reason_filter, $status, $limit, $page_since, $page_to );
+                $page_to = ( isset( $_POST['page_to'] ) ? $_POST['page_to'] : ( isset( $_GET['page_to'] ) ? $_GET['page_to'] : NULL ) );*/
+
+                $limit = ( isset( $_POST['limit'] ) ? $_POST['limit'] : (isset($_GET['limit']) ? $_GET['limit'] : 20) );
+                $current_page = ( isset( $_POST['current_page'] ) ? $_POST['current_page'] : (isset($_GET['current_page']) ? $_GET['current_page'] : 0) );
+                $store = ( isset( $_POST['store'] ) ? $_POST['store'] : (isset($_GET['store']) ? $_GET['store'] : 0) );
+                $status = ( isset( $_POST['status'] ) ? $_POST['status'] : (isset($_GET['status']) ? $_GET['status'] : 0) );
+                $rss_id = ( isset( $_POST['rss_id'] ) ? $_POST['rss_id'] : (isset($_GET['rss_id']) ? $_GET['rss_id'] : 0) );
+                
+                echo json_encode($InvoiceRequestDB->getInvoiceRequests( $limit, $current_page, $store, $status, $rss_id ));
             break;
 
             case "getRowsCounter":
@@ -150,8 +157,34 @@
             return $row;
         }
 
-        public function getInvoiceRequests( $seeker_text = null, $store_filter = -1, $social_reason_filter = -1, $status = -1, $limit = 50, $page_since = null, $page_to = null ){
-            $resp = array();
+        public function getPagesInfo($limit, $current_page){
+            $paginator = array();
+            try{
+                $sql = "SELECT
+                        COUNT(*) AS rows_counter
+                    FROM(
+                            SELECT
+                            COUNT(*) AS rows_counter
+                        FROM solicitudes_factura sf
+                        LEFT JOIN ec_pedidos p
+                        ON p.folio_nv = sf.folio_venta
+                        GROUP BY p.id_pedido
+                    )ax";
+                $eje = $this->link->query( $sql );
+                $row = $eje->fetch( PDO::FETCH_ASSOC );
+                $pages_counter = CEIL( $row['rows_counter'] / $limit );
+                $paginator['rows_counter'] = $row['rows_counter'];
+                $paginator['pages_counter'] = $pages_counter;
+                $paginator['limit'] = $limit;
+                $paginator['current_page'] = $current_page;
+                return $paginator;
+            }catch(PDOException $error){
+                return array("status"=>"302", "message"=>"Error al calcular paginador.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}");
+            }
+        }
+        public function getInvoiceRequests( $limit = 20, $current_page = 1, $store = 0, $status = 0, $rss_id = 0 ){
+            $invoiceRequests = array();
+            $paginator = $this->getPagesInfo($limit, $current_page);
             $sql = "SELECT
                 p.id_pedido AS sale_id,
                 p.folio_nv AS sale_folio,
@@ -173,43 +206,45 @@
             LEFT JOIN ec_status_facturacion st
             ON st.id_status_facturacion = p.id_status_facturacion
             WHERE 1";
-        //filtro de sucursal
-            if( $store_filter != -1 ){
-                $sql .= " AND p.id_sucursal = {$store_filter}";
+            if($store != 0 ){
+                $sql .= " AND p.id_sucursal = {$store}";
             }
-        //filtro de razon social
-            if( $social_reason_filter != -1 ){
-                $sql .= " AND p.id_razon_social = {$social_reason_filter}";
-            }
-        //filtro de status
-            if( $status != -1 ){
+            if($status != 0 ){
                 $sql .= " AND p.id_status_facturacion = {$status}";
             }
-            if( $seeker_text != null ){
-                $sql .= " AND ( p.folio_nv LIKE '%{$seeker_text}%'";
-                $sql .= " OR crs.rfc LIKE '%{$seeker_text}%'";
-                $sql .= " OR rs.nombre LIKE '%{$seeker_text}%' )";
+            if($rss_id != 0 ){
+                $sql .= " AND rs.id_equivalente = {$rss_id}";
             }
-        //paginador (desde, limite)
-            if( $page_since != null){ //&& $page_to != null 
-                $sql .= " LIMIT {$page_since}, {$limit}";
+            $sql .= " GROUP BY p.id_pedido
+                ORDER BY p.id_pedido DESC";
+            $offset = ($current_page - 1) * $limit;
+            $sql .= " LIMIT {$offset}, {$limit}";
+//die($sql);
+            $stm = $this->link->query($sql);
+            while($row = $stm->fetch(PDO::FETCH_ASSOC)){
+                $invoiceRequests[] = $row;
             }
+            return array("paginator"=>$paginator,"invoiceRequests"=>$invoiceRequests);
             
-            $stm = $this->link->query( $sql ) or die( "Error al consultar las solicitudes de factura : {$sql} : {$this->link->error}" );
+          /*  $stm = $this->link->query( $sql ) or die( "Error al consultar las solicitudes de factura : {$sql} : {$this->link->error}" );
             $resp = $this->buildTableRows( $stm );
             return $resp;
             //while( $row = $stm->fetch( PDO::FETCH_ASSOC ) ){
              //   $resp[] = $row;
             //}
-            //return json_encode( $resp );
+            //return json_encode( $resp );*/
         }
 
         public function buildTableRows( $stm ){
             $resp = "";
             $c=0;//iniciamos el contador en cero
 			while($r = $stm->fetch(PDO::FETCH_ASSOC) ){
+                $row_class = "bg-danger text-white";
+                if($r['status_name'] == "Facturada"){
+                    $row_class = "";
+                }
 				$c++;//incrementamos contador
-				$resp .= "<tr tabindex=\"{$c}\">
+				$resp .= "<tr tabindex=\"{$c}\" class=\"{$row_class}\">
 						<td>{$r['sale_folio']}</td>
 						<td>{$r['store_name']}</td>
 						<td>{$r['reason_name']}</td>

@@ -11,10 +11,12 @@
                 echo $SalesDB->getSales( $folio );
             break;
 
-            case 'getSales':
-                $start = ( isset( $_POST['start'] ) ? $_POST['start'] : $_GET['start'] );
-                $folio = ( isset( $_POST['limit'] ) ? $_POST['limit'] : $_GET['limit'] );
-                echo $SalesDB->getSales( '', $start, $limit, 'DESC' );//fl=&folio=${text}&start=${start_position}&limit=${limit}
+            case 'getPagesSalesErrors':
+                $limit = ( isset( $_POST['limit'] ) ? $_POST['limit'] : (isset($_GET['limit']) ? $_GET['limit'] : 20) );
+                $current_page = ( isset( $_POST['current_page'] ) ? $_POST['current_page'] : (isset($_GET['current_page']) ? $_GET['current_page'] : 0) );
+                $store = ( isset( $_POST['store'] ) ? $_POST['store'] : (isset($_GET['store']) ? $_GET['store'] : 0) );
+                $status = ( isset( $_POST['status'] ) ? $_POST['status'] : (isset($_GET['status']) ? $_GET['status'] : 0) );
+                echo json_encode($SalesDB->getPagesSalesErrors($limit, $current_page, $store, $status));
             break;
 
             case 'getSpecificSale' :
@@ -36,6 +38,106 @@
         private $link;
         public function __construct( $connection ) {
             $this->link = $connection;
+        }
+
+        public function getPagesInfo($limit, $current_page){
+            $paginator = array();
+            try{
+                $sql = "SELECT
+                        COUNT(*) AS rows_counter
+                    FROM(
+                            SELECT
+                            COUNT(*) AS rows_counter
+                        FROM ec_pedidos_error_envio_rs
+                        WHERE id_pedido > 0
+                        GROUP BY id_pedido
+                    )ax";
+                $eje = $this->link->query( $sql );
+                $row = $eje->fetch( PDO::FETCH_ASSOC );
+                $pages_counter = CEIL( $row['rows_counter'] / $limit );
+                $paginator['rows_counter'] = $row['rows_counter'];
+                $paginator['pages_counter'] = $pages_counter;
+                $paginator['limit'] = $limit;
+                $paginator['current_page'] = $current_page;
+                return $paginator;
+            }catch(PDOException $error){
+                return array("status"=>"302", "message"=>"Error al calcular paginador.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}");
+            }
+        }
+        
+        public function getStores(){
+            $stores = array();
+            try{
+                $sql = "SELECT
+                            id_sucursal,
+                            nombre
+                        FROM sucursales
+                        WHERE id_sucursal > 0";
+                $stm = $this->link->query($sql);
+                while ($row = $stm->fetch(PDO::FETCH_ASSOC)) {
+                    $stores[] = $row;
+                }
+                return $stores;
+            }catch(PDOException $error){
+                die(json_encode(array("status"=>"302", "message"=>"Error al consultar sucursales.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}")));
+            }
+        }
+
+        public function getStatus(){
+            $status = array();
+            try{
+                $sql = "SELECT
+                            id_status_facturacion,
+                            nombre_status
+                        FROM ec_status_facturacion
+                        WHERE 1";
+                $stm = $this->link->query($sql);
+                while ($row = $stm->fetch(PDO::FETCH_ASSOC)) {
+                    $status[] = $row;
+                }
+                return $status;
+            }catch(PDOException $error){
+                die(json_encode(array("status"=>"302", "message"=>"Error al consultar status.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}")));
+            }
+        }
+        
+        public function getPagesSalesErrors( $limit = 20, $current_page = 1, $store = 0, $status = 0){
+            $sales = array();
+            $paginator = $this->getPagesInfo($limit, $current_page);
+            try{
+                $sql = "SELECT 
+                        p.id_pedido, 
+                        s.nombre AS store_name,
+                        p.folio_nv,
+                        p.total,
+                        GROUP_CONCAT(peer.contenido_respuesta SEPARATOR '\n') AS contenido_respuesta,
+                        peer.omitir,
+                        p.id_status_facturacion
+                    FROM ec_pedidos_error_envio_rs peer
+                    LEFT JOIN ec_pedidos p
+                    ON peer.id_pedido = p.id_pedido
+                    LEFT JOIN sys_sucursales s
+                    ON p.id_sucursal = s.id_sucursal
+                    WHERE 1";
+                if($store != 0 ){
+                    $sql .= " AND p.id_sucursal = {$store}";
+                }
+                if($status != 0 ){
+                    $sql .= " AND p.id_status_facturacion = {$status}";
+                }
+                $sql .= " GROUP BY p.id_pedido
+                    ORDER BY p.id_pedido DESC";
+                $offset = ($current_page - 1) * $limit;
+                $sql .= " LIMIT {$offset}, $limit";
+//die($sql);
+                $stm = $this->link->query($sql);
+                while($row = $stm->fetch(PDO::FETCH_ASSOC)){
+                    $sales[] = $row;
+                }
+                return array("paginator"=>$paginator,"errors"=>$sales);
+            }catch(PDOException $error){
+                return array("status"=>"302", "message"=>"Error al consultar las notas de venta.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}");
+            }
         }
 
         public function retrySendingSale($sale_id){
@@ -70,7 +172,7 @@
             curl_setopt($crl, CURLOPT_POST, true);
             curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
             //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-            curl_setopt($crl, CURLOPT_TIMEOUT, 6000);
+            curl_setopt($crl, CURLOPT_TIMEOUT, 10);
             curl_setopt($crl, CURLOPT_HTTPHEADER, array(
                 'Content-Type: application/json' )
             );
@@ -107,15 +209,16 @@
                     ON peer.id_pedido = p.id_pedido
                     LEFT JOIN sys_sucursales s
                     ON p.id_sucursal = s.id_sucursal
-                    WHERE 1
-                    GROUP BY p.id_pedido";
+                    WHERE 1";
             $sql .= ( $folio == '' ? "" : " AND p.folio_nv LIKE '%{$folio}%'" );
-            $sql .= " ORDER BY p.id_pedido ";
             if( $start != 0 ){
             //    $sql .= " LIMIT {$start}, $limit";
             }else{
             //    $sql .= " LIMIT $limit";
             }
+            $sql .= " GROUP BY p.id_pedido";
+            $sql .= " ORDER BY p.id_pedido ";
+            //die("SQL : {$sql}");
             try{
                 $stm = $this->link->query( $sql ) or die( "Error al consultar la venta  : {$sql} : {$this->link->error}" );
             }catch( PDOException $e ){

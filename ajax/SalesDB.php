@@ -13,8 +13,6 @@
 
             case 'getPagesSales' : 
                 $limit = ( isset( $_POST['limit'] ) ? $_POST['limit'] : (isset($_GET['limit']) ? $_GET['limit'] : 20) );
-                $since = ( isset( $_POST['since'] ) ? $_POST['since'] : (isset($_GET['since']) ? $_GET['since'] : 0) );
-                $to = ( isset( $_POST['to'] ) ? $_POST['to'] : (isset($_GET['to']) ? $_GET['to'] : 20) );
                 $current_page = ( isset( $_POST['current_page'] ) ? $_POST['current_page'] : (isset($_GET['current_page']) ? $_GET['current_page'] : 0) );
                 echo json_encode($SalesDB->getPagesSales( $limit, $current_page));
             break;
@@ -134,12 +132,12 @@
                 $resp .= '<td>'.$r['total'].'</td>';
                 $resp .= "<td class=\"text-center\">
                     <button
-                        type=\"button\"
-                        class=\"btn\"
-                        onclick=\"muestra_datos_RS( {$r['id_pedido']} , 0 );\"
-                    >
-                        <i class=\"icon-eye\"></i>
-                    </button>
+						type=\"button\"
+						class=\"btn\"
+						onclick=\"saleDetail( {$r['id_pedido']} , 0 );\"
+					>
+						<i class=\"icon-eye\"></i>
+					</button>
                 </td>";
             $resp .= '</tr>'; 
             return $resp;

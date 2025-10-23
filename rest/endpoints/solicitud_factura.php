@@ -48,7 +48,7 @@
             curl_setopt($crl, CURLINFO_HEADER_OUT, true);
             curl_setopt($crl, CURLOPT_POST, true);
             curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
-            curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+            curl_setopt($crl, CURLOPT_TIMEOUT, 10);
             curl_setopt($crl, CURLOPT_HTTPHEADER, array(
                 'Content-Type: application/json' )
             );
@@ -142,7 +142,7 @@
 			curl_setopt($crl, CURLOPT_POST, true);
 			curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
 			//curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-		    curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
+		    curl_setopt($crl, CURLOPT_TIMEOUT, 10);
 			curl_setopt($crl, CURLOPT_HTTPHEADER, array(
 			  'Content-Type: application/json' )
 			);
@@ -166,7 +166,7 @@
             //valida si fue facturada
                 if(isset($json_response->files_url)){
                     try{
-                        $sql = "UPDATE ec_pedidos SET url_descarga_archivos_facturacion = '{$json_response->files_url}/code/ajax/fElectronica/zip.php?id_venta={$json_response->bill_system_id}'";
+                        $sql = "UPDATE ec_pedidos SET url_descarga_archivos_facturacion = '{$json_response->files_url}/code/ajax/fElectronica/zip.php?id_venta={$json_response->bill_system_id}' WHERE folio_nv = '{$sale_folio}'";
                         $stm = $link->query( $sql );
                     }catch(PDOException $error){
                         die( "Error al actualizar el url de descarga de archivos de la nota de venta : {$sql} : {$error->getMessage()}" );
@@ -195,8 +195,8 @@
                 curl_setopt($crl, CURLOPT_POST, true);
                 curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
                 //curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-                curl_setopt($crl, CURLOPT_TIMEOUT, 60000);
-                curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+                curl_setopt($crl, CURLOPT_TIMEOUT, 10);
+                curl_setopt($crl, CURLOPT_HTTPHEADER, value: array(
                 'Content-Type: application/json' )
                 );
                 $resp_curl = curl_exec($crl);//envia peticion
