@@ -11,7 +11,7 @@
             //recibe parametros
                 $date_since = ( isset( $_GET['date_since'] ) ? $_GET['date_since'] : $_POST['date_since'] );
                 $date_to = ( isset( $_GET['date_to'] ) ? $_GET['date_to'] : $_POST['date_to'] );
-                $rs_id = ( isset( $_GET['rs_id'] ) ? $_GET['rs_id'] : $_POST['rs_id'] );
+                $rs_id = "";//( isset( $_GET['rs_id'] ) ? $_GET['rs_id'] : $_POST['rs_id'] );
                 echo $salesVerificationDB->getPrevious( $date_since, $date_to, $rs_id );
             break;
             case 'send':
@@ -64,13 +64,46 @@
         }
     //previo
         public function getPrevious( $date_since, $date_to, $rs_id, $token = "" ){
-            $sql = "SELECT `value` FROM api_config WHERE `name` = 'path_facturacion'";
+            $sales = array();
+            try{
+                $sql = "SELECT
+                            ax.folio_nv,
+                            ax.total,
+                            ax.fecha_alta,
+                            ax.total_piezas
+                        FROM(
+                            SELECT
+                                p.folio_nv,
+                                p.fecha_alta,
+                                p.total,
+                                SUM(pd.cantidad) AS total_piezas
+                            FROM ec_pedidos p
+                            LEFT JOIN ec_pedidos_detalle pd
+                            ON pd.id_pedido = p.id_pedido
+                            WHERE p.id_status_facturacion IN(4)
+                            AND ( p.fecha_alta BETWEEN '{$date_since} 00:00:01' AND '{$date_to} 23:59:59' )
+                            GROUP BY p.id_pedido
+                        )ax
+                        WHERE ax.total_piezas > 0";
+                $stm = $this->link->query($sql);
+                if($stm->rowCount() <= 0){
+                    die(json_encode(array("status"=>"200", "message"=>"No hay ventas con el rango de fecha seleccionado.")));
+                }
+                while($row = $stm->fetch(PDO::FETCH_ASSOC)){
+                    $sales[] = $row; 
+                }
+                return json_encode(array("status"=>"200", "sales"=>$sales));
+            }catch(PDOException $error){
+                die(json_encode(array("status"=>"302", "message"=>"Error al consultar ventas pendientes", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}")));
+            }
+            
+            /*$sql = "SELECT `value` FROM api_config WHERE `name` = 'path_facturacion'";
             $stm = $this->link->query( $sql );
             $row = $stm->fetch( PDO::FETCH_ASSOC );
             $billing_path = "{$row['value']}";
             $post_data = json_encode( array( "date_since"=>$date_since, "date_to"=>$date_to, "rs_id"=>$rs_id, "url"=>$billing_path ) );
             $resp = $this->sendPetition( "{$billing_path}/rest/barrido_ventas_previo", $post_data, $token );
-            return $resp;
+            return $resp;*/
             //die( $resp );
         }
     //previo
