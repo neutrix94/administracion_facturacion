@@ -35,7 +35,7 @@
         <h4>Fecha hasta : </h4>
         <input type="date" id="date_to" class="form-control">
     </div>
-    <div class="col-12 p-4">
+    <!--div class="col-12 p-4">
         <button
             type="button"
             class="btn btn-warning form-control"
@@ -43,7 +43,7 @@
         >
             Ejecutar Barrido de ventas
         </button>
-    </div>
+    </div-->
     <!--div class="col-4">
         <p>Razon Social :</p>
         <select class="form-control" id="rs_id">
@@ -65,12 +65,12 @@
     
 </div>
 <br><br>
-<!--div class="row" style="width:97% !important;">
+<div class="row" style="width:97% !important;">
     <button
         type="button"
         class="form-control btn btn-info"
         id="previous_btn"
-        onclick="salesVerification();"
+        onclick="salesVerification(false);"
     >
         Ver Previo
     </button>
@@ -78,11 +78,11 @@
         type="button"
         class="form-control btn btn-success hidden"
         id="send_btn"
-        onclick="salesVerification( true );"
+        onclick="barrido_ventas();"
     >
         Enviar Ventas
     </button>
-</div-->
+</div>
 
 <script>
     function barrido_ventas(){
@@ -127,7 +127,7 @@
 
 
     function salesVerification( send = false ){
-        var flag = ( ( send == true ) ? "send" : "makePrevious" );
+        var flag = "makePrevious";//( ( send == true ) ? "send" : "makePrevious" );
         var date_since = $( "#date_since" ).val();
         if( date_since == '' ){
             alert("La fecha desde no puede ir vacia.");
@@ -178,19 +178,19 @@
                 </tr>
             </thead>
             <tbody>`;
-        var RS = json.RS;
+        var sales = json.sales;
         var counter = 1;
-        for (const key in RS ) {
-            for (const key2 in RS[key].sales ) {
+        //for (const key in RS ) {
+            for (const key in sales ) {
                 content += `<tr>
                     <td class="text-center">${counter}</td>
-                    <td class="text-center">${RS[key].sales[key2].sale_header.folio_nv}</td>
-                    <td class="text-center">${RS[key].sales[key2].sale_header.total}</td>
-                    <td class="text-center">${RS[key].sales[key2].sale_header.fecha_alta}</td>
+                    <td class="text-center">${sales[key].folio_nv}</td>
+                    <td class="text-center">${sales[key].total}</td>
+                    <td class="text-center">${sales[key].fecha_alta}</td>
                 </tr>`;
                 counter ++;
             }
-        }
+        //}
         content += `</tbody>
             </table>`;
         $( '#table_content' ).html( content );
