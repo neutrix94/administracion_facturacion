@@ -54,10 +54,18 @@
         $ok_sales = array();
         try{
             $sql = "SELECT
-                        folio_nv
-                    FROM ec_pedidos p
-                    WHERE id_status_facturacion IN(4)
-                    AND ( fecha_alta BETWEEN '{$date_since} 00:00:01' AND '{$date_to} 23:59:59' )";
+                        ax.folio_nv
+                    FROM(
+                        SELECT
+                            p.folio_nv,
+                            SUM(pd.cantidad) AS total_piezas
+                        FROM ec_pedidos p
+                        LEFT JOIN ec_pedidos_detalles pd
+                        ON pd.id_pedido = p.id_pedido
+                        WHERE p.id_status_facturacion IN(4)
+                        AND ( p.fecha_alta BETWEEN '{$date_since} 00:00:01' AND '{$date_to} 23:59:59' )
+                    )ax
+                    WHERE ax.total_piezas > 0";//implementacion Oscar 2025 para no enviar ventas en cero (sin productos)
             $stm = $link->query($sql);
             while($row = $stm->fetch(PDO::FETCH_ASSOC)){
                 $post_data = json_encode( array( "sale_folio"=>$row['folio_nv'] ) );
