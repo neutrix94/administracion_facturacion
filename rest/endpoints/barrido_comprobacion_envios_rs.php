@@ -89,6 +89,10 @@
                 if( isset($resp_decode['status']) && $resp_decode['status'] == 200 ){//si la insercion es exitosa actualiza a status 5 la nota de venta
                     $status_update = 5;//insertado en RS
                     $pending_sales[] = $row;
+                }else if(isset($resp_decode['status']) && $resp_decode['status'] == 400 && isset($resp_decode['message']) 
+                && $resp_decode['message'] == "La venta ya existe en la administracion de la facturacion."){
+                    $status_update = 5;//insertado en RS
+                    $pending_sales[] = $row;
                 }else{
                     $status_update = 4;//enviado a RS pero no se inserta
                     $ok_sales[] = $row;
