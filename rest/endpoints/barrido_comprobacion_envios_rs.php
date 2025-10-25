@@ -29,6 +29,8 @@
             $response->getBody()->write($payload);
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
+        $rs_id = ( isset($params['rs_id']) ? $params['rs_id'] : -1 );
+        $store_id = ( isset($params['id_sucursal']) ? $params['id_sucursal'] : -1 );
     //consulta el año actual
         try{
             $sql = "SELECT
@@ -53,20 +55,7 @@
         $pending_sales = array();
         $ok_sales = array();
         try{
-            $sql = "SELECT
-                        ax.folio_nv
-                    FROM(
-                        SELECT
-                            p.folio_nv,
-                            SUM(pd.cantidad) AS total_piezas
-                        FROM ec_pedidos p
-                        LEFT JOIN ec_pedidos_detalle pd
-                        ON pd.id_pedido = p.id_pedido
-                        WHERE p.id_status_facturacion IN(4)
-                        AND ( p.fecha_alta BETWEEN '{$date_since} 00:00:01' AND '{$date_to} 23:59:59' )
-                        GROUP BY p.id_pedido
-                    )ax
-                    WHERE ax.total_piezas > 0";//implementacion Oscar 2025 para no enviar ventas en cero (sin productos)
+        //implementacion Oscar 2025 para no enviar ventas en cero (sin productos)
             $sql = "SELECT
                         ax.folio_nv,
                         ax.fecha_alta,
@@ -74,12 +63,18 @@
                     FROM(
                         SELECT
                             p.folio_nv,
-                        p.fecha_alta,
+                            p.fecha_alta,
                             SUM(pd.cantidad) AS total_piezas
                         FROM ec_pedidos p
                         LEFT JOIN ec_pedidos_detalle pd
                         ON pd.id_pedido = p.id_pedido
+                        LEFT JOIN razones_sociales rs
+                        ON rs.id_equivalente = p.id_razon_social
+                        LEFT JOIN sucursales s
+                        ON p.id_sucursal = s.id_sucursal
                         WHERE p.id_status_facturacion IN(4)
+                        AND IF({$rs_id} > 0, rs.id_razon_social = {$rs_id}, rs.id_razon_social > -2 )
+                        AND IF({$store_id} > 0, p.id_sucursal = {$store_id}, p.id_sucursal > -2 )
                         AND ( p.fecha_alta BETWEEN '{$date_since} 00:00:01' AND '{$date_to} 23:59:59' )
                         GROUP BY p.id_pedido
                     )ax
