@@ -4,16 +4,17 @@
 	include('./db.php');
 	$db = new db();
 	$link = $db->conectDB();
-//consulta las razones sociales
-    $sql = "SELECT id_razon_social, nombre FROM razones_sociales";
-    try{
-        $stm = $link->query( $sql );
-    }catch( PDOException $e ){
-        die( "Error al consultar las razones sociales : {$sql} : {$e}" );
+    include('ajax/salesVerificationDB.php');
+    $salesVerificationDB = new salesVerificationDB($link);
+    $stores = $salesVerificationDB->getStores();//consulta las sucursales
+    $stores_options = "";
+    foreach ($stores as $key => $store) {
+        $stores_options .= "<option value=\"{$store['id_sucursal']}\">{$store['nombre']}</option>";
     }
+    $rss = $salesVerificationDB->getSocialReasons();//consulta las razones sociales
     $rs_options = "";
-    while( $row = $stm->fetch(PDO::FETCH_ASSOC) ){
-        $rs_options .= "<option value=\"{$row['id_razon_social']}\">{$row['nombre']}</option>";
+    foreach ($rss as $key => $rs) {
+        $rs_options .= "<option value=\"{$rs['id_razon_social']}\">{$rs['nombre']}</option>";
     }
 ?>
 
@@ -28,49 +29,43 @@
 
 <div class="row" style="width:97% !important;">
     <div class="col-6">
-        <h4>Fecha desde : </h4>
-        <input type="date" id="date_since" class="form-control">
+        <h4 class="text-center">Fecha desde : </h4>
+        <input type="date" id="date_since" class="form-control" onchange="change_button_type();">
     </div>
     <div class="col-6">
-        <h4>Fecha hasta : </h4>
-        <input type="date" id="date_to" class="form-control">
+        <h4 class="text-center">Fecha hasta : </h4>
+        <input type="date" id="date_to" class="form-control" onchange="change_button_type();">
     </div>
-    <div class="col-12 p-4">
-        <button
-            type="button"
-            class="btn btn-warning form-control"
-            onclick="barrido_ventas();"
-        >
-            Ejecutar Barrido de ventas
-        </button>
-    </div>
-    <!--div class="col-4">
-        <p>Razon Social :</p>
-        <select class="form-control" id="rs_id">
+    <div class="col-6">
+        <h4 class="text-center">Razon Social : </h4>
+        <select class="form-control" id="rs_id" onchange="change_button_type();">
             <option value="-1">Todas</option>
-            <?php //echo "{$rs_options}";?>
+        <?php
+            echo $rs_options;
+        ?>
         </select>
     </div>
-    <div class="col-4">
-        <p>Fecha desde :</p>
-        <input type="date" class="form-control" id="date_since">
+    <div class="col-6">
+        <h4 class="text-center">Sucursal : </h4>
+        <select class="form-control" id="store_id" onchange="change_button_type();">
+            <option value="-1">Todas</option>
+        <?php
+            echo $stores_options;
+        ?>
+        </select>
     </div>
-    <div class="col-4">
-        <p>Fecha hasta :</p>
-        <input type="date" class="form-control" id="date_to">
-    </div>
-    <br-->
 </div>
+
 <div id="table_content">
-    
 </div>
 <br><br>
-<!--div class="row" style="width:97% !important;">
+
+<div class="row" style="width:97% !important;">
     <button
         type="button"
         class="form-control btn btn-info"
         id="previous_btn"
-        onclick="salesVerification();"
+        onclick="salesVerification(false);"
     >
         Ver Previo
     </button>
@@ -78,15 +73,17 @@
         type="button"
         class="form-control btn btn-success hidden"
         id="send_btn"
-        onclick="salesVerification( true );"
+        onclick="barrido_ventas();"
     >
         Enviar Ventas
     </button>
-</div-->
+</div>
 
 <script>
     function barrido_ventas(){
-        var date_since, date_to;
+        var date_since, date_to, rs_id, store_id;
+        rs_id = $('#rs_id').val();
+        store_id = $('#store_id').val();
         date_since = $('#date_since').val();
         if(date_since.length <= 0){
             alert("La fecha desde es requerida.");
@@ -104,7 +101,7 @@
 			type : 'post',
 			url : 'include/ajax/salesVerificationDB.php',
 			cache : false,
-			data : { fl : 'sales_sweep', date_since : date_since, date_to : date_to },
+			data : { fl : 'sales_sweep', date_since : date_since, date_to : date_to, rs_id : rs_id, store_id : store_id},
 		    success:function(dat){
                 var content = `<div class="row">
                     <div>
@@ -127,7 +124,10 @@
 
 
     function salesVerification( send = false ){
-        var flag = ( ( send == true ) ? "send" : "makePrevious" );
+        var flag = "makePrevious";//( ( send == true ) ? "send" : "makePrevious" );
+        var rs_id, store_id;
+        rs_id = $('#rs_id').val();
+        store_id = $('#store_id').val();
         var date_since = $( "#date_since" ).val();
         if( date_since == '' ){
             alert("La fecha desde no puede ir vacia.");
@@ -140,14 +140,13 @@
             $( "#date_to" ).focus();
             return false;
         }
-        var rs_id = $( "#rs_id" ).val();
         $( '#emergent' ).css( "display", "block" );
 	//enviamos datos por ajax
 		$.ajax({
 			type : 'post',
 			url : 'include/ajax/salesVerificationDB.php',
 			cache : false,
-			data : { fl : flag, date_since : date_since, date_to : date_to, rs_id : rs_id },
+			data : { fl : flag, date_since : date_since, date_to : date_to, rs_id : rs_id, store_id : store_id },
 		    success:function(dat){
                 $( '#emergent' ).css( "display", "none" );
                 if( send == false ){
@@ -174,26 +173,35 @@
                     <th class="text-center">#</th>
                     <th class="text-center">Folio</th>
                     <th class="text-center">Total</th>
+                    <th class="text-center">Razon Social</th>
+                    <th class="text-center">Sucursal</th>
                     <th class="text-center">Fecha</th>
                 </tr>
             </thead>
             <tbody>`;
-        var RS = json.RS;
+        var sales = json.sales;
         var counter = 1;
-        for (const key in RS ) {
-            for (const key2 in RS[key].sales ) {
+        //for (const key in RS ) {
+            for (const key in sales ) {
                 content += `<tr>
                     <td class="text-center">${counter}</td>
-                    <td class="text-center">${RS[key].sales[key2].sale_header.folio_nv}</td>
-                    <td class="text-center">${RS[key].sales[key2].sale_header.total}</td>
-                    <td class="text-center">${RS[key].sales[key2].sale_header.fecha_alta}</td>
+                    <td class="text-center">${sales[key].folio_nv}</td>
+                    <td class="text-center">${sales[key].total}</td>
+                    <td class="text-center">${sales[key].nombre}</td>
+                    <td class="text-center">${sales[key].nombre_sucursal}</td>
+                    <td class="text-center">${sales[key].fecha_alta}</td>
                 </tr>`;
                 counter ++;
             }
-        }
+        //}
         content += `</tbody>
             </table>`;
         $( '#table_content' ).html( content );
+    }
+
+    function change_button_type(){
+        $( '#send_btn' ).addClass( 'hidden' );
+        $( '#previous_btn' ).removeClass( 'hidden' );
     }
 
 </script>
