@@ -32,16 +32,16 @@
 			//si es combo
 				if( $arr[2] == 'combo' ){
 					echo '<select class="seleccion" style="width:100%;" id="'.$arr[5].'" datosDB="'.$arr[3].'" onchange="'.$arr[4].'" caracter_cambio="'.$arr[0].'" campo_filtrar="'.$arr[1].'">';
-						$eje_1=mysql_query($arr[3])or die("Error al consultar los datos del combo!!!<br>".mysql_error()."<br>".$arr[3]);
+						$eje_1=$link->query($arr[3]);//die("Error al consultar los datos del combo.<br>".mysql_error()."<br>".$arr[3]);
 						echo '<option class="opciones1" value="0">--Ver Todo--</option>';
-						while($r1=mysql_fetch_row($eje_1)){
+						while($r1 = $eje_1->fetch(PDO::FETCH_ASSOC)){//mysql_fetch_row($eje_1)
 							echo '<option class="opciones2" value="'.$r1[0].'">'.$r1[1].'</option>';
 						}
 					echo '</select>';					
 				}
 			//si es fecha
 				else if( $arr[2] == 'fecha' ){
-					echo '<input type="text" style="width:100%;" id="'.$arr[5].'" value="" datosDB="'.$arr[3].'" onclick="'.$arr[4].'" caracter_cambio="'.$arr[0].'" campo_filtrar="'.$arr[1].'">';
+					echo '<input type="date" style="width:100%;" id="'.$arr[5].'" value="" datosDB="'.$arr[3].'" onclick="'.$arr[4].'" caracter_cambio="'.$arr[0].'" campo_filtrar="'.$arr[1].'">';
 				}
 			//si es fecha y hora
 				else if ( $arr[2] == 'datetime' ){
