@@ -28,12 +28,12 @@
 		for($i=0;$i<sizeof($filtros);$i++){
 			if($filtros[$i]!='' && $filtros[$i]!=null){
 				$campos_filtro=explode("~", $filtros[$i]);
-				if($id_herr==1 && ($campos_filtro[1]=='$FECHA_1' || $campos_filtro[1]=='$FECHA_2') ){//si es verificacion de pedidos
+				/*if($id_herr==1 && ($campos_filtro[1]=='$FECHA_1' || $campos_filtro[1]=='$FECHA_2') ){//si es verificacion de pedidos
 					$sql_sub="SELECT DATE_FORMAT('$campos_filtro[2]','%Y')";
 					$eje_sub = $link->query($sql_sub)or die("Error al formatear la fecha!!!!<br>".$sql_sub);
 					$r_sub = $eje_sub->fetch();
 					$campos_filtro[2] = $r_sub[0];
-				}
+				}*/
 			//reemplazamos filtros
 				if($campos_filtro[2]==0){
 					$campos_filtro[0]='';
