@@ -340,5 +340,5 @@ input[type=number] { -moz-appearance:textfield; }
 </style>
 
 <script>
-    getInvoiceRequests();
+    //getInvoiceRequests();
 </script>
