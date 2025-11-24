@@ -37,7 +37,7 @@
 
 <script type="text/javascript">
 	function carga_link(link){
-		location.href="http://"+link;
+		location.href = link;//"http://"+
 	}
 	function resalta(num){
 		$("#opc_mnu_rs_"+num).css("background","rgba(0,0,0,.7)");
