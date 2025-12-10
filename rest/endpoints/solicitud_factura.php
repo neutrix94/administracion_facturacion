@@ -43,7 +43,7 @@
         //consume API de facturacion para enviar la venta a su RS
             $RS_resp = "";
             $post_data = json_encode( array( "sale_folio"=>$sale_folio ) );
-            $crl = curl_init( "{$bill_api_path}/rest/inserta_venta_sistema_facturacion" );
+            $crl = curl_init( "{$bill_api_path}/api/facturacion/inserta_venta_sistema_facturacion" );
             curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($crl, CURLINFO_HEADER_OUT, true);
             curl_setopt($crl, CURLOPT_POST, true);
