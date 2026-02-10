@@ -392,16 +392,17 @@ var files_metadata = null;
     }
 
     function file_module_download(counter){//alert(counter);
-        var content = ``;
+        var content = `{\n\t`;
         var counter_2 = 0;
         var file_name = files_metadata[counter].file_module_name.replaceAll(' ', '_') + `-${files_metadata[counter].file_name}`;
         for (const key1 in files_metadata[counter].file_vars) {//alert();
             //console.log(files_metadata[counter].file_vars[key1]);
-            content += (counter_2 > 0 ? `\n` : ``);
-            content += `${files_metadata[counter].file_vars[key1].var_name}=${files_metadata[counter].file_vars[key1].var_value}`;
+            content += (counter_2 > 0 ? `\n\t` : ``);
+            content += `"${files_metadata[counter].file_vars[key1].var_name}" : "${files_metadata[counter].file_vars[key1].var_value}"`;
 
             counter_2 ++;
         }
+        content += `\n}`;
         //alert(content + "\n" +file_name);
         FileDownload(content, file_name )
     }
