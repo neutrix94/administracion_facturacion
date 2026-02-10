@@ -292,9 +292,9 @@
         //campos
             foreach ($structure['table_fields'] as $key => $field) {
                 $fields .= ($fields == "" ? "" : ", ");
-                $fields .= $field['field_name'];
+                $fields .= "`{$field['field_name']}`";
             }
-            $sql .= "{$fields} FROM {$structure['table_name']} {$structure['query_condition']}";
+            $sql .= "{$fields} FROM `{$structure['table_name']}` {$structure['query_condition']}";
             try{
                 $stm = $this->link->query($sql);
                 while($row = $stm->fetch(PDO::FETCH_ASSOC)){
