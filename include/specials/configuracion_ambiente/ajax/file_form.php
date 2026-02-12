@@ -102,7 +102,7 @@
 <script>
     function add_file_var(){
         var var_name, var_type;
-        var_name = $('#new_var_name_input').val().trim().toUpperCase();
+        var_name = $('#new_var_name_input').val().trim();//.toUpperCase()
         if(var_name.length <= 0){
             alert("El nombre de la variable no puede ser vacio.");
             $('#new_var_name_input').focus();

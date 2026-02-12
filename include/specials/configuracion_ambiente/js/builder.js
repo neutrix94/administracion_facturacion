@@ -111,7 +111,7 @@
         tables_metadata = modules;//variable global para exportar / guardar datos
 
         for (const key0 in modules) {
-            content += `<div class="row">
+            content += `<div class="">
                 <hr>
                 <h3 class="text-center">${modules[key0].module_name}</h3>
                 <hr>`;
@@ -169,11 +169,12 @@
             var new_row_disabled = "";
             var new_row_value = "";
             var comprobation_button_class = "";
-            content += `<div class="row">
+            content += `<div class="">
                 <hr>
                 <h3 class="text-center">${files[key0].file_module_name} <button type="button" class="btn-warning" onclick="file_module_edit(${files[key0].file_module_config_id});"><i class="icon-edit"></i></button></h3>
                 <div class="text-center"><button type="button" class="btn btn-info" onclick="file_module_download(${counter});"><i class="icon-download">Descargar</i></button></div>
-                <hr>`;
+                <hr>
+                <div class="row">`;
             for (const key1 in files[key0].file_vars) {
                 disabled_row = (counter_2 < 0 ? "disabled" : "");
                 new_row_value = (counter_2 == 0 ? files[key0].file_vars[key1].var_value : "");
@@ -202,7 +203,8 @@
             }
             counter ++;
 
-            content += `</div>`;
+            content += `</div>
+                </div>`;
         }
         $('.config_content_2').html(content);
     }
