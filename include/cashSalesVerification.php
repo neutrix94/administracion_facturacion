@@ -178,7 +178,8 @@
         var counter = 1;
         //for (const key in RS ) {
             for (const key in sales ) {//${counter}
-                content += `<tr>
+                var text_color = (sales[key].folio_nv.id_status_facturacion > 4 ? 'text-success' : 'text-dark');
+                content += `<tr class="${text_color}">
                     <td class="text-center">
                         <input type="checkbox" onclick="enabledOrdDisabledSendButton();" value="${sales[key].folio_nv}">  
                     </td>

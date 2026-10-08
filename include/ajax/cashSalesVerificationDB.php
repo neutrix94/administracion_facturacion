@@ -125,7 +125,8 @@
                             ax.fecha_alta,
                             ax.total_piezas,
                             ax.nombre,
-                            ax.nombre_sucursal
+                            ax.nombre_sucursal,
+                            ax.id_status_facturacion
                         FROM(
                             SELECT
                                 p.folio_nv,
@@ -133,7 +134,8 @@
                                 p.total,
                                 SUM(pd.cantidad) AS total_piezas,
                                 rs.nombre,
-                                s.nombre AS nombre_sucursal
+                                s.nombre AS nombre_sucursal,
+                                p.id_status_facturacion
                             FROM ec_pedidos p
                             LEFT JOIN ec_pedidos_detalle pd
                             ON pd.id_pedido = p.id_pedido
