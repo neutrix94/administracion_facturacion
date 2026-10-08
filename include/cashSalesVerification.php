@@ -30,11 +30,11 @@
 <div class="row" style="width:97% !important;">
     <div class="col-6">
         <h4 class="text-center">Fecha desde : </h4>
-        <input type="date" id="date_since" class="form-control" onchange="change_button_type();" value="2025-11-22">
+        <input type="date" id="date_since" class="form-control" onchange="change_button_type();" value="">
     </div>
     <div class="col-6">
         <h4 class="text-center">Fecha hasta : </h4>
-        <input type="date" id="date_to" class="form-control" onchange="change_button_type();" value="2025-11-22">
+        <input type="date" id="date_to" class="form-control" onchange="change_button_type();" value="">
     </div>
     <div class="col-6">
         <h4 class="text-center">Razon Social : </h4>
@@ -80,15 +80,17 @@
 
 <script>
     function enviarVentas(){
-        var sales = ``;
-        sales = $('#previous_list td input[type="checkbox"]:checked').map(function () {
-            return $(this).val();
-        }).get();
-//console.log(sales);
-//alert(sales);
-        $.post('include/ajax/cashSalesVerificationDB.php', { fl : 'sendCashSales', sales : sales }, function (resp) {
-            alert(resp);
-        });
+        $( '#emergent' ).css( "display", "block" );
+        setTimeout( function(){
+            var sales = ``;
+            sales = $('#previous_list td input[type="checkbox"]:checked').map(function () {
+                return $(this).val();
+            }).get();
+            $.post('include/ajax/cashSalesVerificationDB.php', { fl : 'sendCashSales', sales : sales }, function (resp) {
+                alert("Ventas enviadas exitosamente.");
+                location.reload();
+            });
+        }, 300);
     }
     
     function salesVerification( send = false ){
