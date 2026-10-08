@@ -88,7 +88,6 @@
 //alert(sales);
         $.post('include/ajax/cashSalesVerificationDB.php', { fl : 'sendCashSales', sales : sales }, function (resp) {
             alert(resp);
-            console.log(resp);
         });
     }
     

@@ -45,8 +45,8 @@
             break;*/
             case 'sendCashSales':
                 $sales = ( isset( $_GET['sales'] ) ? $_GET['sales'] : $_POST['sales'] );
-                var_dump($sales);return '';
-                //sendCashSales
+                echo $salesVerificationDB->sendCashSales($sales);
+                //var_dump($sales);return '';
             break;
             default :
                 die( "Permission denied on : '{$action}'" );
