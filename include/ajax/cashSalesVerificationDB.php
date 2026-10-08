@@ -92,13 +92,13 @@
                 die(json_encode(array("status"=>"302","message"=>"Error al consultar sucursales", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}")));
             }
         }
-        public function sendCashSales($sales){
+        /*public function sendCashSales($sales){
             $sql = "SELECT `value` FROM api_config WHERE `name` = 'path_facturacion'";
             $stm = $this->link->query( $sql );
             $row = $stm->fetch( PDO::FETCH_ASSOC );
                 
-        }
-        public function sendSales($sales){
+        }*/
+        public function sendCashSales($sales){
             $sql = "SELECT `value` FROM api_config WHERE `name` = 'path_facturacion'";
             $stm = $this->link->query( $sql );
             $row = $stm->fetch( PDO::FETCH_ASSOC );
