@@ -96,17 +96,21 @@
 			<table width="100%" class="table table-striped table-bordered">
 				<thead class="bg-danger text-light" style="position : sticky; top: 0;">
 					<tr>
-						<th width="20%" class="text-center">Id</th>
-						<th width="20%" class="text-center">Sucursal 
+						<th width="15%" class="text-center">Id</th>
+						<th width="15%" class="text-center">Sucursal 
                             <button
                                 tye="button"
                                 class="btn text-light"
                             >
-                                <i class="icon-filter"></i></th>
+                                <i class="icon-filter"></i>
                             </button>
+                        </th>
+                        <th width="20%">
+                            Razon Social
+                        </th>
 						<th width="15%" class="text-center">Folio</th>
 						<th width="15%" class="text-center">Monto</th>
-						<th width="15%" class="text-center">Omitido</th>
+						<th width="10%" class="text-center">Omitido</th>
 						<th width="10%" class="text-center">Ver Detalle</th>
 					</tr>
 				</thead>
@@ -250,6 +254,7 @@
             content += `<tr id="fila_${c}" tabindex="${c}" class="row_item ${row_class}">
                 <td class="text-center">${json[key]['id_pedido']}</td>
                 <td class="text-centeer">${json[key]['store_name']}</td>
+                <td class="text-centeer">${json[key]['razon_social']}</td>
                 <td class="text-center">${json[key]['folio_nv']}</td>
                 <td class="text-center">${json[key]['total']}</td>
                 <td id=\"error_detail_${c}\" style=\"display:none;\">${json[key]['contenido_respuesta']}</td>

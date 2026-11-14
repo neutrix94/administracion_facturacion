@@ -112,12 +112,15 @@
                         p.total,
                         GROUP_CONCAT(peer.contenido_respuesta SEPARATOR '\n') AS contenido_respuesta,
                         peer.omitir,
-                        p.id_status_facturacion
+                        p.id_status_facturacion,
+                        rs.nombre AS razon_social
                     FROM ec_pedidos_error_envio_rs peer
                     LEFT JOIN ec_pedidos p
                     ON peer.id_pedido = p.id_pedido
                     LEFT JOIN sys_sucursales s
                     ON p.id_sucursal = s.id_sucursal
+                    LEFT JOIN razones_sociales rs
+                    ON rs.id_equivalente = p.id_razon_social
                     WHERE 1";
                 if($store != 0 ){
                     $sql .= " AND p.id_sucursal = {$store}";
