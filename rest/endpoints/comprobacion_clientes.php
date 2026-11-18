@@ -89,7 +89,7 @@
                             `datos_alta`,
                             `folio_unico`
                         FROM
-                            {$base['nombre_base']}.`ec_clientes`
+                            {$base['nombre_db']}.`ec_clientes`
                         WHERE id_cliente = {$cliente['id_cliente_facturacion']}";
                     $stm = $link->query($sql);
                     if($stm->rowCount() > 0){
