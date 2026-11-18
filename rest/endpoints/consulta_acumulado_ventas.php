@@ -32,7 +32,7 @@
                     LEFT JOIN {$base['nombre_db']}.`ec_limites_razon_social` lrs
                     ON e.id_emisor = lrs.id_emisor
                     WHERE lrs.periodo = (SELECT DATE_FORMAT(NOW(), '%Y'))";
-            $link->query($sql);
+            $stm = $link->query($sql);
             $row = $stm->fetch(PDO::FETCH_ASSOC);
             $emisores[] = $row;
         }
