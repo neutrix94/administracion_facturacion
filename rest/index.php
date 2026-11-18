@@ -39,6 +39,7 @@ $app->get('/example', function (Request $request, Response $response, $args) {
     require __DIR__ . '/endpoints/sincronizaPrefijoSet.php';
   //
     require __DIR__ . '/endpoints/comprobacion_clientes.php';
+    require __DIR__ . '/endpoints/comprobacion_clientes_desde_rs.php';
   //ventas
     require __DIR__ . '/endpoints/enviaFacturaCorreo.php';
     require __DIR__ . '/endpoints/insertaVentaFacturacion.php';
