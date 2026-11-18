@@ -98,7 +98,7 @@
                 //realiza comparacion 
                         $row = $stm->fetch(PDO::FETCH_ASSOC);
                         if($row['nombre'] != $cliente['rfc']){
-                            $base_datos[$key2]['tienen_diferencias'][] = $cliente
+                            $base_datos[$key2]['tienen_diferencias'][] = $cliente;
                         }
                     }
                 }catch(PDOException $error){
