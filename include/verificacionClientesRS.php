@@ -65,11 +65,11 @@
     function build_rows(registros){
         var content = ``;
         for (const key in registros) {
-            for (const key2 in registros[key]['no_existen']) {
+            for (const key2 in registros[key]['no_existen_en_admin_fact']) {
                 content += `<tr>
                     <td>${registros[key].nombre_db}</td>
-                    <td>${registros[key]['no_existen'][key2].rfc}</td>
-                    <td>${registros[key]['no_existen'][key2].id_cliente}</td>
+                    <td>${registros[key]['no_existen_en_admin_fact'][key2].nombre}</td>
+                    <td>${registros[key]['no_existen_en_admin_fact'][key2].id_cliente}</td>
                 </tr>`;
             }
         }
