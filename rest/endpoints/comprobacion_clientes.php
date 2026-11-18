@@ -13,7 +13,7 @@
                         nombre_db
                     FROM vf_clientes_razones_sociales
                     WHERE activo = 1";
-            $stm = $this->link->query($sql);
+            $stm = $link->query($sql);
             while($row = $stm->fetch(PDO::FETCH_ASSOC)){
                 $row['no_existen'] = array();
                 $row['tienen_diferencias'] = array();
@@ -52,7 +52,7 @@
                         `sincronizar`
                     FROM vf_clientes_razones_sociales
                     WHERE id_cliente_facturacion >= 10000";
-            $stm = $this->link->query($sql);
+            $stm = $link->query($sql);
             while($row = $stm->fetch(PDO::FETCH_ASSOC)){
                 $clientes[] = $row;
             }
