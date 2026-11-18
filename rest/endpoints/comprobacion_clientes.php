@@ -92,7 +92,7 @@
                             {$base['nombre_db']}.`ec_clientes`
                         WHERE id_cliente = {$cliente['id_cliente_facturacion']}";
                     $stm = $link->query($sql);
-                    if($stm->rowCount() > 0){
+                    if($stm->rowCount() < 0){
                         $base_datos[$key2]['no_existen'][] = $cliente;
                     }else{
                 //realiza comparacion 
