@@ -11,7 +11,7 @@
         try{
             $sql = "SELECT
                         nombre_db
-                    FROM vf_clientes_razones_sociales
+                    FROM razones_sociales
                     WHERE activo = 1";
             $stm = $link->query($sql);
             while($row = $stm->fetch(PDO::FETCH_ASSOC)){
