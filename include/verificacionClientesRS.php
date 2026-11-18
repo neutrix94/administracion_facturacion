@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificacion Clientes</title>
+    <title>Verificacion Clientes RS</title>
 </head>
 <body>
     <div id="emergent">
@@ -102,7 +102,7 @@
 
         const enlace = document.createElement('a');
         enlace.href = url;
-        enlace.download = `clientes_faltantes_${new Date().toISOString().slice(0, 10)}.csv`;
+        enlace.download = `clientes_faltantes_adminFact_${new Date().toISOString().slice(0, 10)}.csv`;
         document.body.appendChild(enlace);
         enlace.click();
         document.body.removeChild(enlace);
