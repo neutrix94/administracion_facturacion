@@ -98,7 +98,8 @@
                 //realiza comparacion 
                         $row = $stm->fetch(PDO::FETCH_ASSOC);
                         if($row['nombre'] != $cliente['rfc']){
-                            array_push($bases_datos[$key2]['tienen_diferencias'], $cliente);
+                            $diferencia = array("razon_social"=>$row, "administracion_facturacion"=>$cliente);
+                            array_push($bases_datos[$key2]['tienen_diferencias'], $diferencia);
                         }
                     }
                 }catch(PDOException $error){
