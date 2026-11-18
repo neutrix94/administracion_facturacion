@@ -93,10 +93,13 @@
                         WHERE id_cliente = {$cliente['id_cliente_facturacion']}";
                     $stm = $link->query($sql);
                     if($stm->rowCount() > 0){
-                        $base['no_estan'][] = $cliente;
+                        $base_datos[$key2]['no_existen'][] = $cliente;
                     }else{
                 //realiza comparacion 
-
+                        $row = $stm->fetch(PDO::FETCH_ASSOC);
+                        if($row['nombre'] != $cliente['rfc']){
+                            $base_datos[$key2]['tienen_diferencias'][] = $cliente
+                        }
                     }
                 }catch(PDOException $error){
                     $payload = json_encode( array( "status"=>"302", "message"=>"Error al consultar los clientes en admin fact", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}" ) );
