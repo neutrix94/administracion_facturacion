@@ -6,6 +6,7 @@
         $db = new db();
         $link = $db->conectDB();
         $bases_datos = array();
+        $emisores = array();
     //consulta las bases de datos de facturacion
         try{
             $sql = "SELECT
@@ -23,7 +24,6 @@
             $response->getBody()->write($payload);
             return $response;
         }
-        $emisores = array();
         foreach($bases_datos as $key2 => $base){
             $sql = "SELECT
                         e.razon_social,
