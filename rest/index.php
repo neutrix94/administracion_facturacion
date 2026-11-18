@@ -37,6 +37,8 @@ $app->get('/example', function (Request $request, Response $response, $args) {
   //clientes
     require __DIR__ . '/endpoints/envia_cliente_facturacion.php';
     require __DIR__ . '/endpoints/sincronizaPrefijoSet.php';
+  //
+    require __DIR__ . '/endpoints/comprobacion_clientes.php';
   //ventas
     require __DIR__ . '/endpoints/enviaFacturaCorreo.php';
     require __DIR__ . '/endpoints/insertaVentaFacturacion.php';
@@ -51,5 +53,6 @@ $app->get('/example', function (Request $request, Response $response, $args) {
     require __DIR__ . '/endpoints/insertar_lote_ventas_administracion_facturacion.php';
     //require __DIR__  . '/endpoints/prueba.php';
     //require __DIR__  . '/endpoints/insertarClienteFacturacion.php';
+    
     
 $app->run();
