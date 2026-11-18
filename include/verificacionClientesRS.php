@@ -1,3 +1,7 @@
+<?php
+	session_start();
+	$_SESSION['current_view'] = $_POST['action'];
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
