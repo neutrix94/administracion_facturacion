@@ -102,7 +102,7 @@
 
         const enlace = document.createElement('a');
         enlace.href = url;
-        enlace.download = `clientes_faltantes_${new Date().toISOString().slice(0, 10)}.csv`;
+        enlace.download = `clientes_faltantes_RS_${new Date().toISOString().slice(0, 10)}.csv`;
         document.body.appendChild(enlace);
         enlace.click();
         document.body.removeChild(enlace);
