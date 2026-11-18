@@ -92,13 +92,14 @@
                             {$base['nombre_db']}.`ec_clientes`
                         WHERE id_cliente = {$cliente['id_cliente_facturacion']}";
                     $stm = $link->query($sql);
-                    if($stm->rowCount() > 0){
-                        $base_datos[$key2]['no_existen'][] = $cliente;
+                    if($stm->rowCount() <= 0){
+                        array_push($bases_datos[$key2]['no_existen'], $cliente);
                     }else{
                 //realiza comparacion 
                         $row = $stm->fetch(PDO::FETCH_ASSOC);
                         if($row['nombre'] != $cliente['rfc']){
-                            $base_datos[$key2]['tienen_diferencias'][] = $cliente;
+                            $diferencia = array("razon_social"=>$row, "administracion_facturacion"=>$cliente);
+                            array_push($bases_datos[$key2]['tienen_diferencias'], $diferencia);
                         }
                     }
                 }catch(PDOException $error){
