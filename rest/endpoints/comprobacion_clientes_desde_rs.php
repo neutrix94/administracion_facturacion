@@ -82,7 +82,7 @@
                                     `folio_unico`,
                                     `sincronizar`
                                 FROM vf_clientes_razones_sociales
-                                WHERE id_cliente_facturacion = {$cliente['id_cliente']}";
+                                WHERE id_cliente_facturacion = {$row['id_cliente']}";
                         $stm2 = $link->query($sql);
                 //compara cliente
                         if($stm2->rowCount() <= 0){
