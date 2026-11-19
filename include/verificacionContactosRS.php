@@ -46,7 +46,7 @@
     async function enviarDatos() {
         $(`#emergent`).css('display', 'block');
         try {
-            const respuesta = await fetch('rest/comprobacion_clientes_desde_rs', {
+            const respuesta = await fetch('rest/comprobacion_contactos_desde_rs', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
