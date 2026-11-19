@@ -40,6 +40,9 @@ $app->get('/example', function (Request $request, Response $response, $args) {
   //comprobaciones de clientes
     require __DIR__ . '/endpoints/comprobacion_clientes.php';
     require __DIR__ . '/endpoints/comprobacion_clientes_desde_rs.php';
+  //comprobaciones de contactos
+    require __DIR__ . '/endpoints/comprobacion_contactos.php';
+    require __DIR__ . '/endpoints/comprobacion_contactos_desde_rs.php';
   //acumulado de ventas
     require __DIR__ . '/endpoints/consulta_acumulado_ventas.php';
   //ventas
