@@ -40,28 +40,34 @@
             $this->link = $connection;
         }
 
-        public function getPagesInfo($limit, $current_page){
+        public function getPagesInfo($limit, $current_page, $store = 0, $status = 0){
             $paginator = array();
             try{
                 $sql = "SELECT
                         COUNT(*) AS rows_counter
                     FROM(
                             SELECT
-                            COUNT(*) AS rows_counter
-                        FROM ec_pedidos_error_envio_rs
-                        WHERE id_pedido > 0
-                        GROUP BY id_pedido
+                            COUNT(peers.id_pedido_error_envio_rs) AS rows_counter
+                        FROM ec_pedidos_error_envio_rs peers
+                        LEFT JOIN ec_pedidos p
+                        ON peers.id_pedido = p.id_pedido
+                        WHERE peers.id_pedido > 0
+                        AND IF({$store} != 0, p.id_sucursal = {$store}, 1 = 1)
+                        AND IF({$status} != 0, p.id_status_facturacion = {$status}, 1 = 1)
+                        GROUP BY peers.id_pedido
                     )ax";
                 $eje = $this->link->query( $sql );
                 $row = $eje->fetch( PDO::FETCH_ASSOC );
                 $pages_counter = CEIL( $row['rows_counter'] / $limit );
+                $pages_counter = ($pages_counter <= 0 ? 1 : $pages_counter);
                 $paginator['rows_counter'] = $row['rows_counter'];
                 $paginator['pages_counter'] = $pages_counter;
                 $paginator['limit'] = $limit;
                 $paginator['current_page'] = $current_page;
+//var_dump($paginator);
                 return $paginator;
             }catch(PDOException $error){
-                return array("status"=>"302", "message"=>"Error al calcular paginador.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}");
+                die(json_encode(array("status"=>"302", "message"=>"Error al calcular paginador.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}")));
             }
         }
         
@@ -103,7 +109,7 @@
         
         public function getPagesSalesErrors( $limit = 20, $current_page = 1, $store = 0, $status = 0){
             $sales = array();
-            $paginator = $this->getPagesInfo($limit, $current_page);
+            $paginator = $this->getPagesInfo($limit, $current_page, $store, $status);
             try{
                 $sql = "SELECT 
                         p.id_pedido, 
