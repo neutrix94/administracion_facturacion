@@ -29,8 +29,14 @@
         <table class="table table-striped table-bordered">
             <thead class="bg-white" style="position : sticky; top :0;">
                 <tr>
-                    <th>Razon Social</th>
-                    <th>Monto Ventas Actual</th>
+                    <th class="text-center">Razon Social</th>
+                    <th class="text-center">Periodo</th>
+                    <th class="text-center">Alerta Compras</th>
+                    <th class="text-center">Limite Compras</th>
+                    <th class="text-center">Compras Actuales</th>
+                    <th class="text-center">Alerta Ventas</th>
+                    <th class="text-center">Limite Ventas</th>
+                    <th class="text-center">Ventas Actuales</th>
                 </tr>
             </thead>
             <tbody id="razones_sociales"></tbody>
