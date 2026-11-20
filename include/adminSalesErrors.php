@@ -217,14 +217,14 @@
         }//alert(url);
         var resp = ajaxR( url );//alert(resp);
 		var json = JSON.parse(resp);
-//console.log(json.errors);
+//console.log(json);
 		var content = buildSaleRows(json.errors);
         $( '#SalesListContent' ).html( resp );
 		
 		$('#SalesListContent').empty();
 		$('#SalesListContent').html(content);
 		$('#current_page').html(json.paginator.current_page);
-		$('#pages_limit').html(json.paginator.pages_limit);
+		$('#pages_limit').html(json.paginator.pages_counter);//pages_limit
 	}
     
 
