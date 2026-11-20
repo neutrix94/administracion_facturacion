@@ -34,6 +34,7 @@
                     <th>Teléfono</th>
                     <th>Celular</th>
                     <th>Correo</th>
+                    <th>Folio Único</th>
                 </tr>
             </thead>
             <tbody id="contactos_faltantes"></tbody>
@@ -78,6 +79,7 @@
                     <td>${registros[key]['no_existen'][key2].telefono}</td>
                     <td>${registros[key]['no_existen'][key2].celular}</td>
                     <td>${registros[key]['no_existen'][key2].correo}</td>
+                    <td>${registros[key]['no_existen'][key2].folio_unico}</td>
                 </tr>`;
             }
         }
