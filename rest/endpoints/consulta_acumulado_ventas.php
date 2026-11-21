@@ -27,6 +27,12 @@
         foreach($bases_datos as $key2 => $base){
             $sql = "SELECT
                         e.razon_social,
+                        lrs.periodo,
+                        lrs.alerta_limite_compras,
+                        lrs.limite_compras,
+                        lrs.monto_compras_actual,
+                        lrs.alerta_limite_ventas,
+                        lrs.limite_ventas,
                         lrs.monto_ventas_actual
                     FROM {$base['nombre_db']}.`ec_emisor` e
                     LEFT JOIN {$base['nombre_db']}.`ec_limites_razon_social` lrs

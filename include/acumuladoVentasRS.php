@@ -29,8 +29,14 @@
         <table class="table table-striped table-bordered">
             <thead class="bg-white" style="position : sticky; top :0;">
                 <tr>
-                    <th>Razon Social</th>
-                    <th>Monto Ventas Actual</th>
+                    <th class="text-center">Razon Social</th>
+                    <th class="text-center">Periodo</th>
+                    <th class="text-center">Alerta Compras</th>
+                    <th class="text-center">Limite Compras</th>
+                    <th class="text-center">Compras Actuales</th>
+                    <th class="text-center">Alerta Ventas</th>
+                    <th class="text-center">Limite Ventas</th>
+                    <th class="text-center">Ventas Actuales</th>
                 </tr>
             </thead>
             <tbody id="razones_sociales"></tbody>
@@ -68,10 +74,16 @@
     function build_rows(registros){
         var content = ``;
         for (const key in registros) {
-                content += `<tr>
-                    <td>${registros[key].razon_social}</td>
-                    <td>${registros[key].monto_ventas_actual}</td>
-                </tr>`;
+            content += `<tr>
+                <td>${registros[key].razon_social}</td>
+                <td class="text-end">${registros[key].periodo}</td>
+                <td class="text-end">${registros[key].alerta_limite_compras}</td>
+                <td class="text-end">${registros[key].limite_compras}</td>
+                <td class="text-end">${registros[key].monto_compras_actual}</td>
+                <td class="text-end">${registros[key].alerta_limite_ventas}</td>
+                <td class="text-end">${registros[key].limite_ventas}</td>
+                <td class="text-end">${registros[key].monto_ventas_actual}</td>
+            </tr>`;
         }
         $('#razones_sociales').html(content);
     }
