@@ -16,7 +16,8 @@
                 $current_page = ( isset( $_POST['current_page'] ) ? $_POST['current_page'] : (isset($_GET['current_page']) ? $_GET['current_page'] : 0) );
                 $store = ( isset( $_POST['store'] ) ? $_POST['store'] : (isset($_GET['store']) ? $_GET['store'] : 0) );
                 $status = ( isset( $_POST['status'] ) ? $_POST['status'] : (isset($_GET['status']) ? $_GET['status'] : 0) );
-                echo json_encode($SalesDB->getPagesSalesErrors($limit, $current_page, $store, $status));
+                $year = ( isset( $_POST['year'] ) ? $_POST['year'] : (isset($_GET['year']) ? $_GET['year'] : 0) );
+                echo json_encode($SalesDB->getPagesSalesErrors($limit, $current_page, $store, $status, $year));
             break;
 
             case 'getSpecificSale' :
@@ -40,7 +41,7 @@
             $this->link = $connection;
         }
 
-        public function getPagesInfo($limit, $current_page, $store = 0, $status = 0){
+        public function getPagesInfo($limit, $current_page, $store = 0, $status = 0, $year = 0){
             $paginator = array();
             try{
                 $sql = "SELECT
@@ -54,6 +55,7 @@
                         WHERE peers.id_pedido > 0
                         AND IF({$store} != 0, p.id_sucursal = {$store}, 1 = 1)
                         AND IF({$status} != 0, p.id_status_facturacion = {$status}, 1 = 1)
+                        AND IF({$year} != 0, p.fecha_alta LIKE '%{$year}%', 1 = 1)
                         GROUP BY peers.id_pedido
                     )ax";
                 $eje = $this->link->query( $sql );
@@ -107,9 +109,9 @@
             }
         }
         
-        public function getPagesSalesErrors( $limit = 20, $current_page = 1, $store = 0, $status = 0){
+        public function getPagesSalesErrors( $limit = 20, $current_page = 1, $store = 0, $status = 0, $year = 0){
             $sales = array();
-            $paginator = $this->getPagesInfo($limit, $current_page, $store, $status);
+            $paginator = $this->getPagesInfo($limit, $current_page, $store, $status, $year);
             try{
                 $sql = "SELECT 
                         p.id_pedido, 
@@ -133,6 +135,9 @@
                 }
                 if($status != 0 ){
                     $sql .= " AND p.id_status_facturacion = {$status}";
+                }
+                if($year != 0 ){
+                    $sql .= " AND p.fecha_alta LIKE '%{$year}%'";
                 }
                 $sql .= " GROUP BY p.id_pedido
                     ORDER BY p.id_pedido DESC";
