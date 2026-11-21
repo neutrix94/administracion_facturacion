@@ -76,13 +76,13 @@
         for (const key in registros) {
             content += `<tr>
                 <td>${registros[key].razon_social}</td>
-                <td>${registros[key].periodo}</td>
-                <td>${registros[key].alerta_limite_compras}</td>
-                <td>${registros[key].limite_compras}</td>
-                <td>${registros[key].monto_compras_actual}</td>
-                <td>${registros[key].alerta_limite_ventas}</td>
-                <td>${registros[key].limite_ventas}</td>
-                <td>${registros[key].monto_ventas_actual}</td>
+                <td class="text-end">${registros[key].periodo}</td>
+                <td class="text-end">${registros[key].alerta_limite_compras}</td>
+                <td class="text-end">${registros[key].limite_compras}</td>
+                <td class="text-end">${registros[key].monto_compras_actual}</td>
+                <td class="text-end">${registros[key].alerta_limite_ventas}</td>
+                <td class="text-end">${registros[key].limite_ventas}</td>
+                <td class="text-end">${registros[key].monto_ventas_actual}</td>
             </tr>`;
         }
         $('#razones_sociales').html(content);
