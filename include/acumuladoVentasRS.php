@@ -74,10 +74,16 @@
     function build_rows(registros){
         var content = ``;
         for (const key in registros) {
-                content += `<tr>
-                    <td>${registros[key].razon_social}</td>
-                    <td>${registros[key].monto_ventas_actual}</td>
-                </tr>`;
+            content += `<tr>
+                <td>${registros[key].razon_social}</td>
+                <td>${registros[key].periodo}</td>
+                <td>${registros[key].alerta_limite_compras}</td>
+                <td>${registros[key].limite_compras}</td>
+                <td>${registros[key].monto_compras_actual}</td>
+                <td>${registros[key].alerta_limite_ventas}</td>
+                <td>${registros[key].limite_ventas}</td>
+                <td>${registros[key].monto_ventas_actual}</td>
+            </tr>`;
         }
         $('#razones_sociales').html(content);
     }
