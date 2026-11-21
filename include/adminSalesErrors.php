@@ -121,35 +121,7 @@
 						<th width="10%" class="text-center">Ver Detalle</th>
 					</tr>
 				</thead>
-				<tbody style="max-height : 200px; overflow:auto;" id="SalesListContent">
-			<?php
-			/*$c=0;//inicaimos el contador en cero
-			while( $r = $eje->fetch( PDO::FETCH_ASSOC ) ){
-                $row_class = "";
-                if($r['id_status_facturacion'] >= 5){
-                    $row_class = "bg-success";
-                }
-				$c++;//incrementamos contador
-				echo '<tr id="fila_'.$c.'" tabindex="'.$c.'" class="row_item '. $row_class . '">';
-					echo '<td class="text-center">'.$r['id_pedido'].'</td>';
-					echo '<td class="text-center">'.$r['store_name'].'</td>';
-					echo '<td class="text-center">'.$r['folio_nv'].'</td>';
-					echo '<td class="text-center">'.$r['total'].'</td>';
-                    echo "<td id=\"error_detail_{$c}\" style=\"display:none;\">{$r['contenido_respuesta']}</td>";
-                    echo "<td class=\"text-center\"><input type=\"checkbox\" " . ($r['omitir'] == 1 ? 'checked' : '') . " disabled></td>";
-					echo "<td class=\"text-center\" value=\"\">
-						<button
-							type=\"button\"
-							class=\"btn\"
-							onclick=\"showErrorDetail( {$c}, {$r['id_pedido']} );\"
-						>
-							<i class=\"icon-eye\"></i>
-						</button>
-					</td>";
-				echo '</tr>';
-			}//fin de while*/
-			?>
-				</tbody>
+				<tbody style="max-height : 200px; overflow:auto;" id="SalesListContent"></tbody>
 			</table>
 	</div>
     
@@ -238,11 +210,12 @@
 		$('#pages_limit').html(json.paginator.pages_counter);//pages_limit
 	}
     
-
+var current_page = 1;
+var pages_limit = 0;
 	function paginator(action){
 	//consulta pagina actual
-		var current_page = parseInt($('#current_page').html().trim());
-		var pages_limit = parseInt($('#pages_limit').html().trim());
+		current_page = parseInt($('#current_page').html().trim());
+		pages_limit = parseInt($('#pages_limit').html().trim());
 		current_page += parseInt(action);
 		if(current_page < 1){
 			alert("No hay mas paginas hacia atras.");
@@ -320,6 +293,8 @@
         </div>`;
         $( '#alert_content' ).html( content );
         $( '#alert' ).css( 'display', 'block' );
+
+		getSalesErrors( 0, 20, current_page );//recarga la vista
     }
 </script>
 
