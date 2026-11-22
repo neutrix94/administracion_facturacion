@@ -18,27 +18,23 @@
 	$eje=$link->query( $sql )or die("Error al listar las razones sociales : {$sql}");
     $row = $eje->fetch( PDO::FETCH_ASSOC );
     $pages_limit = ceil( $row['pages_limit'] / 20 );
-    //$pages_limit //die("PAGES : {$pages_limit}  : {$row['pages_limit']} / 20");
-	/*$sql = "SELECT 
-            p.id_pedido, 
-            s.nombre AS store_name,
-            p.folio_nv,
-            p.total,
-            GROUP_CONCAT(peer.contenido_respuesta SEPARATOR '\n') AS contenido_respuesta,
-            peer.omitir,
-            p.id_status_facturacion
-        FROM ec_pedidos_error_envio_rs peer
-        LEFT JOIN ec_pedidos p
-        ON peer.id_pedido = p.id_pedido
-        LEFT JOIN sys_sucursales s
-        ON p.id_sucursal = s.id_sucursal
-        WHERE 1 
-        GROUP BY p.id_pedido
-        ORDER BY id_pedido DESCLIMIT 20";
-	$eje = $link->query( $sql )or die("Error al listar las razones sociales : {$sql}");*/
     $stores = $SalesDB->getStores();
     $status = $SalesDB->getStatus();
 	$paginator = $SalesDB->getPagesInfo(20, 1);
+    $anos = array();
+//consulta los ultimos 5 años
+    try{
+        $sql = "SELECT YEAR(CURDATE()) - n AS anio
+                FROM (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2
+                    UNION ALL SELECT 3 UNION ALL SELECT 4) AS t
+                ORDER BY anio DESC";
+        $stm = $link->query($sql);
+        while($row = $stm->fetch(PDO::FETCH_ASSOC)){
+            $anos[] = $row;
+        }
+    }catch(PDOException $error){
+        die(json_encode(array("status"=>"302", "message"=>"Error al consultar los ultimos 5 años.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}")));
+    }
     //var_dump($stores);
     
 ?>
@@ -48,14 +44,14 @@
 	<div style="width:90%;heigth:450px;">
 		<br>
         <div class="row">
-            <div class="col-6">
+            <div class="col-4">
                 <b>
-                    <p class="subtitulo" align="left" style="position : sticky; top: 0; background-color : white;" class="">
+                    <p class="subtitulo" style="position : sticky; top: 0; background-color : white;" class="">
                         <i class="icon-cancel-circled text-danger">Ventas con error al enviar a Razon Social</i> 
                     </p>
                 </b>
                 <div class="row">
-                    <div class="col-6" onchange="getSalesErrors();">
+                    <div class="col-4" onchange="getSalesErrors();">
                         Sucursal
                         <select class="form-control" name="" id="store_filter">
                             <option value="0">--Todas--</option>
@@ -66,13 +62,24 @@
                     ?>
                         </select>
                     </div>
-                    <div class="col-6">
+                    <div class="col-4">
                         Status
                         <select class="form-control" name="" id="status_filter" onchange="getSalesErrors();">
                             <option value="0">--Todas--</option>
                     <?php
                         foreach ($status as $key => $st) {
-                            echo "<option value=\"{$st['id_status_facturacion']}\">{$st['nombre_status']}</option>";
+                            echo "<option value=\"{$st['id_status_facturacion']}\"" . ($st['id_status_facturacion'] == 4 ? ' selected' : '') . ">{$st['nombre_status']}</option>";
+                        }
+                    ?>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        Año
+                        <select class="form-control" name="" id="year_filter" onchange="getSalesErrors();">
+                            <option value="0">--Todos--</option>
+                    <?php
+                        foreach ($anos as $key => $ano) {
+                            echo "<option value=\"{$ano['anio']}\"" . ($key == 0 ? ' selected' : '') . ">{$ano['anio']}</option>";
                         }
                     ?>
                         </select>
@@ -114,35 +121,7 @@
 						<th width="10%" class="text-center">Ver Detalle</th>
 					</tr>
 				</thead>
-				<tbody style="max-height : 200px; overflow:auto;" id="SalesListContent">
-			<?php
-			/*$c=0;//inicaimos el contador en cero
-			while( $r = $eje->fetch( PDO::FETCH_ASSOC ) ){
-                $row_class = "";
-                if($r['id_status_facturacion'] >= 5){
-                    $row_class = "bg-success";
-                }
-				$c++;//incrementamos contador
-				echo '<tr id="fila_'.$c.'" tabindex="'.$c.'" class="row_item '. $row_class . '">';
-					echo '<td class="text-center">'.$r['id_pedido'].'</td>';
-					echo '<td class="text-center">'.$r['store_name'].'</td>';
-					echo '<td class="text-center">'.$r['folio_nv'].'</td>';
-					echo '<td class="text-center">'.$r['total'].'</td>';
-                    echo "<td id=\"error_detail_{$c}\" style=\"display:none;\">{$r['contenido_respuesta']}</td>";
-                    echo "<td class=\"text-center\"><input type=\"checkbox\" " . ($r['omitir'] == 1 ? 'checked' : '') . " disabled></td>";
-					echo "<td class=\"text-center\" value=\"\">
-						<button
-							type=\"button\"
-							class=\"btn\"
-							onclick=\"showErrorDetail( {$c}, {$r['id_pedido']} );\"
-						>
-							<i class=\"icon-eye\"></i>
-						</button>
-					</td>";
-				echo '</tr>';
-			}//fin de while*/
-			?>
-				</tbody>
+				<tbody style="max-height : 200px; overflow:auto;" id="SalesListContent"></tbody>
 			</table>
 	</div>
     
@@ -214,6 +193,10 @@
         var status_filter = $('#status_filter').val();
         if( status_filter != 0){
             url += `&status=${status_filter}`;
+        }
+        var year_filter = $('#year_filter').val();//alert(year_filter);
+        if(year_filter != 0){
+            url += `&year=${year_filter}`;
         }//alert(url);
         var resp = ajaxR( url );//alert(resp);
 		var json = JSON.parse(resp);
@@ -227,11 +210,12 @@
 		$('#pages_limit').html(json.paginator.pages_counter);//pages_limit
 	}
     
-
+var current_page = 1;
+var pages_limit = 0;
 	function paginator(action){
 	//consulta pagina actual
-		var current_page = parseInt($('#current_page').html().trim());
-		var pages_limit = parseInt($('#pages_limit').html().trim());
+		current_page = parseInt($('#current_page').html().trim());
+		pages_limit = parseInt($('#pages_limit').html().trim());
 		current_page += parseInt(action);
 		if(current_page < 1){
 			alert("No hay mas paginas hacia atras.");
@@ -309,6 +293,8 @@
         </div>`;
         $( '#alert_content' ).html( content );
         $( '#alert' ).css( 'display', 'block' );
+
+		getSalesErrors( 0, 20, current_page );//recarga la vista
     }
 </script>
 

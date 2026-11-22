@@ -12,7 +12,7 @@
     $stores = $InvoiceRequestDB->getStores();//consulta las razones sociales para los filtros
     $rss = $InvoiceRequestDB->getSocialReasons();//consulta las status para los filtros
     $status = $InvoiceRequestDB->getStatus();
-	$paginator = $InvoiceRequestDB->getPagesInfo(20, 1);
+	$paginator = array("current_page"=>"0", "pages_counter"=>"0");//$InvoiceRequestDB->getPagesInfo(20, 1);
 ?>
 <!-- libreria para dar formato a jsons -->
 	<script src="./js/highlight/highlight.min.js"></script>
@@ -22,10 +22,9 @@
 		<br>
 		<b>
 			<p class="subtitulo" align="left">Solicitudes de Factura</p>
-					
 		</b>
         <div class="row">
-            <div class="col-4">
+            <div class="col-6">
                 <label for="store_filter">Sucursal : </label>
                 <br>
                 <select class="form-control" id="store_filter" onchange="getInvoiceRequests();">
@@ -34,7 +33,7 @@
                 </select>
                 <br>
             </div>
-            <div class="col-4">
+            <div class="col-6">
                 <label for="rss_filter">Razon Social : </label>
                 <br>
                 <select class="form-control" id="rss_filter" onchange="getInvoiceRequests();">
@@ -42,13 +41,14 @@
                     <?php echo $rss;?>
                 </select>
             </div>
-            <div class="col-4 text-end">
+            <div class="col-12 text-end" id="status_container">
                 <label for="status_filter">Status : </label>
                 <br>
-                <select class="form-control" id="status_filter" onchange="getInvoiceRequests();">
+                <select class="form-control hidden" style="display : none;" id="status_filter" onchange="getInvoiceRequests();">
                     <option value="0">Todos</option>
-                    <?php echo $status;?>
-                </select>
+                   
+                </select> 
+                <?php echo $status;?>
             </div>
         </div>
         <div>
@@ -119,30 +119,46 @@
 	</div>
 <script>
     function getInvoiceRequests( start_position = 0, limit = 20, page = 1 ){//buscar venta
-        var url = `include/invoiceRequestDB.php?action_fl=getInvoiceRequests&limit=${limit}&current_page=${page}`;//&folio=${text}&start=${start_position}
-        var store_filter = $('#store_filter').val();
-        if( store_filter != 0){
-            url += `&store=${store_filter}`;
-        }
-        var status_filter = $('#status_filter').val();
-        if( status_filter != 0){
-            url += `&status=${status_filter}`;
-        }//alert(url);
+//alert();
+        $( '#contenido_emergente' ).html( '<br><br><h2 class="text-center">Cargando...</h3>' );
+        $( '#emergente' ).css( "display", "block" );
+        setTimeout( function(){
+            var url = `include/invoiceRequestDB.php?action_fl=getInvoiceRequests&limit=${limit}&current_page=${page}`;//&folio=${text}&start=${start_position}
+            var store_filter = $('#store_filter').val();
+            if( store_filter != 0){
+                url += `&store=${store_filter}`;
+            }
+            var status_filter = '';//$('#status_filter').val();
+            $(`#status_container input`).each(function(index){
+                if($(this).prop('checked')){
+                    status_filter += (status_filter == '' ? '' : ',');
+                    status_filter += $(this).val();
+                }
+            });
+            if( status_filter == 0 && status_filter == ''){
+                status_filter = -1;alert();
+            }
+            if( status_filter != 0 && status_filter != ''){
+                url += `&status=${status_filter}`;
+            }//alert(url);
 
-        var rs_id = $('#rss_filter').val();
-        if( rs_id != 0){
-            url += `&rs_id=${rs_id}`;
-        }//alert(url);
-        var resp = ajaxR( url );//alert(resp);
-		var json = JSON.parse(resp);
-//console.log(json.errors);
-		var content = buildInvoiceRequest(json.invoiceRequests);
-        $( '#invoiceRequestList' ).html( resp );
-		
-		$('#invoiceRequestList').empty();
-		$('#invoiceRequestList').html(content);
-		$('#current_page').val(json.paginator.current_page);
-		$('#pages_limit').val(json.paginator.pages_counter);
+            var rs_id = $('#rss_filter').val();
+            if( rs_id != 0){
+                url += `&rs_id=${rs_id}`;
+            }//alert(url);
+            var resp = ajaxR( url );//alert(resp);
+            var json = JSON.parse(resp);
+//console.log(json);
+            var content = buildInvoiceRequest(json.invoiceRequests);
+            $( '#invoiceRequestList' ).html( resp );
+            
+            $('#invoiceRequestList').empty();
+            $('#invoiceRequestList').html(content);
+            $('#current_page').val(json.paginator.current_page);
+            $('#pages_limit').val(json.paginator.pages_counter);
+            close_emergent();
+        }, 300);
+            
 	}
 
     function buildInvoiceRequest(json){//alert(json);
@@ -202,10 +218,10 @@
         }
         return content;
     }
-    
+var current_page = 1; 
     function paginator(action){
 	//consulta pagina actual
-		var current_page = parseInt($('#current_page').val().trim());
+		current_page = parseInt($('#current_page').val().trim());
 		var pages_limit = parseInt($('#pages_limit').val().trim());//alert(pages_limit);
 		current_page += parseInt(action);
 		if(current_page < 1){
@@ -321,11 +337,11 @@
 <style>
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
-    -webkit-appearance: none; 
-    margin: 0; 
+        -webkit-appearance: none; 
+        margin: 0; 
     }
 
-input[type=number] { -moz-appearance:textfield; }
+    input[type=number] { -moz-appearance:textfield; }
     .paginator_input{
         width: 50px;
         text-align: center;
