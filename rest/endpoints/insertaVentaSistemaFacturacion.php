@@ -92,13 +92,15 @@
         }
     //consulta el apath del api de acuerdo a la razon social
         $sql = "SELECT 
-                    url_api
+                    url_api,
+                    nombre
                 FROM razones_sociales
                 WHERE id_equivalente = {$sale_header['id_razon_social']}";
         //die($sql);
         $stm = $link->query( $sql )or die( "Error al consultar api de sistema destino de facturacion : {$sql}" );//die($sql);
         $row = $stm->fetch(PDO::FETCH_ASSOC);
         $api_path = $row['url_api'];
+        $rs_name = $row['nombre'];
     //tipo de pago
         $payment_type = 1;//efectivo por default
         try{
@@ -158,8 +160,8 @@
                 $stm = $link->query($sql);
                 $row = $stm->fetch(PDO::FETCH_ASSOC);
                 $api_url = "{$row['api_path']}/rest_v2/telegram/send_message";
-                $post_data = json_encode(array("id_modulo"=>"3", 
-                    "mensaje"=>"Error al subir la venta '{$sale_header['folio_nv']}' a Razon Social; respuesta : {$resp}\n")
+                $post_data = json_encode(array("id_modulo"=>"9", 
+                    "mensaje"=>"Error al subir la venta '{$sale_header['folio_nv']}' a Razon Social : {$rs_name}; respuesta : {$resp}\n")
                 );
                 //$curl_resp = $this->sendPetition($api_url, $post_data, '');
                 $crl = curl_init( "{$api_url}" );
