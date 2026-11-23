@@ -136,7 +136,7 @@
                 }
             });
             if( status_filter == 0 && status_filter == ''){
-                status_filter = -1;alert();
+                status_filter = -1;//alert();
             }
             if( status_filter != 0 && status_filter != ''){
                 url += `&status=${status_filter}`;
