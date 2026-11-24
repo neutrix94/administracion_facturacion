@@ -13,6 +13,20 @@
     $rss = $InvoiceRequestDB->getSocialReasons();//consulta las status para los filtros
     $status = $InvoiceRequestDB->getStatus();
 	$paginator = array("current_page"=>"0", "pages_counter"=>"0");//$InvoiceRequestDB->getPagesInfo(20, 1);
+    $anos = array();
+//consulta los ultimos 5 años
+    try{
+        $sql = "SELECT YEAR(CURDATE()) - n AS anio
+                FROM (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2
+                    UNION ALL SELECT 3 UNION ALL SELECT 4) AS t
+                ORDER BY anio DESC";
+        $stm = $link->query($sql);
+        while($row = $stm->fetch(PDO::FETCH_ASSOC)){
+            $anos[] = $row;
+        }
+    }catch(PDOException $error){
+        die(json_encode(array("status"=>"302", "message"=>"Error al consultar los ultimos 5 años.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}")));
+    }
 ?>
 <!-- libreria para dar formato a jsons -->
 	<script src="./js/highlight/highlight.min.js"></script>
@@ -24,7 +38,7 @@
 			<p class="subtitulo" align="left">Solicitudes de Factura</p>
 		</b>
         <div class="row">
-            <div class="col-6">
+            <div class="col-4">
                 <label for="store_filter">Sucursal : </label>
                 <br>
                 <select class="form-control" id="store_filter" onchange="getInvoiceRequests();">
@@ -33,12 +47,23 @@
                 </select>
                 <br>
             </div>
-            <div class="col-6">
+            <div class="col-4">
                 <label for="rss_filter">Razon Social : </label>
                 <br>
                 <select class="form-control" id="rss_filter" onchange="getInvoiceRequests();">
                     <option value="0">Todas</option>
                     <?php echo $rss;?>
+                </select>
+            </div>
+            <div class="col-4">
+                Año
+                <select class="form-control" name="" id="year_filter" onchange=" getInvoiceRequests();">
+                    <option value="0">--Todos--</option>
+            <?php
+                foreach ($anos as $key => $ano) {
+                    echo "<option value=\"{$ano['anio']}\"" . ($key == 0 ? ' selected' : '') . ">{$ano['anio']}</option>";
+                }
+            ?>
                 </select>
             </div>
             <div class="col-12 text-end" id="status_container">
@@ -53,15 +78,16 @@
         </div>
         <div>
             <div class="input-group">
-                <input type="text" id="seeker_input" class="form-control" onkeyup="filter();" 
+                <input type="text" id="seeker_input" class="form-control"  
                 placeholder="Buscar por RFC, folio nota">
                 <button
                     type="button"
                     class="btn btn-success"
-                    onclick="filter();"
+                    onclick="getInvoiceRequests();"
                 >
                     <i class="icon-search"></i>
                 </button>
+                <!--onkeyup="filter();"-->
             </div>
             <br>
         </div>
@@ -141,11 +167,21 @@
             if( status_filter != 0 && status_filter != ''){
                 url += `&status=${status_filter}`;
             }//alert(url);
-
+            
             var rs_id = $('#rss_filter').val();
             if( rs_id != 0){
                 url += `&rs_id=${rs_id}`;
             }//alert(url);
+            
+            var year_filter = $('#year_filter').val();//alert(year_filter);
+            if(year_filter != 0){
+                url += `&year=${year_filter}`;
+            }//alert(url);
+
+            var seeker_text = $(`#seeker_input`).val().trim();
+            if(seeker_text != ''){
+                url += `&seeker_text=${seeker_text}`;
+            }
             var resp = ajaxR( url );//alert(resp);
             var json = JSON.parse(resp);
 //console.log(json);
