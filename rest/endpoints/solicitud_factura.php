@@ -148,6 +148,7 @@
 			);
 			$resp = curl_exec($crl);//envia peticion
 			curl_close($crl);
+            $resp_original = $resp;
             $json_response = json_decode( $resp );
         //actualiza el registro de intento de facturacion
             try{
@@ -178,6 +179,30 @@
                 die( "Error al actualizar el status de la nota de venta : {$sql} : {$e}" );
             }
         }else{
+        //actualiza la nota de venta a solicitud de API de timbrado
+            try{
+                $sql = "UPDATE ec_pedidos SET id_status_facturacion = 7 WHERE folio_nv = '{$sale_folio}'";
+                $stm = $link->query( $sql );
+            }catch(PDOException $error){
+                $payload = json_encode(array("status"=>"302", "message"=>"Error al actualizar status de facturacion de la venta {$sale_folio}", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}"));
+                $response->getBody()->write( $payload );
+                return $response;
+            }
+        /*<Procesamiento de la respuesta erronea>*/
+            $respuesta_vista = '';
+            $respuesta_mensaje_telegram = '';
+            $respuesta = json_decode($resp_original, true);
+            // message_detail viene como string con un arreglo JSON adentro
+            $detalle = json_decode($respuesta['error_detail']['message_detail'] ?? '[]', true);
+            $buscado = "CFDI40147 - El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
+
+            if (is_array($detalle) && in_array($buscado, $detalle, true)) {
+                $respuesta_vista = "El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
+                $respuesta_vista .= "Actualiza tus datos con tu Constancia de Situacion Fistal actualizada y vuelve a intentar";
+
+                $respuesta_mensaje_telegram = 'El C.P. del cliente es incorrecto.';
+            }
+        /*</Procesamiento de la respuesta erronea>*/
 		//implementacion Oscar 2025-09-03 para enviar error por Telegram
             $api_url = "";
             try{
@@ -186,7 +211,7 @@
                 $row = $stm->fetch(PDO::FETCH_ASSOC);
                 $api_url = "{$row['api_path']}/rest_v2/telegram/send_message";
                 $post_data = json_encode(array("id_modulo"=>"4", 
-                    "mensaje"=>"Error al timbrar la venta '{$sale_folio}' en Razon Social; respuesta : {$resp}\n")
+                    "mensaje"=>"Error al timbrar la venta '{$sale_folio}' en Razon Social; respuesta : {$respuesta_mensaje_telegram}\n")
                 );
                 //$curl_resp = $this->sendPetition($url, $post_data, '');
                 $crl = curl_init( "{$api_url}" );
