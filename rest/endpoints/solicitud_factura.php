@@ -119,13 +119,15 @@
         
     //consulta el path del api de acuerdo a la razon social
         $sql = "SELECT 
-                    url_api
+                    url_api,
+                    nombre
                 FROM razones_sociales
                 WHERE id_equivalente = {$sale_header['id_razon_social']}";
         //die($sql);
         $stm = $link->query( $sql )or die( "Error al consultar api de sistema destino de facturacion : {$sql}" );//die($sql);
         $row = $stm->fetch(PDO::FETCH_ASSOC);
         $api_path = $row['url_api'];
+        $rs_name = $row['nombre'];
         $post_data = json_encode( array( 
             "sale_folio"=>$sale_folio, 
             "costumer_rfc"=>$sale_costumer,
@@ -193,10 +195,8 @@
             $respuesta_mensaje_telegram = '';
             $respuesta = json_decode($resp_original, true);
         //error de CP
-            $detalle = json_decode($respuesta['error_detail']['message_detail'] ?? '[]', true);
-            $buscado = "CFDI40147 - El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
-
-            /*if (is_array($detalle) && in_array($buscado, $detalle, true)) {
+            if( str_contains($resp, 'El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT') || 
+            (str_contains($resp, 'DomicilioFiscalReceptor') && (str_contains($resp, 'DomicilioFiscalReceptor'))) ){
                 $respuesta_vista = "<div class=\"text-center\"><h2 class=\"text-danger\" style=\"font-size : 110%;\">Tu Codigo Postal es incorrecto y no se pudo emitir tu factura.</h2>
                     <br><h4 style=\"font-size : 90%;\">Verifica y actualiza tus datos con tu Constancia de Situacion Fiscal vigente <b>(del mes actual)</b></h4>
                     <br><br>
@@ -209,7 +209,8 @@
                 $resp_aux['message'] = $respuesta_vista;
                 $resp = json_encode($resp_aux);
                 $respuesta_mensaje_telegram = 'El C.P. del cliente es incorrecto.';
-            }*/
+            }
+        //error de CP (2)
             if(str_contains($resp, 'El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT') || str_contains($resp, '\'DomicilioFiscalReceptor\' attribute is invalid')){
                 $respuesta_vista = "<div class=\"text-center\"><h2 class=\"text-danger\" style=\"font-size : 110%;\">Tu Codigo Postal es incorrecto y no se pudo emitir tu factura.</h2>
                     <br><h4 style=\"font-size : 90%;\">Verifica y actualiza tus datos con tu Constancia de Situacion Fiscal vigente <b>(del mes actual)</b></h4>
@@ -277,6 +278,10 @@
             if (str_contains($resp, 'ClaveProdServ')) {
                 $respuesta_mensaje_telegram = 'Hay un producto sin Clave Producto Servicio en la nota de venta.';
             }
+        //error de Timbres agotados
+            if(str_contains($resp, 'Timbres agotados')){
+                $respuesta_mensaje_telegram = 'Timbres agotados.';
+            }
         //Mensaje generico (Respuesta de SAT)
             if($respuesta_mensaje_telegram == ''){
                 $respuesta_mensaje_telegram = $resp;
@@ -291,7 +296,7 @@
                 $row = $stm->fetch(PDO::FETCH_ASSOC);
                 $api_url = "{$row['api_path']}/rest_v2/telegram/send_message";
                 $post_data = json_encode(array("id_modulo"=>"4", 
-                    "mensaje"=>"Error al timbrar la venta '{$sale_folio}' en Razon Social; respuesta : {$respuesta_mensaje_telegram}\n")
+                    "mensaje"=>"Error al timbrar la venta '{$sale_folio}' en Razon Social '{$rs_name}'.\n respuesta : {$respuesta_mensaje_telegram}\n")
                 );
                 //$curl_resp = $this->sendPetition($url, $post_data, '');
                 $crl = curl_init( "{$api_url}" );
