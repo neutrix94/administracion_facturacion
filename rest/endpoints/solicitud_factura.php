@@ -197,9 +197,17 @@
             $buscado = "CFDI40147 - El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
 
             if (is_array($detalle) && in_array($buscado, $detalle, true)) {
-                $respuesta_vista = "El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
-                $respuesta_vista .= "Actualiza tus datos con tu Constancia de Situacion Fistal actualizada y vuelve a intentar";
-
+                $respuesta_vista = "<div class=\"text-center\"><h2 class=\"text-danger\" style=\"font-size : 60%;\">Tu Codigo Postal es incorrecto y no se pudo emitir tu factura.</h2>
+                    <br><h4 style=\"font-size : 50%;\">Verifica y actualiza tus datos con tu Constancia de Situacion Fiscal vigente <b>(del mes actual)</b></h4>
+                    <br><br>
+                    <div class=\"text-center\">
+                        <button class=\"btn btn-warning\" onclick=\"edit_customer();\" style=\"font-size : 70%;\">Actualizar mis datos</button>
+                    </div>
+                    </div>";
+                //$resp['message'] = "El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
+                $resp_aux = json_decode($resp, true);
+                $resp_aux['message'] = $respuesta_vista;
+                $resp = json_encode($resp_aux);
                 $respuesta_mensaje_telegram = 'El C.P. del cliente es incorrecto.';
             }
         /*</Procesamiento de la respuesta erronea>*/
