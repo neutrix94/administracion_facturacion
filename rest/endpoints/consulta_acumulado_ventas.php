@@ -33,7 +33,26 @@
                         lrs.monto_compras_actual,
                         lrs.alerta_limite_ventas,
                         lrs.limite_ventas,
-                        lrs.monto_ventas_actual
+                        lrs.monto_ventas_actual AS pagosAcumulado,
+                        (SELECT
+                            SUM(vp.monto)
+                        FROM {$base['nombre_db']}.ec_ventas v1
+                        LEFT JOIN {$base['nombre_db']}.ec_venta_pagos vp
+                        ON v1.id_venta = vp.id_venta
+                        WHERE v1.fecha LIKE CONCAT('%', (SELECT DATE_FORMAT(NOW(), '%Y')), '%')
+                        ) AS pagosCalculados,
+                        (SELECT
+                            SUM(v2.total)
+                        FROM {$base['nombre_db']}.ec_ventas v2
+                        WHERE v2.fecha LIKE CONCAT('%', (SELECT DATE_FORMAT(NOW(), '%Y')), '%')
+                        ) AS ventasCalculadas,
+                        (SELECT
+                            SUM(d.monto_devolucion)
+                        FROM {$base['nombre_db']}.ec_ventas v3
+                        LEFT JOIN {$base['nombre_db']}.ec_devolucion d
+                        ON v3.id_venta = d.id_venta
+                        WHERE v3.fecha LIKE CONCAT('%', (SELECT DATE_FORMAT(NOW(), '%Y')), '%')
+                        ) AS devoluciones
                     FROM {$base['nombre_db']}.`ec_emisor` e
                     LEFT JOIN {$base['nombre_db']}.`ec_limites_razon_social` lrs
                     ON e.id_emisor = lrs.id_emisor

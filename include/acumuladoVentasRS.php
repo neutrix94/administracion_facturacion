@@ -36,7 +36,10 @@
                     <th class="text-center">Compras Actuales</th>
                     <th class="text-center">Alerta Ventas</th>
                     <th class="text-center">Limite Ventas</th>
-                    <th class="text-center">Ventas Actuales</th>
+                    <th class="text-center">Pagos Acumulados</th>
+                    <th class="text-center">Pagos Calculados</th>
+                    <th class="text-center">Ventas</th>
+                    <th class="text-center">Devoluciones</th>
                 </tr>
             </thead>
             <tbody id="razones_sociales"></tbody>
@@ -82,7 +85,10 @@
                 <td class="text-end">${registros[key].monto_compras_actual}</td>
                 <td class="text-end">${registros[key].alerta_limite_ventas}</td>
                 <td class="text-end">${registros[key].limite_ventas}</td>
-                <td class="text-end">${registros[key].monto_ventas_actual}</td>
+                <td class="text-end">${registros[key].pagosAcumulado}</td>
+                <td class="text-end">${registros[key].pagosCalculados}</td>
+                <td class="text-end">${registros[key].ventasCalculadas}</td>
+                <td class="text-end">${registros[key].devoluciones}</td>
             </tr>`;
         }
         $('#razones_sociales').html(content);
