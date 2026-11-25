@@ -192,7 +192,7 @@
             $respuesta_vista = '';
             $respuesta_mensaje_telegram = '';
             $respuesta = json_decode($resp_original, true);
-            // message_detail viene como string con un arreglo JSON adentro
+        //error de CP
             $detalle = json_decode($respuesta['error_detail']['message_detail'] ?? '[]', true);
             $buscado = "CFDI40147 - El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
 
@@ -210,7 +210,14 @@
                 $resp = json_encode($resp_aux);
                 $respuesta_mensaje_telegram = 'El C.P. del cliente es incorrecto.';
             }
+        //error de producto sin codigo de SAT
+            if (str_contains($resp, 'ClaveProdServ')) {
+                $respuesta_mensaje_telegram = 'Hay un producto sin Clave Producto Servicio en la nota de venta.';
+            }
+        //Mensaje generico (Respuesta de SAT)
+            $respuesta_mensaje_telegram = $resp;
         /*</Procesamiento de la respuesta erronea>*/
+        
 		//implementacion Oscar 2025-09-03 para enviar error por Telegram
             $api_url = "";
             try{
