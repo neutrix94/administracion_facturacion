@@ -20,8 +20,10 @@
                 $store = ( isset( $_POST['store'] ) ? $_POST['store'] : (isset($_GET['store']) ? $_GET['store'] : 0) );
                 $status = ( isset( $_POST['status'] ) ? $_POST['status'] : (isset($_GET['status']) ? $_GET['status'] : 0) );
                 $rss_id = ( isset( $_POST['rs_id'] ) ? $_POST['rs_id'] : (isset($_GET['rs_id']) ? $_GET['rs_id'] : 0) );
+                $year = ( isset( $_POST['year'] ) ? $_POST['year'] : (isset($_GET['year']) ? $_GET['year'] : 0) );
+                $seeker_text = ( isset( $_POST['seeker_text'] ) ? $_POST['seeker_text'] : (isset($_GET['seeker_text']) ? $_GET['seeker_text'] : '') );
                 
-                echo json_encode($InvoiceRequestDB->getInvoiceRequests( $limit, $current_page, $store, $status, $rss_id ));
+                echo json_encode($InvoiceRequestDB->getInvoiceRequests( $limit, $current_page, $store, $status, $rss_id, $year, $seeker_text ));
             break;
 
             case "getRowsCounter":
@@ -157,7 +159,7 @@
             return $row;
         }
 
-        public function getPagesInfo($limit, $current_page, $store = 0, $status = 0, $rss_id = 0){
+        public function getPagesInfo($limit, $current_page, $store = 0, $status = 0, $rss_id = 0, $year = 0, $seeker_text = ''){
             $paginator = array();
             try{
                 $sql = "SELECT 
@@ -167,6 +169,8 @@
                         ON p.folio_nv = sf.folio_venta
                         WHERE IF({$store} != 0, p.id_sucursal = {$store}, 1 = 1)
                         AND IF('{$status}' != 0, p.id_status_facturacion IN( {$status}), 1 = 1)
+                        AND IF('{$year}' != 0, p.fecha_alta LIKE '%{$year}%', 1 = 1)
+                        AND IF('{$seeker_text}' != 0, p.folio_nv LIKE '%{$seeker_text}%', 1 = 1)
                         AND IF({$rss_id} != 0, p.id_razon_social IN(SELECT id_equivalente FROM razones_sociales WHERE id_razon_social = {$rss_id}), 1 = 1)";
                 $eje = $this->link->query( $sql );
                 $row = $eje->fetch( PDO::FETCH_ASSOC );
@@ -183,9 +187,9 @@
                 return array("status"=>"302", "message"=>"Error al calcular paginador.", "query"=>"{$sql}", "error_detail"=>"{$error->getMessage()}");
             }
         }
-        public function getInvoiceRequests( $limit = 20, $current_page = 1, $store = 0, $status = 0, $rss_id = 0 ){
+        public function getInvoiceRequests( $limit = 20, $current_page = 1, $store = 0, $status = 0, $rss_id = 0, $year = 0, $seeker_text = '' ){
             $invoiceRequests = array();
-            $paginator = $this->getPagesInfo($limit, $current_page, $store, $status, $rss_id);
+            $paginator = $this->getPagesInfo($limit, $current_page, $store, $status, $rss_id, $year, $seeker_text);
             $sql = "SELECT
                 p.id_pedido AS sale_id,
                 p.folio_nv AS sale_folio,
@@ -215,6 +219,13 @@
             }
             if($rss_id != 0 ){
                 $sql .= " AND rs.id_razon_social = {$rss_id}";
+            }
+            if($year != 0 ){
+                $sql .= " AND p.fecha_alta LIKE '%{$year}%'";
+            }
+
+            if($seeker_text != '' ){
+                $sql .= " AND p.folio_nv LIKE '%{$seeker_text}%'";
             }
             $sql .= " GROUP BY p.id_pedido
                 ORDER BY p.id_pedido DESC";
@@ -332,12 +343,21 @@
             $status = "<div class=\"row\">";
             while( $row = $stm->fetch(PDO::FETCH_ASSOC) ){
                 $status .= "<div class=\"col-4\">
-                    <input id=\"status_{$row['id_status_facturacion']}\" onclick=\"getInvoiceRequests();\" type=\"checkbox\" value=\"{$row['id_status_facturacion']}\"" . ($row['id_status_facturacion'] == 4 || $row['id_status_facturacion'] == 5 || $row['id_status_facturacion'] == 6 ? ' checked' : '') . ">
+                    <input id=\"status_{$row['id_status_facturacion']}\"  type=\"checkbox\" value=\"{$row['id_status_facturacion']}\"" . ($row['id_status_facturacion'] == 4 || $row['id_status_facturacion'] == 5 || $row['id_status_facturacion'] == 6 ? ' checked' : '') . ">
                     <label class=\"m-2\" for=\"status_{$row['id_status_facturacion']}\">{$row['nombre_status']}</label>
                 </div>";
                 //$status .= "<option value=\"{$row['id_status_facturacion']}\">{$row['nombre_status']}</option>";
             }
-            $status .= "</div>";
+            $status .= "<div class=\"col-4 text-center\">
+                    <button
+                        type=\"button\"
+                        class=\"btn btn-primary form-control\"
+                        onclick=\"getInvoiceRequests();\"
+                    >
+                        <i class=\"icon-filter\">Filtrar</i>
+                    </button>
+                </div>
+            </div>";
             return $status;
         }
     }
