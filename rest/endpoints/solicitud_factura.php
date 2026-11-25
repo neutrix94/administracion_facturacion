@@ -196,7 +196,21 @@
             $detalle = json_decode($respuesta['error_detail']['message_detail'] ?? '[]', true);
             $buscado = "CFDI40147 - El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
 
-            if (is_array($detalle) && in_array($buscado, $detalle, true)) {
+            /*if (is_array($detalle) && in_array($buscado, $detalle, true)) {
+                $respuesta_vista = "<div class=\"text-center\"><h2 class=\"text-danger\" style=\"font-size : 110%;\">Tu Codigo Postal es incorrecto y no se pudo emitir tu factura.</h2>
+                    <br><h4 style=\"font-size : 90%;\">Verifica y actualiza tus datos con tu Constancia de Situacion Fiscal vigente <b>(del mes actual)</b></h4>
+                    <br><br>
+                    <div class=\"text-center\">
+                        <button class=\"btn btn-warning\" onclick=\"edit_customer();\" style=\"font-size : 90%;\">Actualizar mis datos</button>
+                    </div>
+                    </div>";
+                //$resp['message'] = "El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
+                $resp_aux = json_decode($resp, true);
+                $resp_aux['message'] = $respuesta_vista;
+                $resp = json_encode($resp_aux);
+                $respuesta_mensaje_telegram = 'El C.P. del cliente es incorrecto.';
+            }*/
+            if(str_contains($resp, 'El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT') || str_contains($resp, '\'DomicilioFiscalReceptor\' attribute is invalid')){
                 $respuesta_vista = "<div class=\"text-center\"><h2 class=\"text-danger\" style=\"font-size : 110%;\">Tu Codigo Postal es incorrecto y no se pudo emitir tu factura.</h2>
                     <br><h4 style=\"font-size : 90%;\">Verifica y actualiza tus datos con tu Constancia de Situacion Fiscal vigente <b>(del mes actual)</b></h4>
                     <br><br>
@@ -210,12 +224,63 @@
                 $resp = json_encode($resp_aux);
                 $respuesta_mensaje_telegram = 'El C.P. del cliente es incorrecto.';
             }
+        //error de nombre de receptor
+            if(str_contains($resp, 'El campo Nombre del receptor, debe pertenecer al nombre asociado al RFC registrado en el campo Rfc del Receptor')){
+                $respuesta_vista = "<div class=\"text-center\"><h2 class=\"text-danger\" style=\"font-size : 110%;\">Tu Nombre no corresponde al RFC y no se pudo emitir tu factura.</h2>
+                    <br><h4 style=\"font-size : 90%;\">Verifica y actualiza tus datos con tu Constancia de Situacion Fiscal vigente <b>(del mes actual)</b></h4>
+                    <br><br>
+                    <div class=\"text-center\">
+                        <button class=\"btn btn-warning\" onclick=\"edit_customer();\" style=\"font-size : 90%;\">Actualizar mis datos</button>
+                    </div>
+                    </div>";
+                //$resp['message'] = "El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
+                $resp_aux = json_decode($resp, true);
+                $resp_aux['message'] = $respuesta_vista;
+                $resp = json_encode($resp_aux);
+                $respuesta_mensaje_telegram = 'El Nombre del cliente no corresponde al RFC.';
+            }
+        //error de regimen fiscal
+            if(str_contains($resp, 'La clave del campo RegimenFiscalR debe corresponder con el tipo de persona')){
+                $respuesta_vista = "<div class=\"text-center\"><h2 class=\"text-danger\" style=\"font-size : 110%;\">Tu Régimen Fiscal no corresponde al tipo de persona y no se pudo emitir tu factura.</h2>
+                    <br><h4 style=\"font-size : 90%;\">Verifica y actualiza tus datos con tu Constancia de Situacion Fiscal vigente <b>(del mes actual)</b></h4>
+                    <br><br>
+                    <div class=\"text-center\">
+                        <button class=\"btn btn-warning\" onclick=\"edit_customer();\" style=\"font-size : 90%;\">Actualizar mis datos</button>
+                    </div>
+                    </div>";
+                //$resp['message'] = "El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
+                $resp_aux = json_decode($resp, true);
+                $resp_aux['message'] = $respuesta_vista;
+                $resp = json_encode($resp_aux);
+                $respuesta_mensaje_telegram = 'El Regimen Fiscal del cliente es incorrecto.';
+            }
+        //error de uso CFDI
+            if(str_contains($resp, 'El campo UsoCFDI, no contiene un valor')){
+                $respuesta_vista = "<div class=\"text-center\"><h2 class=\"text-danger\" style=\"font-size : 110%;\">Tu Uso de CFDI es incorrecto y no se pudo emitir tu factura.</h2>
+                    <br><h4 style=\"font-size : 90%;\">Verifica y actualiza tus datos con tu Constancia de Situacion Fiscal vigente <b>(del mes actual)</b></h4>
+                    <br><br>
+                    <div class=\"text-center\">
+                        <button class=\"btn btn-warning\" onclick=\"edit_customer();\" style=\"font-size : 90%;\">Actualizar mis datos</button>
+                    </div>
+                    </div>";
+                //$resp['message'] = "El campo DomicilioFiscalReceptor del receptor, debe encontrarse en la lista de RFC inscritos no cancelados en el SAT.";
+                $resp_aux = json_decode($resp, true);
+                $resp_aux['message'] = $respuesta_vista;
+                $resp = json_encode($resp_aux);
+                $respuesta_mensaje_telegram = 'El Regimen Fiscal del cliente es incorrecto.';
+            }
+        //error de Forma de Pago
+            if(str_contains($resp, 'attribute is invalid') && str_contains($resp, 'FormaPago')){
+                $respuesta_mensaje_telegram = 'La forma de pago es incorrecta.';
+            }
         //error de producto sin codigo de SAT
             if (str_contains($resp, 'ClaveProdServ')) {
                 $respuesta_mensaje_telegram = 'Hay un producto sin Clave Producto Servicio en la nota de venta.';
             }
         //Mensaje generico (Respuesta de SAT)
-            $respuesta_mensaje_telegram = $resp;
+            if($respuesta_mensaje_telegram == ''){
+                $respuesta_mensaje_telegram = $resp;
+            }
         /*</Procesamiento de la respuesta erronea>*/
         
 		//implementacion Oscar 2025-09-03 para enviar error por Telegram
