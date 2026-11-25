@@ -30,7 +30,11 @@
                         lrs.periodo,
                         lrs.alerta_limite_compras,
                         lrs.limite_compras,
-                        lrs.monto_compras_actual,
+                        (SELECT 
+                            SUM(oc.total)
+                        FROM {$base['nombre_db']}.ec_oc oc
+                        WHERE oc.fecha LIKE CONCAT('%', (SELECT DATE_FORMAT(NOW(), '%Y')), '%')
+                        ) AS monto_compras_actual,
                         lrs.alerta_limite_ventas,
                         lrs.limite_ventas,
                         lrs.monto_ventas_actual AS pagosAcumulado,
