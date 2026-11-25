@@ -343,7 +343,8 @@
             $status = "<div class=\"row\">";
             while( $row = $stm->fetch(PDO::FETCH_ASSOC) ){
                 $status .= "<div class=\"col-4\">
-                    <input id=\"status_{$row['id_status_facturacion']}\"  type=\"checkbox\" value=\"{$row['id_status_facturacion']}\"" . ($row['id_status_facturacion'] == 4 || $row['id_status_facturacion'] == 5 || $row['id_status_facturacion'] == 6 ? ' checked' : '') . ">
+                    <input id=\"status_{$row['id_status_facturacion']}\"  type=\"checkbox\" value=\"{$row['id_status_facturacion']}\"" . ($row['id_status_facturacion'] == 4 
+                    || $row['id_status_facturacion'] == 5 || $row['id_status_facturacion'] == 6 || $row['id_status_facturacion'] == 7 ? ' checked' : '') . ">
                     <label class=\"m-2\" for=\"status_{$row['id_status_facturacion']}\">{$row['nombre_status']}</label>
                 </div>";
                 //$status .= "<option value=\"{$row['id_status_facturacion']}\">{$row['nombre_status']}</option>";
